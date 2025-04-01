@@ -5,8 +5,11 @@
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
+   align-content: center;
 }
-
+.body{
+  background-image: url('/src/assets/img/body.png');
+}
 a,
 .green {
   text-decoration: none;
@@ -25,11 +28,20 @@ a,
   body {
     display: flex;
     place-items: center;
+    background-image: url('/src/assets/img/body.png');
   }
 
   #app {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* grid-template-columns: 1fr 1fr; */
     padding: 0 2rem;
+
   }
 }
+/* .app{
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  align-content: center;
+  justify-content: center;
+} */
