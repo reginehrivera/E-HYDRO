@@ -1,4 +1,5 @@
 <template>
+  <TestComponent/>
   <div class="wrapper">
     <div class="logo">
       <img :src="logonImage" alt="Logo" />
@@ -97,8 +98,14 @@ import logonImage from '@/assets/img/logon.png'
 import fbIcon from '@/assets/img/fb.png'
 import xIcon from '@/assets/img/x.png'
 import googleIcon from '@/assets/img/google.png'
+import TestComponent from './components/TestComponent.vue'
+
 
 export default {
+  name:'App',
+   components:{
+    TestComponent,
+   },
   setup() {
     const currentForm = ref<'login' | 'signup'>('login')
 
