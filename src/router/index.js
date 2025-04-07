@@ -1,15 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '../App.vue' // Import App.vue instead
+import LoginPage from '@/views/LoginPage.vue'
+
+import HomeView from '@/views/HomeView.vue'
+
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    component: LoginPage,
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: HomeView,
+  },
+]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: App, // Use App.vue as the main view
-    },
-  ],
+  history: createWebHistory(),
+  routes,
 })
 
 export default router
