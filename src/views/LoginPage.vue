@@ -196,7 +196,7 @@ html,
 body {
   height: 100%;
   width: 100%;
-  background: url('@/assets/img/body.png') no-repeat center;
+  /* background: url('@/assets/img/body.png') no-repeat center; */
   background-size: cover;
   display: flex;
   justify-content: center;

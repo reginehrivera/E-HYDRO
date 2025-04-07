@@ -6,10 +6,10 @@
   padding: 2rem;
   font-weight: normal;
   align-content: center;
-   align-content: center;
+  justify-content: center;
 }
 .body{
-  background-image: url('/src/assets/img/body.png');
+  /* background-image: url('/src/assets/img/body.png'); */
 }
 a,
 .green {
@@ -29,12 +29,12 @@ a,
   body {
     display: flex;
     place-items: center;
-    background-image: url('/src/assets/img/body.png');
+    /* background-image: url('/src/assets/img/body.png'); */
   }
 
   #app {
     display: grid;
-    /* grid-template-columns: 1fr 1fr; */
+    grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
 
   }
