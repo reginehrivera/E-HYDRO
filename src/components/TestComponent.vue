@@ -1,11 +1,11 @@
   <template>
-    <body color-scheme="isDark? 'dark' : 'light'">
+    <div color-scheme="isDark? 'dark' : 'light'">
 
       <label class="switch">
   <input type="checkbox" @click="toggleDark()">
   <span class="slider round"></span>
 </label>
-    </body>
+</div>
 </template>
 
 
