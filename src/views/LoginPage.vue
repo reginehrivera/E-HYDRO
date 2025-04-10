@@ -106,7 +106,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logonImage from '@/assets/img/logon.png'
@@ -183,7 +183,7 @@ export default {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
 }
-html,
+
 body {
   height: 100%;
   width: 100%;
