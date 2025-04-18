@@ -21,16 +21,23 @@
               <li><strong>Profile Updated:</strong> Info successfully saved.</li>
             </ul>
             <div class="notification-footer">
-              <router-link class="view-all" :to="{ name: 'notification' }">View All</router-link>
+              <router-link class="view-all" to="/notifications">View All</router-link>
             </div>
           </div>
         </li>
-        <li>
-          <router-link class="link last" :to="{ name: '' }"
-            ><v-icon>mdi-account-circle</v-icon></router-link
-          >
+        <li class="profile-wrapper">
+          <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
+          <div v-if="showProfileDropdown" class="profile-dropdown">
+            <ul>
+              <li><router-link class="link" to="/profile">My Account</router-link></li>
+              <li><router-link class="link" to="/settings">Settings</router-link></li>
+              <li><router-link class="link" :to="{ name: 'login' }">Logout</router-link></li>
+            </ul>
+          </div>
         </li>
       </ul>
+
+      <!-- Mobile Nav Icon -->
       <v-icon
         class="icon-style"
         @click="toggleMobileNav"
@@ -39,6 +46,7 @@
         >mdi-menu</v-icon
       >
 
+      <!-- Mobile Dropdown -->
       <transition name="mobile-nav">
         <ul v-show="mobile && mobileNav" class="dropdown-nav">
           <li>
@@ -88,7 +96,8 @@ export default {
       mobile: null,
       mobileNav: null,
       windowWidth: window.innerWidth,
-      showNotifications: false, // ✅ Added
+      showNotifications: false,
+      showProfileDropdown: false, // 👈 added this
     }
   },
 
@@ -96,6 +105,7 @@ export default {
     window.addEventListener('resize', this.checkScreen)
     this.checkScreen()
   },
+
   methods: {
     toggleMobileNav() {
       this.mobileNav = !this.mobileNav
@@ -114,6 +124,12 @@ export default {
 
     toggleNotifications() {
       this.showNotifications = !this.showNotifications
+      this.showProfileDropdown = false
+    },
+
+    toggleProfileDropdown() {
+      this.showProfileDropdown = !this.showProfileDropdown
+      this.showNotifications = false
     },
   },
 }
@@ -156,7 +172,7 @@ li {
     margin-left: -2.7rem !important;
   }
   .last {
-    font-size: 25px;
+    font-size: 36px;
     border-style: none;
   }
   .second-last {
@@ -221,7 +237,7 @@ li {
 }
 
 .icon-style {
-  font-size: 50px;
+  font-size: 30px;
   display: flex;
   align-items: center;
   position: absolute;
@@ -328,5 +344,53 @@ li {
   font-weight: bold;
   cursor: pointer;
   padding-top: 5px;
+}
+
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-dropdown ul li:last-child {
+  border-bottom: none;
+}
+
+.profile-dropdown .link:hover {
+  color: #02adef;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 60px;
+  width: 180px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 8px 0;
+  z-index: 999;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 31px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+}
+
+.profile-dropdown ul li {
+  padding: 8px 16px;
+  margin: 0;
 }
 </style>

@@ -2,16 +2,33 @@
   <NavigationBar>
     <template #content>
       <v-container fluid class="bg-image">
-        <!-- Notification Box with Custom Styles -->
-        <div class="notification-box">
-          <h2 class="notification-title">All Notifications</h2>
+        <div class="notifications-container">
+          <div class="notification-header">
+            <h2 class="notification-title">All Notifications</h2>
+            <div class="notification-actions">
+              <label>
+                <input type="checkbox" v-model="selectAll" @change="toggleAllNotifications" />
+                Mark All as Read
+              </label>
+              <label>
+                <input type="checkbox" v-model="deleteAll" @change="showDeleteAllModal = true" />
+                Delete All
+              </label>
+            </div>
+          </div>
 
-          <!-- Notification Items -->
           <div
             v-for="(notification, index) in notifications.slice(0, visibleNotifications)"
             :key="index"
             class="notification-item"
+            :class="{ read: notification.read }"
           >
+            <input
+              type="checkbox"
+              v-model="selectedNotifications"
+              :value="index"
+              class="checkbox-left"
+            />
             <img :src="notification.icon" alt="icon" class="notification-icon" />
             <div class="notification-content">
               <strong>{{ notification.title }}!</strong>
@@ -19,10 +36,41 @@
             </div>
           </div>
 
-          <!-- Load More Button -->
-          <button @click="loadMoreNotifications" v-if="showLoadMore">
-            Load More Notifications
-          </button>
+          <div class="button-group" v-if="selectedNotifications.length > 0 || showLoadMore">
+            <button
+              v-if="selectedNotifications.length > 0"
+              class="btn-border"
+              @click="showDeleteSelectedModal = true"
+            >
+              Delete Selected
+            </button>
+
+            <button v-if="showLoadMore" class="btn-primary" @click="loadMoreNotifications">
+              Load More Notifications
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete All Modal -->
+        <div class="modal" v-if="showDeleteAllModal">
+          <div class="modal-content">
+            <p>Are you sure you want to delete all notifications?</p>
+            <div class="modal-buttons">
+              <button @click="confirmDeleteAll" class="btn-primary">Yes</button>
+              <button @click="cancelDeleteAll" class="btn-border">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Selected Modal -->
+        <div class="modal" v-if="showDeleteSelectedModal">
+          <div class="modal-content">
+            <p>Are you sure you want to delete the selected notifications?</p>
+            <div class="modal-buttons">
+              <button @click="confirmDeleteSelected" class="btn-primary">Yes</button>
+              <button @click="cancelDeleteSelected" class="btn-border">Cancel</button>
+            </div>
+          </div>
         </div>
       </v-container>
     </template>
@@ -31,6 +79,12 @@
 
 <script>
 import NavigationBar from '@/components/layout/NavigationBar.vue'
+import galloonIcon from '@/assets/img/icons/galloon.png'
+import voucherIcon from '@/assets/img/icons/voucher.png'
+import waterIcon from '@/assets/img/icons/water.png'
+import noteIcon from '@/assets/img/icons/note.png'
+import bellIcon from '@/assets/img/icons/bell.png'
+import announceIcon from '@/assets/img/icons/announce.png'
 
 export default {
   name: 'Notification',
@@ -43,47 +97,59 @@ export default {
         {
           title: 'Order Confirmed',
           message: 'Your order #12345 is confirmed. Expect delivery on March 31, 2025.',
-          icon: require('@/assets/icons/order-confirmed.png'),
+          icon: galloonIcon,
+          read: false,
         },
         {
           title: 'Your Order is on the Way',
           message: 'Great news! Your water delivery is out for delivery. Stay hydrated!',
-          icon: require('@/assets/icons/delivery.png'),
+          icon: galloonIcon,
+          read: false,
         },
         {
           title: 'Claim Your Discount Voucher',
-          message:
-            'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025. Use it on your next order!',
-          icon: require('@/assets/icons/voucher.png'),
+          message: 'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025.',
+          icon: voucherIcon,
+          read: false,
         },
         {
           title: 'New Water Station Near You',
           message: 'We’ve partnered with a new clean & safe water refill station in your area!',
-          icon: require('@/assets/icons/station.png'),
+          icon: waterIcon,
+          read: false,
         },
         {
           title: 'Profile Updated',
           message: 'Your profile information was successfully saved.',
-          icon: require('@/assets/icons/profile.png'),
+          icon: noteIcon,
+          read: false,
         },
         {
           title: 'System Update',
           message: 'A new system update is available.',
-          icon: require('@/assets/icons/update.png'),
+          icon: bellIcon,
+          read: false,
         },
         {
           title: 'Event Reminder',
           message: 'Reminder: Event at 3 PM today.',
-          icon: require('@/assets/icons/reminder.png'),
+          icon: announceIcon,
+          read: false,
         },
         {
           title: 'Maintenance Scheduled',
           message: 'Scheduled maintenance will occur tomorrow at midnight.',
-          icon: require('@/assets/icons/maintenance.png'),
+          icon: announceIcon,
+          read: false,
         },
       ],
       visibleNotifications: 5,
       showLoadMore: true,
+      selectAll: false,
+      deleteAll: false,
+      selectedNotifications: [],
+      showDeleteAllModal: false,
+      showDeleteSelectedModal: false,
     }
   },
   methods: {
@@ -96,6 +162,30 @@ export default {
         this.showLoadMore = false
       }
     },
+    toggleAllNotifications() {
+      this.notifications.forEach((notification) => {
+        notification.read = this.selectAll
+      })
+    },
+    confirmDeleteAll() {
+      this.notifications = []
+      this.showDeleteAllModal = false
+      this.deleteAll = false
+    },
+    cancelDeleteAll() {
+      this.showDeleteAllModal = false
+      this.deleteAll = false
+    },
+    confirmDeleteSelected() {
+      this.notifications = this.notifications.filter(
+        (_, index) => !this.selectedNotifications.includes(index),
+      )
+      this.selectedNotifications = []
+      this.showDeleteSelectedModal = false
+    },
+    cancelDeleteSelected() {
+      this.showDeleteSelectedModal = false
+    },
   },
 }
 </script>
@@ -107,67 +197,133 @@ export default {
   background-position: center;
   background-repeat: no-repeat;
   min-height: 100vh;
-  position: relative;
+  padding-top: 100px;
 }
 
-.notification-box {
-  position: absolute;
-  width: 1324px;
-  height: 831px;
-  left: 57px;
-  top: 146px;
-  background: #dee8ef;
-  border-radius: 5px;
-  padding: 30px;
-  overflow-y: auto;
+.notifications-container {
+  padding: 20px;
+  background-color: #ffffffb3;
+  border-radius: 10px;
+  max-width: 1300px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-actions label {
+  margin-left: 15px;
 }
 
 .notification-title {
   font-size: 24px;
-  margin-bottom: 20px;
   font-weight: bold;
-  color: #000;
 }
 
 .notification-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: white;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.notification-item.read {
+  opacity: 0.6;
+}
+
+.checkbox-left {
+  margin-right: 10px;
+  margin-top: 5px;
 }
 
 .notification-icon {
   width: 40px;
   height: 40px;
   margin-right: 15px;
-  object-fit: contain;
 }
 
 .notification-content {
   flex: 1;
-  color: #000;
 }
 
 .notification-content p {
   margin: 5px 0 0;
 }
 
-button {
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-primary {
   background-color: #02adef;
   color: white;
   border: none;
   padding: 10px 20px;
-  cursor: pointer;
-  margin-top: 20px;
   font-size: 16px;
   border-radius: 5px;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-button:hover {
+.btn-primary:hover {
   background-color: #0281b5;
+}
+
+.btn-border {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-border:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-primary,
+.btn-border {
+  padding: 6px 14px;
+  font-size: 14px;
 }
 </style>
