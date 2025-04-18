@@ -8,18 +8,38 @@
       <ul v-show="!mobile" class="navigation">
         <li><router-link class="link" :to="{ name: 'home' }">Home</router-link></li>
         <li><router-link class="link" :to="{ name: 'station' }">Station</router-link></li>
-        <li><router-link class="link" :to="{ name: '' }">My Order</router-link></li>
+        <li><router-link class="link" :to="{ name: 'order' }">My Order</router-link></li>
         <li class="notification-wrapper">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
           <div v-if="showNotifications" class="notification-dropdown">
             <div class="notification-header">Recently Received Notifications</div>
             <ul>
-              <li><strong>Order Confirmed:</strong> Your order #12345 is confirmed.</li>
-              <li><strong>On the Way:</strong> Your delivery is out.</li>
-              <li><strong>Discount:</strong> 10% voucher until March 30.</li>
-              <li><strong>New Station:</strong> We've added one near you.</li>
-              <li><strong>Profile Updated:</strong> Info successfully saved.</li>
+              <li>
+                <img src="@/assets/img/icons/confirm.jpg" alt="Confirmed Icon" class="notif-icon" />
+                <div><strong>Order Confirmed:</strong> Your order #12345 is confirmed.</div>
+              </li>
+              <li>
+                <img
+                  src="@/assets/img/icons/galloon.png"
+                  alt="On the Way Icon"
+                  class="notif-icon"
+                />
+                <div><strong>On the Way:</strong> Your delivery is out.</div>
+              </li>
+              <li>
+                <img src="@/assets/img/icons/voucher.png" alt="Discount Icon" class="notif-icon" />
+                <div><strong>Discount:</strong> 10% voucher until March 30.</div>
+              </li>
+              <li>
+                <img src="@/assets/img/icons/water.png" alt="New Station Icon" class="notif-icon" />
+                <div><strong>New Station:</strong> We've added one near you.</div>
+              </li>
+              <li>
+                <img src="@/assets/img/icons/note.png" alt="Profile Icon" class="notif-icon" />
+                <div><strong>Profile Updated:</strong> Info successfully saved.</div>
+              </li>
             </ul>
+
             <div class="notification-footer">
               <router-link class="view-all" to="/notifications">View All</router-link>
             </div>
@@ -314,13 +334,18 @@ li {
 
 .notification-dropdown ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding-left: 0;
+  margin-left: 0;
 }
 
 .notification-dropdown ul li {
   font-size: 14px;
   margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  text-align: left;
+  padding: 12px 16px;
+  margin: 0;
 }
 
 .notification-header {
@@ -392,5 +417,12 @@ li {
 .profile-dropdown ul li {
   padding: 8px 16px;
   margin: 0;
+}
+
+.notif-icon {
+  width: 30px;
+  height: 32px;
+  object-fit: contain;
+  margin-top: 2px;
 }
 </style>

@@ -34,6 +34,7 @@
               <strong>{{ notification.title }}!</strong>
               <p>{{ notification.message }}</p>
             </div>
+            <button class="btn-details" @click="viewDetails(notification)">View Details</button>
           </div>
 
           <div class="button-group" v-if="selectedNotifications.length > 0 || showLoadMore">
@@ -72,6 +73,18 @@
             </div>
           </div>
         </div>
+
+        <!-- View Details Modal -->
+        <div class="modal" v-if="selectedNotificationDetails">
+          <div class="modal-content">
+            <h3>{{ selectedNotificationDetails.title }}</h3>
+            <p>{{ selectedNotificationDetails.message }}</p>
+            <p><strong>Date Received:</strong> {{ selectedNotificationDetails.date }}</p>
+            <div class="modal-buttons">
+              <button @click="selectedNotificationDetails = null" class="btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
       </v-container>
     </template>
   </NavigationBar>
@@ -80,6 +93,7 @@
 <script>
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import galloonIcon from '@/assets/img/icons/galloon.png'
+import confirmIcon from '@/assets/img/icons/confirm.jpg'
 import voucherIcon from '@/assets/img/icons/voucher.png'
 import waterIcon from '@/assets/img/icons/water.png'
 import noteIcon from '@/assets/img/icons/note.png'
@@ -97,50 +111,58 @@ export default {
         {
           title: 'Order Confirmed',
           message: 'Your order #12345 is confirmed. Expect delivery on March 31, 2025.',
-          icon: galloonIcon,
+          icon: confirmIcon,
           read: false,
+          date: 'March 27, 2025',
         },
         {
           title: 'Your Order is on the Way',
           message: 'Great news! Your water delivery is out for delivery. Stay hydrated!',
           icon: galloonIcon,
           read: false,
+          date: 'March 28, 2025',
         },
         {
           title: 'Claim Your Discount Voucher',
           message: 'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025.',
           icon: voucherIcon,
           read: false,
+          date: 'March 25, 2025',
         },
         {
           title: 'New Water Station Near You',
           message: 'We’ve partnered with a new clean & safe water refill station in your area!',
           icon: waterIcon,
           read: false,
+          date: 'March 22, 2025',
         },
         {
           title: 'Profile Updated',
           message: 'Your profile information was successfully saved.',
           icon: noteIcon,
           read: false,
+          date: 'March 20, 2025',
         },
         {
           title: 'System Update',
           message: 'A new system update is available.',
           icon: bellIcon,
           read: false,
+          date: 'March 19, 2025',
         },
         {
           title: 'Event Reminder',
           message: 'Reminder: Event at 3 PM today.',
           icon: announceIcon,
           read: false,
+          date: 'March 18, 2025',
         },
         {
           title: 'Maintenance Scheduled',
           message: 'Scheduled maintenance will occur tomorrow at midnight.',
           icon: announceIcon,
           read: false,
+          date: 'March 17, 2025',
         },
       ],
       visibleNotifications: 5,
@@ -150,6 +172,7 @@ export default {
       selectedNotifications: [],
       showDeleteAllModal: false,
       showDeleteSelectedModal: false,
+      selectedNotificationDetails: null,
     }
   },
   methods: {
@@ -186,6 +209,17 @@ export default {
     cancelDeleteSelected() {
       this.showDeleteSelectedModal = false
     },
+    viewDetails(notification) {
+      this.selectedNotificationDetails = notification
+    },
+  },
+  watch: {
+    // Watch for the confirmIcon to see if the import path is correct
+    notifications: function (newNotifications) {
+      newNotifications.forEach((notification) => {
+        console.log(notification.icon) // Check the icon being used
+      })
+    },
   },
 }
 </script>
@@ -202,7 +236,7 @@ export default {
 
 .notifications-container {
   padding: 20px;
-  background-color: #ffffffb3;
+  background-color: #8fe4faa1;
   border-radius: 10px;
   max-width: 1300px;
   margin: 0 auto;
@@ -220,7 +254,7 @@ export default {
 }
 
 .notification-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
 }
 
@@ -240,13 +274,14 @@ export default {
 
 .checkbox-left {
   margin-right: 10px;
-  margin-top: 5px;
+  align-self: center;
 }
 
 .notification-icon {
   width: 40px;
   height: 40px;
   margin-right: 15px;
+  align-self: center;
 }
 
 .notification-content {
@@ -325,5 +360,21 @@ export default {
 .btn-border {
   padding: 6px 14px;
   font-size: 14px;
+}
+
+.btn-details {
+  margin-left: auto;
+  background-color: #ddd;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  align-self: center;
+}
+
+.btn-details:hover {
+  background-color: #ccc;
 }
 </style>
