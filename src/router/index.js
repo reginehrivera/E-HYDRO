@@ -1,31 +1,34 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/views/LoginPage.vue'
-import calendar from '@/views/calendar.vue'
 import HomeView from '@/views/HomeView.vue'
-
-
-const routes = [
-  {
-    path: '/',
-    name: 'Login',
-    component: LoginPage,
-  },
-  {
-    path: '/home',
-    name: 'Home',
-    component: HomeView,
-  },
-  {
-    path: '/calendar',
-    name: 'calendar',
-    component: calendar,
-  },
-
-]
+import StationView from '@/views/StationView.vue'
+import Notification from '@/views/Notification.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'login',
+      component: LoginPage,
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/station',
+      name: 'station',
+      component: StationView,
+    },
+
+    {
+      path: '/notifications',
+      name: 'notification',
+      component: Notification,
+    },
+  ],
 })
 
 export default router

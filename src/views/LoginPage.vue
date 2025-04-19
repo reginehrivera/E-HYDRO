@@ -178,7 +178,7 @@ export default {
           'A confirmation email has been sent to your email address. Please check your inbox and confirm your email.',
         )
 
-        switchToLogin()
+        router.push('/home')
       }
     }
 
@@ -210,27 +210,24 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
 html,
 body {
   height: 100%;
-  width: 100%;
-  background: url('@/assets/img/body.png') no-repeat center;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .page-container {
-  margin-right: -200px;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: url('../assets/img/body.png') no-repeat center center;
+  background-size: cover;
 }
 
 .slider-tab {
