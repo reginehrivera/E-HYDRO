@@ -3,6 +3,7 @@ import LoginPage from '@/views/LoginPage.vue'
 import HomeView from '@/views/HomeView.vue'
 import StationView from '@/views/StationView.vue'
 import Notification from '@/views/Notification.vue'
+import AquasisView from '@/views/system/AquasisView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,11 +23,15 @@ const router = createRouter({
       name: 'station',
       component: StationView,
     },
-
     {
       path: '/notifications',
       name: 'notification',
       component: Notification,
+    },
+    {
+      path: '/aquasis',
+      name: 'aquasis',
+      component: AquasisView,
     },
   ],
 })
