@@ -173,10 +173,10 @@
                       </router-link>
                     </v-col>
 
-                    <v-col cols="12" md="4" sm="4" xs="4" class="bulk-btn p-0">
+                    <v-col cols="12" md="4" sm="4" xs="4" class="bulk-btn">
                       <router-link class="no-underline" to="#" >
                         <v-btn variant="none" class="full-btn">
-                          <div class="grotesk">
+                          <div>
                             <h5>Order in bulk</h5>
                             <h3>Save ₱10.00</h3>
                           </div>
@@ -184,10 +184,10 @@
                       </router-link>
                     </v-col>
 
-                    <v-col cols="12" md="4" sm="4" xs="4" class="order-bottom-btn p-0">
+                    <v-col cols="12" md="4" sm="4" xs="4" class="order-bottom-btn">
                       <router-link class="no-underline" to="#">
                         <v-btn variant="none" class="full-btn">
-                          <div class="grotesk">
+                          <div>
                             <h5>Order now</h5>
                             <h3>₱20 | each</h3>
                           </div>
@@ -438,9 +438,9 @@ h2 {
 }
 .set-sched-btn h3{
   color: #0557b6;
-  font-family: 'familjen grotesk' sans-serif;
   font-weight: 700;
   font-size: 15px;
+  
 }
 .set-sched-btn .v-btn{
   border-radius: 15px 0 0 0;
@@ -453,11 +453,13 @@ h2 {
   font-family: 'familjen grotesk' sans-serif !important;
   color: #6D788E;
   font-weight: 700;
+  font-size: 12px;
 }
 .bulk-btn h3{
   font-family: 'familjen grotesk' sans-serif !important;
   color: #04448d;
   font-weight: 700;
+  font-size: 15px;
 }
 /*order-bottom-btn */
 .order-bottom-btn{
