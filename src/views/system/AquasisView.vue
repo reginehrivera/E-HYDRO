@@ -19,17 +19,15 @@
             <v-row>
               <v-col col="12" md="5">
                 <v-container class="left-container">
-                  <v-row no-gutters class="img-row">
-                    <!-- <v-col col="12" md="5">
-                      <img src="@/assets/img/Aquasis-shop.jpg" height="200" alt="test image" />
-                    </v-col>-->
-                    <v-col col="12" class="img-style text-center">
-                      <img
-                        src="@/assets/img/aquasis-img.jpg"
-                        height="250"
-                        width="380"
-                        alt="test image"
-                      />
+                  <v-row class="img-row">
+                    <v-col cols="12" class="img-style d-flex">
+                    <img
+                      src="@/assets/img/aquasis-img.jpg"
+                      height="250"
+                      width="380"
+                      class="responsive-img mx-auto"
+                      alt="Aquasis image"
+                    />
                     </v-col>
                   </v-row>
                   <!--Description-->
@@ -48,31 +46,41 @@
                       </v-col>
                     </v-row>
                   </v-container>
-                  <v-container class="contact-btn text-center d-flex">
-                    <router-link to="" class="no-underline mx-auto">
-                      <v-btn
-                        class="social-contact"
-                        rounded="0"
-                        variant="none"
-                        prepend-icon="mdi-facebook-messenger"
-                        ><span>Messenger</span>
-                        <v-tooltip activator="parent" location="bottom"
-                          >Madam Bertud</v-tooltip
-                        ></v-btn
-                      ></router-link
-                    >
-                    <router-link to="" class="no-underline mx-auto">
-                      <v-btn
-                        class="social-contact"
-                        rounded="0"
-                        variant="none"
-                        prepend-icon="mdi-phone"
-                        >Contact Number<v-tooltip activator="parent" location="bottom"
-                          >09517978870</v-tooltip
-                        ></v-btn
-                      >
-                    </router-link>
-                  </v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-container class="contact-btn text-center">
+                        <v-row class="justify-center">
+                          <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
+                            <router-link to="" class="no-underline w-100">
+                              <v-btn
+                                class="social-contact w-100"
+                                rounded="0"
+                                variant="flat"
+                                prepend-icon="mdi-facebook-messenger"
+                              >
+                                <span>Messenger</span>
+                                <v-tooltip activator="parent" location="bottom">Madam Bertud</v-tooltip>
+                              </v-btn>
+                            </router-link>
+                          </v-col>
+                          <v-col cols="12" sm="6" class="d-flex justify-center">
+                            <router-link to="" class="no-underline w-100">
+                              <v-btn
+                                class="social-contact w-100"
+                                rounded="0"
+                                variant="flat"
+                                prepend-icon="mdi-phone"
+                              >
+                                Contact Number
+                                <v-tooltip activator="parent" location="bottom">09517978870</v-tooltip>
+                              </v-btn>
+                            </router-link>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+
                   <v-divider></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
                 </v-container>
@@ -257,8 +265,13 @@ h2 {
 .left-container {
   width: 100%;
 }
-.img-style {
-  margin: 0 auto;
+@media (max-width: 600px) {
+  .responsive-img {
+    max-width: 100%;
+  }
+}
+.img-style{
+
 }
 .img-style img {
   border: #04448d 3px solid;
@@ -440,7 +453,7 @@ h2 {
   color: #0557b6;
   font-weight: 700;
   font-size: 15px;
-  
+
 }
 .set-sched-btn .v-btn{
   border-radius: 15px 0 0 0;
