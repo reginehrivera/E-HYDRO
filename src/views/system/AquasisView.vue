@@ -161,41 +161,43 @@
                   </v-row>
                 </v-container>
                 <v-container class="bottom-btn mx-auto">
-                  <v-row class="button-group text-center mx-auto">
-                    <v-col col="12" md="4" sm="4" xs="4" class="set-sched-btn">
+                  <v-row class="text-center mx-auto">
+                    <v-col cols="12" md="4" sm="4" xs="4" class="set-sched-btn">
                       <router-link class="no-underline" to="#">
-                        <v-btn variant="none">
-                          <div class="grotesk">
-                            <p><v-icon>mdi-calendar</v-icon> Set a delivery</p>
-                            <p>schedule</p>
+                        <v-btn variant="none" class="full-btn">
+                          <div>
+                            <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
+                            <h3>schedule</h3>
                           </div>
                         </v-btn>
                       </router-link>
                     </v-col>
 
-                    <v-col col="12" md="4" sm="4" xs="4" class="bulk-btn" >
-                      <router-link class="no-underline" to="#">
-                        <v-btn variant="none" >
+                    <v-col cols="12" md="4" sm="4" xs="4" class="bulk-btn p-0">
+                      <router-link class="no-underline" to="#" >
+                        <v-btn variant="none" class="full-btn">
                           <div class="grotesk">
-                            <p>Order in bulk</p>
-                            <p>Save ₱10.00</p>
+                            <h5>Order in bulk</h5>
+                            <h3>Save ₱10.00</h3>
                           </div>
                         </v-btn>
                       </router-link>
                     </v-col>
 
-                    <v-col col="12" md="4" sm="4" xs="4" class="order-bottom-btn" >
+                    <v-col cols="12" md="4" sm="4" xs="4" class="order-bottom-btn p-0">
                       <router-link class="no-underline" to="#">
-                        <v-btn variant="none" >
+                        <v-btn variant="none" class="full-btn">
                           <div class="grotesk">
-                            <p>Order now</p>
-                            <p>₱20 | each</p>
+                            <h5>Order now</h5>
+                            <h3>₱20 | each</h3>
                           </div>
                         </v-btn>
                       </router-link>
                     </v-col>
                   </v-row>
                 </v-container>
+
+                <!---->
               </v-col>
               <!--end Right Column-->
             </v-row>
@@ -410,7 +412,7 @@ h2 {
  .order-btn{
   text-transform: none;
   font-family: 'Inter' sans-serif;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background: #0557b6;
   background-size: 200% auto;
   background-position: left center;
   color: white;
@@ -423,48 +425,93 @@ h2 {
   width: 50%;
   text-transform: none;
   font-family: 'Inter', sans-serif;
-  border: 2px solid #04448d;
+  border: 2px solid #0557b6;
   border-radius:  15px 0;
   color: #04448d;
 }
 .order-btn:hover {
   background-position: right center;
 }
-.bottom-btn {
+/*set-sched-btn */
+.set-sched-btn{
+  border-radius: 15px 0 0 0;
+}
+.set-sched-btn h3{
+  color: #0557b6;
+  font-family: 'familjen grotesk' sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+}
+.set-sched-btn .v-btn{
+  border-radius: 15px 0 0 0;
+}
+.set{
+  margin-bottom: -.3rem;
+}
+/*bulk-btn */
+.bulk-btn h5 {
+  font-family: 'familjen grotesk' sans-serif !important;
+  color: #6D788E;
+  font-weight: 700;
+}
+.bulk-btn h3{
+  font-family: 'familjen grotesk' sans-serif !important;
+  color: #04448d;
+  font-weight: 700;
+}
+/*order-bottom-btn */
+.order-bottom-btn{
+  border-radius: 0 15px 0 0;
   background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
   background-size: 200% auto;
   background-position: left center;
-  border-radius: 20px 20px 0px 0px;
   transition: background-position 0.5s ease;
-  margin-top: .25rem;
-  width: 95%;
-  padding: 1.5rem 0;
 }
-.button-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
-  flex-wrap: wrap;
-  text-align: center;
+.order-bottom-btn:hover {
+  background-position: right center;
 }
-.bottom-btn .v-btn {
+.order-bottom-btn .v-btn{
+  border-radius: 0 15px 0 0;
+}
+.order-bottom-btn h5{
+  font-family: 'familjen grotesk' sans-serif !important;
+  color: #bdb8d3;
+}
+.order-bottom-btn h3{
+  font-family: 'familjen grotesk' sans-serif !important;
+}
+.set-sched-btn,
+.bulk-btn,
+.order-bottom-btn {
+  margin: 0;
+  padding: 0;
+  border: 2px solid #04448d;
+  background-color: #D5DFE6;
+}
+.bulk-btn {
+  border-left: none;
+}
+
+.order-bottom-btn {
+  border-left: none;
+}
+
+.full-btn {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   text-transform: none;
   color: #fff;
   text-align: center;
-}
-.v-btn p {
-  margin: 0;
-  line-height: 1.2;
-}
-.set-sched-btn{
-  border-right: #000000 1px solid;
   border-radius: 0;
+  padding: 0.75rem 0;
+  margin: 0;
+  box-sizing: border-box;
 }
+
 
 
 
