@@ -42,6 +42,19 @@
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
+              <!-- Language Preferences -->
+              <v-expansion-panel>
+                <v-expansion-panel-title>🌐 Language Preferences</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <v-select
+                    v-model="language"
+                    :items="languages"
+                    label="Select Language"
+                    @change="changeLanguage"
+                  ></v-select>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
               <!-- Help -->
               <v-expansion-panel>
                 <v-expansion-panel-title>❓ Help & Support</v-expansion-panel-title>
@@ -90,6 +103,13 @@ export default {
       security: {
         enable2FA: false,
       },
+      language: 'en', // Default language
+      languages: [
+        { text: 'English', value: 'en' },
+        { text: 'Spanish', value: 'es' },
+        { text: 'French', value: 'fr' },
+        // Add more languages here
+      ],
     }
   },
   methods: {
@@ -101,6 +121,10 @@ export default {
     },
     changePassword() {
       alert('Redirect to password change page or dialog')
+    },
+    changeLanguage(language) {
+      console.log('Language changed to:', language)
+      // Implement language change logic here, like using Vue i18n or another library.
     },
   },
 }
