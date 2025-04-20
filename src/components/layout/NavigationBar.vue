@@ -369,6 +369,13 @@ li {
   font-weight: bold;
   cursor: pointer;
   padding-top: 5px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.view-all:hover {
+  color: #007bbd;
+  text-decoration: underline;
 }
 
 .profile-wrapper {
@@ -424,5 +431,10 @@ li {
   height: 32px;
   object-fit: contain;
   margin-top: 2px;
+}
+
+.router-link-exact-active {
+  color: #02adef;
+  border-bottom: 1px solid #02adef;
 }
 </style>

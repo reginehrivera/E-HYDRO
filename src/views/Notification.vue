@@ -50,6 +50,9 @@
               Load More Notifications
             </button>
           </div>
+
+          <!-- No More Notifications Message -->
+          <div v-if="!showLoadMore" class="no-more-notifications">No more notifications.</div>
         </div>
 
         <!-- Delete All Modal -->
@@ -99,6 +102,7 @@ import waterIcon from '@/assets/img/icons/water.png'
 import noteIcon from '@/assets/img/icons/note.png'
 import bellIcon from '@/assets/img/icons/bell.png'
 import announceIcon from '@/assets/img/icons/announce.png'
+import warningIcon from '@/assets/img/icons/warning.png'
 
 export default {
   name: 'Notification',
@@ -164,6 +168,47 @@ export default {
           read: false,
           date: 'March 17, 2025',
         },
+
+        {
+          title: 'Delivery Delayed Due to Weather Conditions',
+          message:
+            'We apologize for the delay. Due to heavy rain, your order may arrive later than expected. Stay safe!',
+          icon: warningIcon,
+          read: false,
+          date: 'March 17, 2025',
+        },
+        {
+          title: 'Friendly Reminder: Check Your Water Supply',
+          message:
+            'Running low on water? Don’t wait until it’s too late—reorder today and avoid last-minute stress!',
+          icon: bellIcon,
+          read: false,
+          date: 'March 16, 2025',
+        },
+        {
+          title: 'We Value Your Feedback!',
+          message:
+            'How was your last order? Let us know by rating your experience. Your feedback helps us improve!',
+          icon: noteIcon,
+          read: false,
+          date: 'March 15, 2025',
+        },
+        {
+          title: 'Reminder: Stay Hydrated!',
+          message:
+            'Drinking enough water is essential for your health! Don’t forget to place your next order before you run out.',
+          icon: announceIcon,
+          read: false,
+          date: 'March 15, 2025',
+        },
+        {
+          title: 'Update Your Address for Faster Deliveries!',
+          message:
+            "We've improved our delivery system! Update your address now for faster and more accurate deliveries.",
+          icon: announceIcon,
+          read: false,
+          date: 'March 15, 2025',
+        },
       ],
       visibleNotifications: 5,
       showLoadMore: true,
@@ -214,7 +259,6 @@ export default {
     },
   },
   watch: {
-    // Watch for the confirmIcon to see if the import path is correct
     notifications: function (newNotifications) {
       newNotifications.forEach((notification) => {
         console.log(notification.icon) // Check the icon being used
@@ -230,6 +274,7 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   min-height: 100vh;
   padding-top: 100px;
 }
@@ -376,5 +421,12 @@ export default {
 
 .btn-details:hover {
   background-color: #ccc;
+}
+
+.no-more-notifications {
+  text-align: center;
+  font-size: 16px;
+  color: #888;
+  margin-top: 20px;
 }
 </style>
