@@ -112,7 +112,7 @@ const images = ref([
     title: 'Aquasis Water Station',
     description: 'Brgy JP Rizal, Butuan City',
     price: '₱25.00 per gallon',
-    route: '/',
+    route: '/aquasis',
   },
   {
     src: Aquabon,

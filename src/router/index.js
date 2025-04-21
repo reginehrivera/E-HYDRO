@@ -3,6 +3,12 @@ import LoginPage from '@/views/LoginPage.vue'
 import HomeView from '@/views/HomeView.vue'
 import StationView from '@/views/StationView.vue'
 import Notification from '@/views/Notification.vue'
+import AquasisView from '@/views/system/AquasisView.vue'
+import AquabonView from '@/views/system/AquabonView.vue'
+import ColdpointView from '@/views/system/ColdpointView.vue'
+import WaterdropsView from '@/views/system/WaterdropsView.vue'
+import OrderPage from '@/views/OrderPage.vue'
+import SettingsPage from '@/views/SettingsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,11 +28,40 @@ const router = createRouter({
       name: 'station',
       component: StationView,
     },
-
     {
       path: '/notifications',
       name: 'notification',
       component: Notification,
+    },
+    {
+      path: '/aquasis',
+      name: 'aquasis',
+      component: AquasisView,
+    },
+    {
+      path: '/aquabon',
+      name: 'aquabon',
+      component: AquabonView,
+    },
+    {
+      path: '/coldpoint',
+      name: 'coldpoint',
+      component: ColdpointView,
+    },
+    {
+      path: '/waterdrops',
+      name: 'waterdrops',
+      component: WaterdropsView,
+    },
+    {
+      path: '/order', // ✅ New route
+      name: 'order',
+      component: OrderPage,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: SettingsPage,
     },
   ],
 })

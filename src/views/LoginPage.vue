@@ -422,6 +422,20 @@ form .btn input[type='submit'] {
   color: #555;
 }
 
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.remember-me input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: #0044cc;
+  cursor: pointer;
+}
 .eye-icon {
   position: absolute;
   right: 10px;
@@ -515,6 +529,17 @@ input[type='password'] {
 
   .form-inner form .field input {
     font-size: 15px;
+  }
+
+  .remember-me {
+    font-size: 10px;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .remember-me input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
   }
 }
 </style>
