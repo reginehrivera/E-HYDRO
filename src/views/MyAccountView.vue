@@ -1,10 +1,13 @@
   <!-- base layout for MyAccount -->
   <template>
   <div class="layout">
-
+    <NavigationBar />
   <main class="content">
+    <slot/>
+
+   <!--  card  -->
     <v-card
-    class="mx-auto"
+    class="v-card ms-5"
     max-width="344"
     hover
   >
@@ -23,12 +26,17 @@
     </v-card-text>
   </v-card>
 
-  
+
   </main>
   </div>
   </template>
   <script>
-
+import NavigationBar from '@/components/layout/NavigationBar.vue';
+export default {
+  components: {
+    NavigationBar
+  }
+};
   </script>
   <style scoped>
   .content{
@@ -37,5 +45,8 @@
   background-position: center;
   min-height: 100vh;
   padding: 2rem;
+  }
+  .v-card{
+    margin-top: 7.5rem;
   }
   </style>

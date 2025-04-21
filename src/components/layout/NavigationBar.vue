@@ -1,4 +1,5 @@
 <template>
+    
   <header :class="{ 'scrolled-nav': scrollPosition }">
     <nav>
       <div class="branding">
