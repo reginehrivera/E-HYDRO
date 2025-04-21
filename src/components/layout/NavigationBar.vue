@@ -1,5 +1,5 @@
 <template>
-    
+
   <header :class="{ 'scrolled-nav': scrollPosition }">
     <nav>
       <div class="branding">
@@ -55,7 +55,7 @@
               <li><router-link class="link" to="/settings">Settings</router-link></li>
               <li><router-link class="link" :to="{ name: 'login' }">Logout</router-link></li>
             </ul>
-          </div>
+          </div>  
         </li>
       </ul>
 
