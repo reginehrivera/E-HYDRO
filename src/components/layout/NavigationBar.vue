@@ -49,7 +49,8 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <ul>
-              <li><router-link class="link" to="/profile">My Account</router-link></li>
+              <!--settings -->
+              <li><router-link class="link" to="/MyAccount">My Account</router-link></li>
               <li><router-link class="link" to="/settings">Settings</router-link></li>
               <li><router-link class="link" :to="{ name: 'login' }">Logout</router-link></li>
             </ul>

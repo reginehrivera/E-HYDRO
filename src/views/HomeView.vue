@@ -30,6 +30,7 @@
                 & Safe Water <br />Refilling Station
               </li>
             </ul>
+
             <!--End footer icons-->
           </v-col>
         </v-row>
