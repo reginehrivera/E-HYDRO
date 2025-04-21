@@ -5,6 +5,7 @@ import StationView from '@/views/StationView.vue'
 import Notification from '@/views/Notification.vue'
 import AquasisView from '@/views/system/AquasisView.vue'
 import AquabonView from '@/views/system/AquabonView.vue'
+import ColdpointView from '@/views/system/ColdpointView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/aquabon',
       name: 'aquabon',
       component: AquabonView,
+    },
+    {
+      path: '/coldpoint',
+      name: 'coldpoint',
+      component: ColdpointView,
     },
   ],
 })
