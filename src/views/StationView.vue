@@ -119,21 +119,21 @@ const images = ref([
     title: 'Aquabon Water Station',
     description: 'Villa Kananga, Butuan City',
     price: '₱20.00 per gallon',
-    route: '/',
+    route: '/aquabon',
   },
   {
     src: ColdPoint,
     title: 'Cold Point',
     description: 'Baladad Libertad, Butuan City',
     price: '₱25.00 per gallon',
-    route: '/',
+    route: '/coldpoint',
   },
   {
     src: WaterDrops,
     title: 'Water Drops',
     description: 'Purok 1-B Ampayon, Butuan City',
     price: '₱20.00 per gallon',
-    route: '/',
+    route: '/waterdrops',
   },
 ])
 </script>

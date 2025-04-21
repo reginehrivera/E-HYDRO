@@ -22,7 +22,7 @@
                   <v-row class="img-row">
                     <v-col cols="12" class="img-style d-flex">
                     <img
-                      src="@/assets/img/aquasis-img.jpg"
+                      src="@/assets/img/aquabon-img.jpg"
                       height="250"
                       width="380"
                       class="responsive-img mx-auto"
@@ -122,7 +122,7 @@
                   <v-row class="second-row">
                     <v-col cols="12" md="2" sm="2"><!--1st row-->
                       <v-card class="text-center card-img" width="95"
-                        ><img src="@/assets/img/gallon-aquasis.png"
+                        ><img src="@/assets/img/gallon-aquabon.png"
                       /></v-card>
                     </v-col>
                     <v-col cols="12" md="10" sm="10" class="pl-6"><!--second row-->
@@ -237,8 +237,3 @@ const toggleDecrease = () => {
   }
 }
 </script>
-
-
-<style>
-</style>
-
