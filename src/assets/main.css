@@ -6,7 +6,18 @@
 .top-style {
   padding: 0 45px;
 }
-h2 {
+/* Close Button */
+.station-container .close {
+  cursor: pointer;
+  color: #04448d;
+  transition: opacity 0.3s ease-in-out, transform 0.2s;
+}
+
+.station-container .close:hover {
+  opacity: 0.5;
+  transform: rotate(180deg);
+}
+.station-container h2 {
   color: #04448d;
   font-family: 'Familjen Grotesk', sans-serif;
   padding-left: 1rem;
