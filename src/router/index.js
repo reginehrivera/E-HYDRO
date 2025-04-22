@@ -11,7 +11,7 @@ import OrderPage from '@/views/OrderPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 import MyAccountView from '@/views/MyAccountView.vue'
 import CalendarView from '@/views/CalendarView.vue'
-
+import AddressesView from '@/views/system/AddressesView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -74,6 +74,11 @@ const router = createRouter({
       path:'/calendar',
       name:'calendar',
       component:CalendarView,
+    },
+    {
+      path: '/addresses',
+      name: 'addresses',
+      component: AddressesView,
     },
 
   ],

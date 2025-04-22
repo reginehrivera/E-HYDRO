@@ -12,6 +12,7 @@ import * as directives from 'vuetify/directives'
 
 // ✅ Import VCalendar from Vuetify Labs
 import { VCalendar } from 'vuetify/labs/VCalendar'
+
 import App from './App.vue'
 import router from './router'
 
