@@ -355,7 +355,7 @@ export default {
 }
 
 .order-card {
-  background: #c4e0fa;
+  background: #d3eaff;
   padding: 12px;
   border-radius: 5px;
   margin: 10px auto;

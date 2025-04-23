@@ -1,4 +1,39 @@
-<script setup></script>
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const searchInput = ref('')
+const router = useRouter()
+
+const stations = {
+  aquasis: '/aquasis',
+  aquabon: '/aquabon',
+  'cold point': '/coldpoint',
+  'water drops': '/waterdrops',
+}
+
+// Computed to filter suggestions based on input
+const filteredSuggestions = computed(() => {
+  const input = searchInput.value.toLowerCase()
+  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+})
+
+const handleSearch = (e) => {
+  e.preventDefault()
+
+  const input = searchInput.value.trim().toLowerCase()
+
+  if (stations[input]) {
+    router.push(stations[input])
+  } else {
+    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+  }
+}
+
+const selectSuggestion = (station) => {
+  searchInput.value = station
+}
+</script>
 
 <template>
   <v-container fluid class="bg-image">
@@ -6,16 +41,20 @@
     <v-row>
       <v-col col="12" md="6">
         <div class="title-phrase">
-          <h4 class="first-phrase">Stay hydrated<v-icon class="icon-style">mdi-water</v-icon></h4>
-          <!---->
+          <h4 class="first-phrase">
+            Stay hydrated
+            <v-icon class="icon-style">mdi-water</v-icon>
+          </h4>
         </div>
       </v-col>
-      <!--Search Barr Area-->
+
+      <!--Search Bar Area-->
       <v-col col="12" md="6" class="search-bar">
-        <v-form class="search-form" role="search">
+        <v-form class="search-form" role="search" @submit="handleSearch">
           <v-row no-gutters>
             <v-col cols="9" class="search-input">
               <v-text-field
+                v-model="searchInput"
                 variant="outlined"
                 placeholder="Search for water stations nearby..."
                 density="comfortable"
@@ -24,9 +63,21 @@
                 prepend-inner-icon="mdi-magnify"
                 aria-label="Search"
               ></v-text-field>
+              <!-- Suggestions Dropdown -->
+              <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                <li
+                  v-for="(suggestion, index) in filteredSuggestions"
+                  :key="index"
+                  @click="selectSuggestion(suggestion)"
+                >
+                  {{ suggestion }}
+                </li>
+              </ul>
             </v-col>
             <v-col cols="3">
-              <v-btn type="submit" class="search-btn" color="" block><span>Search </span></v-btn>
+              <v-btn type="submit" class="search-btn" color="" block>
+                <span>Search</span>
+              </v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -35,7 +86,6 @@
     <!--end first row-->
     <slot name="dashboardcontent"></slot>
   </v-container>
-  >>>>>>> Regine
 </template>
 
 <style scoped>
@@ -44,7 +94,9 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   min-height: 100vh;
+  padding-top: 100px;
 }
 .title-phrase {
   font-family: 'familjen-grotesk', sans-serif;
@@ -52,7 +104,6 @@
   color: #04448d;
   font-style: italic;
   padding-left: 15%;
-  padding-top: 11% !important;
 }
 
 @keyframes water-bob {
@@ -82,7 +133,7 @@
 /*-------Search Bar---------*/
 
 .search-bar {
-  padding-top: 10%;
+  padding-top: 4%;
   padding-right: 8%;
 }
 .search-input {
@@ -151,5 +202,29 @@
 /*-------Station Style-------*/
 .station-container {
   background-color: #bee1ed7e;
+}
+
+/* Suggestions List */
+.suggestion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  background: white;
+  color: black;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  border-radius: 4px;
+}
+
+.suggestion-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.suggestion-list li:hover {
+  background-color: #e3f2fd;
 }
 </style>

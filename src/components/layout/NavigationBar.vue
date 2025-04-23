@@ -39,7 +39,6 @@
                 <div><strong>Profile Updated:</strong> Info successfully saved.</div>
               </li>
             </ul>
-
             <div class="notification-footer">
               <router-link class="view-all" to="/notifications">View All</router-link>
             </div>
@@ -48,66 +47,40 @@
         <li class="profile-wrapper">
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
+            <div class="profile-info">
+              <img
+                :src="user.image || require('@/assets/img/profile.png')"
+                alt="User Image"
+                class="profile-img"
+              />
+              <p class="username">{{ user.name || 'Guest' }}</p>
+              <router-link class="edit-btn" to="/MyAccount">Edit Profile</router-link>
+            </div>
             <ul>
-              <li><router-link class="link" to="/MyAccount">My Account</router-link></li>
-              <li><router-link class="link" to="/settings">Settings</router-link></li>
-              <li><router-link class="link" :to="{ name: 'login' }">Logout</router-link></li>
+              <li>
+                <router-link class="link" to="/settings">
+                  <v-icon class="settings-icon small-icon">mdi-cogs</v-icon> Settings
+                </router-link>
+              </li>
+
+              <li>
+                <router-link class="link" to="/">
+                  <v-icon class="logout-icon small-icon">mdi-logout</v-icon> Logout
+                </router-link>
+              </li>
             </ul>
           </div>
         </li>
       </ul>
-
-      <!-- Mobile Nav Icon -->
-      <v-icon
-        class="icon-style"
-        @click="toggleMobileNav"
-        v-show="mobile"
-        :class="{ 'icon-active': mobileNav }"
-        >mdi-menu</v-icon
-      >
-
-      <!-- Mobile Dropdown -->
-      <transition name="mobile-nav">
-        <ul v-show="mobile && mobileNav" class="dropdown-nav">
-          <li>
-            <div class="branding">
-              <span class="first-word">E</span>
-              <span class="second-word">-HYDRO</span>
-            </div>
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'home' }"
-              ><v-icon>mdi-home</v-icon>Home</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'station' }"
-              ><v-icon>mdi-water</v-icon>Station</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'order' }"
-              ><v-icon>mdi-cart</v-icon>My Order</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'notification' }"
-              ><v-icon>mdi-bell</v-icon> Notification</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: '' }"
-              ><v-icon>mdi-account</v-icon> Profile</router-link
-            >
-          </li>
-        </ul>
-      </transition>
+      <!-- Mobile Nav Icon and Mobile Dropdown -->
     </nav>
   </header>
   <slot name="content"></slot>
 </template>
 
 <script>
+import { useUserStore } from '@/stores/user'
+
 export default {
   name: 'NavigationBar',
   data() {
@@ -117,36 +90,34 @@ export default {
       mobileNav: null,
       windowWidth: window.innerWidth,
       showNotifications: false,
-      showProfileDropdown: false, // 👈 added this
+      showProfileDropdown: false,
     }
   },
-
+  computed: {
+    // Retrieve the current user from the store
+    user() {
+      const store = useUserStore()
+      console.log('Current user:', store.user) // Log to check the user data
+      return store.user // Returns the user object (name and image)
+    },
+  },
   created() {
     window.addEventListener('resize', this.checkScreen)
     this.checkScreen()
   },
-
   methods: {
     toggleMobileNav() {
       this.mobileNav = !this.mobileNav
     },
-
     checkScreen() {
       this.windowWidth = window.innerWidth
-      if (this.windowWidth <= 750) {
-        this.mobile = true
-        return
-      }
-      this.mobile = false
-      this.mobileNav = false
-      return
+      this.mobile = this.windowWidth <= 750
+      if (!this.mobile) this.mobileNav = false
     },
-
     toggleNotifications() {
       this.showNotifications = !this.showNotifications
       this.showProfileDropdown = false
     },
-
     toggleProfileDropdown() {
       this.showProfileDropdown = !this.showProfileDropdown
       this.showNotifications = false
@@ -400,13 +371,12 @@ li {
   position: absolute;
   right: 0;
   top: 60px;
-  width: 180px;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background: white;
   border-radius: 10px;
-  padding: 8px 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  width: 220px;
   z-index: 999;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .profile-dropdown::before {
@@ -436,5 +406,59 @@ li {
 .router-link-exact-active {
   color: #02adef;
   border-bottom: 1px solid #02adef;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ccc;
+  width: 90%;
+  margin: 0 auto 10px;
+}
+
+.profile-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.username {
+  font-weight: bold;
+  color: #04448d;
+  margin-bottom: 5px;
+}
+
+.edit-btn {
+  background-color: #02adef;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.edit-btn:hover {
+  background-color: #0198cb;
+}
+
+.small-icon {
+  font-size: 19px;
+}
+
+/* Ensure underline only appears on text */
+.link {
+  font-size: 18px;
+  transition: 0.5s ease all;
+  border-bottom: 1px solid transparent;
+  display: inline-block;
+}
+
+.link .v-icon {
+  margin-right: 5px;
 }
 </style>

@@ -12,6 +12,8 @@ import SettingsPage from '@/views/SettingsPage.vue'
 import MyAccountView from '@/views/MyAccountView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import AddressesView from '@/views/system/AddressesView.vue'
+import OrderSummary from '@/views/system/OrderSummary.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -56,7 +58,7 @@ const router = createRouter({
       component: WaterdropsView,
     },
     {
-      path: '/order', // ✅ New route
+      path: '/order',
       name: 'order',
       component: OrderPage,
     },
@@ -79,6 +81,16 @@ const router = createRouter({
       path: '/addresses',
       name: 'addresses',
       component: AddressesView,
+    },
+    {
+      path: '/summary',
+      name: 'summary',
+      component: OrderSummary,
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: CalendarView,
     },
   ],
 })
