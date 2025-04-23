@@ -21,7 +21,7 @@
         </v-card-item>
 
         <v-card-text>
-          Order list <br />
+
           <router-link
             :to="{ name: 'addresses' }"
             class="link"

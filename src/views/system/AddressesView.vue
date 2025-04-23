@@ -16,7 +16,17 @@
       >
       <v-col cols="12" sm="6">
           <v-text-field
-            label="underlined"
+            label="Name"
+            model-value="John Doe"
+            variant="underlined"
+            readonly
+          ></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="6" class="underline">
+          <v-text-field
+          class="field"
+           label="Contact"
             model-value="John Doe"
             variant="underlined"
             readonly
@@ -25,21 +35,20 @@
 
         <v-col cols="12" sm="6">
           <v-text-field
-            label="underlined"
+            label="Address"
             model-value="John Doe"
             variant="underlined"
             readonly
           ></v-text-field>
         </v-col>
-
         <v-col cols="12" sm="6">
           <v-text-field
-            label="underlined"
+            label="Street Address"
             model-value="John Doe"
             variant="underlined"
             readonly
           ></v-text-field>
-        </v-col>  
+        </v-col>
     </v-card>
 
 </main>
@@ -77,5 +86,11 @@ main {
   right: -75rem;
   top:-41rem;
 }
-
+.underline{
+  padding: 0px;
+  padding-left: 10px;
+}
+.field{
+  padding: 0px;
+}
 </style>
