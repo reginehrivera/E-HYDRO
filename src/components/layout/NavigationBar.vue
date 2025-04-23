@@ -49,7 +49,7 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <ul>
-              <li><router-link class="link" to="/profile">My Account</router-link></li>
+              <li><router-link class="link" to="/MyAccount">My Account</router-link></li>
               <li><router-link class="link" to="/settings">Settings</router-link></li>
               <li><router-link class="link" :to="{ name: 'login' }">Logout</router-link></li>
             </ul>
@@ -81,17 +81,17 @@
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'station' }"
               ><v-icon>mdi-water</v-icon>Station</router-link
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'order' }"
               ><v-icon>mdi-cart</v-icon>My Order</router-link
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'notification' }"
               ><v-icon>mdi-bell</v-icon> Notification</router-link
             >
           </li>

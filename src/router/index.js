@@ -9,7 +9,9 @@ import ColdpointView from '@/views/system/ColdpointView.vue'
 import WaterdropsView from '@/views/system/WaterdropsView.vue'
 import OrderPage from '@/views/OrderPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
-
+import MyAccountView from '@/views/MyAccountView.vue'
+import CalendarView from '@/views/CalendarView.vue'
+import AddressesView from '@/views/system/AddressesView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -62,6 +64,21 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: SettingsPage,
+    },
+    {
+      path: '/MyAccount',
+      name: 'Myaccount',
+      component: MyAccountView,
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: CalendarView,
+    },
+    {
+      path: '/addresses',
+      name: 'addresses',
+      component: AddressesView,
     },
   ],
 })

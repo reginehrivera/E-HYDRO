@@ -35,6 +35,7 @@
     <!--end first row-->
     <slot name="dashboardcontent"></slot>
   </v-container>
+  >>>>>>> Regine
 </template>
 
 <style scoped>
