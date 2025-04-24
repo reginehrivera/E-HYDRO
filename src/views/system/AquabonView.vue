@@ -4,7 +4,6 @@
       <StationLayout>
         <template #dashboardcontent>
           <v-container class="station-container" elevation="24">
-            <!-- Top Info -->
             <v-row class="top-style">
               <v-col cols="6">
                 <h2>Aquabon Water Refilling Station</h2>
@@ -17,9 +16,7 @@
             </v-row>
 
             <v-row>
-              <!-- Left Column -->
               <v-col cols="12" md="5">
-                <!-- Image and Description -->
                 <v-container class="left-container">
                   <v-row class="img-row">
                     <v-col cols="12" class="img-style d-flex">
@@ -48,52 +45,9 @@
                       </v-col>
                     </v-row>
                   </v-container>
-
-                  <!-- Contact Buttons -->
-                  <v-row>
-                    <v-col cols="12">
-                      <v-container class="contact-btn text-center">
-                        <v-row>
-                          <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
-                            <router-link to="" class="no-underline w-100">
-                              <v-btn
-                                class="social-contact w-100"
-                                rounded="0"
-                                variant="flat"
-                                prepend-icon="mdi-facebook-messenger"
-                              >
-                                <span class="text-center">Messenger</span>
-                                <v-tooltip activator="parent" location="bottom"
-                                  >Madam Bertud</v-tooltip
-                                >
-                              </v-btn>
-                            </router-link>
-                          </v-col>
-                          <v-col cols="12" sm="6" class="d-flex justify-center">
-                            <router-link to="" class="no-underline w-100">
-                              <v-btn
-                                class="social-contact w-100"
-                                rounded="0"
-                                variant="flat"
-                                prepend-icon="mdi-phone"
-                              >
-                                <span class="text-center">Phone Number</span>
-                                <v-tooltip activator="parent" location="bottom"
-                                  >09517978870</v-tooltip
-                                >
-                              </v-btn>
-                            </router-link>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-col>
-                  </v-row>
-
-                  <v-divider></v-divider>
                 </v-container>
               </v-col>
 
-              <!-- Right Column -->
               <v-col cols="12" md="7" class="d-flex flex-column align-start">
                 <v-date-picker
                   v-if="showCalendar"
@@ -102,28 +56,26 @@
                   show-adjacent-months
                   color="primary"
                 >
-                  <!-- Add Cancel and Confirm buttons here -->
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
                     <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
                   </template>
                 </v-date-picker>
 
-                <v-container class="right-container">
-                  <!-- Order Options -->
+                <v-container class="right-container" v-for="(order, index) in orders" :key="index">
                   <v-row class="first-row">
                     <v-col cols="6" class="grp-checkbox">
                       <h4 class="blue-color">Order Option</h4>
                       <div class="checkboxes">
                         <v-checkbox
-                          v-model="selected"
+                          v-model="order.selected"
                           label="Refill Only"
                           value="Refill Only"
                           color="primary"
                           class="checkbox-top"
                         />
                         <v-checkbox
-                          v-model="selected"
+                          v-model="order.selected"
                           label="Buy with New Gallon"
                           value="Buy with New Gallon"
                           color="primary"
@@ -133,20 +85,19 @@
                     </v-col>
                     <v-col cols="6">
                       <h4 class="blue-color mb-3">Delivery Address Option</h4>
-                      <v-select :items="items" label="Select Address..." />
+                      <v-select v-model="order.address" :items="items" label="Select Address..." />
                     </v-col>
                   </v-row>
 
                   <v-divider></v-divider>
 
-                  <!-- Order Detail -->
                   <v-row class="second-row">
-                    <v-col cols="12" md="2" sm="2">
+                    <v-col cols="12" md="2">
                       <v-card class="text-center card-img" width="95">
                         <img src="@/assets/img/gallon-aquabon.png" />
                       </v-card>
                     </v-col>
-                    <v-col cols="12" md="10" sm="10" class="pl-6">
+                    <v-col cols="12" md="10" class="pl-6">
                       <v-row>
                         <v-col cols="12">
                           <h5 class="blue-color">Aquabon Water Refilling Station</h5>
@@ -165,17 +116,17 @@
                                 class="btn-minus"
                                 variant="plain"
                                 size="small"
-                                @click="toggleDecrease"
+                                @click="() => decreaseGallon(index)"
                               >
                                 <v-icon>mdi-minus</v-icon>
                               </v-btn>
-                              <p class="text-h6 text-center">{{ numberOfGallon }}</p>
+                              <p class="text-h6 text-center">{{ order.quantity }}</p>
                               <v-btn
                                 rounded="0"
                                 class="btn-plus"
                                 variant="plain"
                                 size="small"
-                                @click="toggleIncrease"
+                                @click="() => increaseGallon(index)"
                               >
                                 <v-icon>mdi-plus</v-icon>
                               </v-btn>
@@ -188,21 +139,22 @@
 
                   <v-divider></v-divider>
 
-                  <!-- Place Another Order -->
                   <div class="text-center">
-                    <v-btn rounded="0" class="add-address-btn mt-4 mb-4">
-                      <v-icon class="pr-3 text-center text-primary" size="large"
-                        >mdi-plus-circle-outline</v-icon
-                      >
+                    <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
+                      <v-icon class="pr-3 text-center text-primary" size="large">
+                        mdi-plus-circle-outline
+                      </v-icon>
                       <span class="text-dark">Place a new order for another location</span>
                     </v-btn>
                   </div>
 
                   <!-- Total Summary -->
                   <div class="total-right mb-3">
-                    <p>Subtotal: ₱{{ subtotal }}.00</p>
-                    <p v-if="isBulkOrder" class="discount-text">Discount: -₱{{ discount }}.00</p>
-                    <h4>Total: ₱{{ totalPriceWithDiscount }}.00</h4>
+                    <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
+                    <p v-if="order.quantity >= 12" class="discount-text">
+                      Discount: -₱{{ getDiscount(order) }}.00
+                    </p>
+                    <h4>Total: ₱{{ getTotal(order) }}.00</h4>
                   </div>
 
                   <!-- Bottom Buttons -->
@@ -218,7 +170,13 @@
                   </v-row>
                 </v-container>
 
-                <!-- Action Buttons -->
+                <v-container class="text-end">
+                  <v-divider class="my-4"></v-divider>
+                  <h3>
+                    <b>Total All Orders: ₱{{ totalAllOrders }}.00</b>
+                  </h3>
+                </v-container>
+
                 <v-container>
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" class="set-sched-btn">
@@ -259,54 +217,50 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-import { ref, computed } from 'vue'
 
-const selected = ref([''])
-const items = ['Carmen, Butuan City', 'Ampayon, Butuan City']
 const showCalendar = ref(false)
 const selectedDate = ref(null)
-const numberOfGallon = ref(0)
-const isBulkOrder = ref(false)
+const items = ['Carmen, Butuan City', 'Ampayon, Butuan City']
 
-const toggleIncrease = () => {
-  if (numberOfGallon.value < 12) {
-    numberOfGallon.value++
-  }
-  if (numberOfGallon.value === 12) {
-    isBulkOrder.value = true
+const orders = ref([{ selected: [], address: '', quantity: 0 }])
+
+const addNewOrder = () => {
+  orders.value.push({ selected: [], address: '', quantity: 0 })
+}
+
+const increaseGallon = (index) => {
+  if (orders.value[index].quantity < 12) {
+    orders.value[index].quantity++
   }
 }
 
-const toggleDecrease = () => {
-  if (numberOfGallon.value > 0) {
-    numberOfGallon.value--
-    if (numberOfGallon.value < 12) {
-      isBulkOrder.value = false
-    }
+const decreaseGallon = (index) => {
+  if (orders.value[index].quantity > 0) {
+    orders.value[index].quantity--
   }
 }
 
 const orderInBulk = () => {
-  numberOfGallon.value = 12
-  isBulkOrder.value = true
+  orders.value.forEach((order) => {
+    order.quantity = 12
+  })
 }
 
-// Subtotal and discount calculations
-const subtotal = computed(() => numberOfGallon.value * 25)
+const getSubtotal = (order) => order.quantity * 25
+const getDiscount = (order) => (order.quantity >= 12 ? 10 : 0)
+const getTotal = (order) => getSubtotal(order) - getDiscount(order)
 
-const discount = computed(() => {
-  return isBulkOrder.value ? 10 : 0
+const totalAllOrders = computed(() => {
+  return orders.value.reduce((total, order) => total + getTotal(order), 0)
 })
 
-const totalPriceWithDiscount = computed(() => subtotal.value - discount.value)
-
-// Method to confirm the selected date
 const confirmDateSelection = () => {
   if (selectedDate.value) {
     showCalendar.value = false
-    console.log(`Delivery date confirmed: ${selectedDate.value}`)
+    console.log('Delivery date confirmed: ' + selectedDate.value)
   }
 }
 </script>

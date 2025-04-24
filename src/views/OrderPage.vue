@@ -212,95 +212,96 @@
   </NavigationBar>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-export default {
-  name: 'OrderPage',
-  components: { NavigationBar },
-  data() {
-    return {
-      orders: [
-        {
-          id: 12345,
-          date: 'April 18, 2025',
-          quantity: 3,
-          total: 180,
-          orderType: 'Single Purchase',
-          status: 'To Deliver',
-          deliveryAddress: '123 Main St, Cityville',
-          deliveryDate: 'April 20, 2025',
-        },
-        {
-          id: 12346,
-          date: 'April 10, 2025',
-          quantity: 2,
-          total: 120,
-          orderType: 'Subscription',
-          status: 'Completed',
-          deliveryAddress: '456 Oak Rd, Townsville',
-          deliveryDate: 'April 12, 2025',
-        },
-        {
-          id: 12347,
-          date: 'April 15, 2025',
-          quantity: 5,
-          total: 300,
-          orderType: 'Single Purchase',
-          status: 'Cancelled',
-          deliveryAddress: '789 Pine Ln, Villagetown',
-          deliveryDate: 'April 18, 2025',
-        },
-      ],
-      filteredOrders: [],
-      selectedFilter: 'All',
-      showCancelModal: false,
-      showDetailsModal: false,
-      showRateModal: false,
-      showSuccessModal: false,
-      cancelIndex: null,
-      selectedOrder: null,
-      rating: 0,
-      recommend: '',
-    }
+const orders = ref([
+  {
+    id: 12345,
+    date: 'April 18, 2025',
+    quantity: 3,
+    total: 180,
+    orderType: 'Single Purchase',
+    status: 'To Deliver',
+    deliveryAddress: '123 Main St, Cityville',
+    deliveryDate: 'April 20, 2025',
   },
-  mounted() {
-    this.filteredOrders = this.orders
+  {
+    id: 12346,
+    date: 'April 10, 2025',
+    quantity: 2,
+    total: 120,
+    orderType: 'Subscription',
+    status: 'Completed',
+    deliveryAddress: '456 Oak Rd, Townsville',
+    deliveryDate: 'April 12, 2025',
   },
-  methods: {
-    filterOrders(status) {
-      this.selectedFilter = status
-      this.filteredOrders =
-        status === 'All' ? this.orders : this.orders.filter((order) => order.status === status)
-    },
-    promptCancel(index) {
-      this.cancelIndex = index
-      this.showCancelModal = true
-    },
-    cancelOrder() {
-      this.orders[this.cancelIndex].status = 'Cancelled'
-      this.filterOrders(this.selectedFilter)
-      this.showCancelModal = false
-    },
-    viewDetails(order) {
-      this.selectedOrder = order
-      this.showDetailsModal = true
-    },
-    openRateModal(order) {
-      this.selectedOrder = order
-      this.rating = 0
-      this.recommend = ''
-      this.showRateModal = true
-    },
-    submitRating() {
-      this.showRateModal = false
-      this.showSuccessModal = true
-    },
-    closeSuccessModal() {
-      this.showSuccessModal = false
-      this.selectedOrder = null
-    },
+  {
+    id: 12347,
+    date: 'April 15, 2025',
+    quantity: 5,
+    total: 300,
+    orderType: 'Single Purchase',
+    status: 'Cancelled',
+    deliveryAddress: '789 Pine Ln, Villagetown',
+    deliveryDate: 'April 18, 2025',
   },
+])
+
+const selectedFilter = ref('All')
+const filteredOrders = ref([...orders.value])
+
+const showCancelModal = ref(false)
+const showDetailsModal = ref(false)
+const showRateModal = ref(false)
+const showSuccessModal = ref(false)
+
+const cancelIndex = ref(null)
+const selectedOrder = ref(null)
+const rating = ref(0)
+const recommend = ref('')
+
+const filterOrders = (status) => {
+  selectedFilter.value = status
+  filteredOrders.value =
+    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
+}
+
+const promptCancel = (index) => {
+  cancelIndex.value = index
+  showCancelModal.value = true
+}
+
+const cancelOrder = () => {
+  if (cancelIndex.value !== null) {
+    orders.value[cancelIndex.value].status = 'Cancelled'
+    filterOrders(selectedFilter.value) // Refresh filtered list
+    showCancelModal.value = false
+  }
+}
+
+const viewDetails = (order) => {
+  selectedOrder.value = order
+  showDetailsModal.value = true
+}
+
+const openRateModal = (order) => {
+  selectedOrder.value = order
+  rating.value = 0
+  recommend.value = ''
+  showRateModal.value = true
+}
+
+const submitRating = () => {
+  showRateModal.value = false
+  showSuccessModal.value = true
+}
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false
+  selectedOrder.value = null
 }
 </script>
 

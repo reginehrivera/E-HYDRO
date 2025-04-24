@@ -51,40 +51,38 @@
             </button>
           </div>
 
-          <!-- No More Notifications Message -->
           <div v-if="!showLoadMore" class="no-more-notifications">No more notifications.</div>
-        </div>
 
-        <!-- Delete All Modal -->
-        <div class="modal" v-if="showDeleteAllModal">
-          <div class="modal-content">
-            <p>Are you sure you want to delete all notifications?</p>
-            <div class="modal-buttons">
-              <button @click="confirmDeleteAll" class="btn-primary">Yes</button>
-              <button @click="cancelDeleteAll" class="btn-border">Cancel</button>
+          <div class="modal" v-if="showDeleteAllModal">
+            <div class="modal-content">
+              <p>Are you sure you want to delete all notifications?</p>
+              <div class="modal-buttons">
+                <button @click="confirmDeleteAll" class="btn-primary">Yes</button>
+                <button @click="cancelDeleteAll" class="btn-border">Cancel</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Delete Selected Modal -->
-        <div class="modal" v-if="showDeleteSelectedModal">
-          <div class="modal-content">
-            <p>Are you sure you want to delete the selected notifications?</p>
-            <div class="modal-buttons">
-              <button @click="confirmDeleteSelected" class="btn-primary">Yes</button>
-              <button @click="cancelDeleteSelected" class="btn-border">Cancel</button>
+          <div class="modal" v-if="showDeleteSelectedModal">
+            <div class="modal-content">
+              <p>Are you sure you want to delete the selected notifications?</p>
+              <div class="modal-buttons">
+                <button @click="confirmDeleteSelected" class="btn-primary">Yes</button>
+                <button @click="cancelDeleteSelected" class="btn-border">Cancel</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- View Details Modal -->
-        <div class="modal" v-if="selectedNotificationDetails">
-          <div class="modal-content">
-            <h3>{{ selectedNotificationDetails.title }}</h3>
-            <p>{{ selectedNotificationDetails.message }}</p>
-            <p><strong>Date Received:</strong> {{ selectedNotificationDetails.date }}</p>
-            <div class="modal-buttons">
-              <button @click="selectedNotificationDetails = null" class="btn-primary">Close</button>
+          <div class="modal" v-if="selectedNotificationDetails">
+            <div class="modal-content">
+              <h3>{{ selectedNotificationDetails.title }}</h3>
+              <p>{{ selectedNotificationDetails.message }}</p>
+              <p><strong>Date Received:</strong> {{ selectedNotificationDetails.date }}</p>
+              <div class="modal-buttons">
+                <button @click="selectedNotificationDetails = null" class="btn-primary">
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -93,7 +91,8 @@
   </NavigationBar>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import galloonIcon from '@/assets/img/icons/galloon.png'
 import confirmIcon from '@/assets/img/icons/confirm.jpg'
@@ -104,167 +103,148 @@ import bellIcon from '@/assets/img/icons/bell.png'
 import announceIcon from '@/assets/img/icons/announce.png'
 import warningIcon from '@/assets/img/icons/warning.png'
 
-export default {
-  name: 'Notification',
-  components: {
-    NavigationBar,
+const notifications = ref([
+  {
+    title: 'Order Confirmed',
+    message: 'Your order #12345 is confirmed. Expect delivery on March 31, 2025.',
+    icon: confirmIcon,
+    read: false,
+    date: 'March 27, 2025',
   },
-  data() {
-    return {
-      notifications: [
-        {
-          title: 'Order Confirmed',
-          message: 'Your order #12345 is confirmed. Expect delivery on March 31, 2025.',
-          icon: confirmIcon,
-          read: false,
-          date: 'March 27, 2025',
-        },
-        {
-          title: 'Your Order is on the Way',
-          message: 'Great news! Your water delivery is out for delivery. Stay hydrated!',
-          icon: galloonIcon,
-          read: false,
-          date: 'March 28, 2025',
-        },
-        {
-          title: 'Claim Your Discount Voucher',
-          message: 'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025.',
-          icon: voucherIcon,
-          read: false,
-          date: 'March 25, 2025',
-        },
-        {
-          title: 'New Water Station Near You',
-          message: 'We’ve partnered with a new clean & safe water refill station in your area!',
-          icon: waterIcon,
-          read: false,
-          date: 'March 22, 2025',
-        },
-        {
-          title: 'Profile Updated',
-          message: 'Your profile information was successfully saved.',
-          icon: noteIcon,
-          read: false,
-          date: 'March 20, 2025',
-        },
-        {
-          title: 'System Update',
-          message: 'A new system update is available.',
-          icon: bellIcon,
-          read: false,
-          date: 'March 19, 2025',
-        },
-        {
-          title: 'Event Reminder',
-          message: 'Reminder: Event at 3 PM today.',
-          icon: announceIcon,
-          read: false,
-          date: 'March 18, 2025',
-        },
-        {
-          title: 'Maintenance Scheduled',
-          message: 'Scheduled maintenance will occur tomorrow at midnight.',
-          icon: announceIcon,
-          read: false,
-          date: 'March 17, 2025',
-        },
+  {
+    title: 'Your Order is on the Way',
+    message: 'Great news! Your water delivery is out for delivery. Stay hydrated!',
+    icon: galloonIcon,
+    read: false,
+    date: 'March 28, 2025',
+  },
+  {
+    title: 'Claim Your Discount Voucher',
+    message: 'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025.',
+    icon: voucherIcon,
+    read: false,
+    date: 'March 25, 2025',
+  },
+  {
+    title: 'New Water Station Near You',
+    message: 'We’ve partnered with a new clean & safe water refill station in your area!',
+    icon: waterIcon,
+    read: false,
+    date: 'March 22, 2025',
+  },
+  {
+    title: 'Profile Updated',
+    message: 'Your profile information was successfully saved.',
+    icon: noteIcon,
+    read: false,
+    date: 'March 20, 2025',
+  },
+  {
+    title: 'System Update',
+    message: 'A new system update is available.',
+    icon: bellIcon,
+    read: false,
+    date: 'March 19, 2025',
+  },
+  {
+    title: 'Event Reminder',
+    message: 'Reminder: Event at 3 PM today.',
+    icon: announceIcon,
+    read: false,
+    date: 'March 18, 2025',
+  },
+  {
+    title: 'Maintenance Scheduled',
+    message: 'Scheduled maintenance will occur tomorrow at midnight.',
+    icon: announceIcon,
+    read: false,
+    date: 'March 17, 2025',
+  },
+  {
+    title: 'Delivery Delayed Due to Weather Conditions',
+    message:
+      'We apologize for the delay. Due to heavy rain, your order may arrive later than expected. Stay safe!',
+    icon: warningIcon,
+    read: false,
+    date: 'March 17, 2025',
+  },
+  {
+    title: 'Friendly Reminder: Check Your Water Supply',
+    message: 'Running low on water? Don’t wait—reorder today!',
+    icon: bellIcon,
+    read: false,
+    date: 'March 16, 2025',
+  },
+  {
+    title: 'We Value Your Feedback!',
+    message: 'How was your last order? Let us know by rating your experience.',
+    icon: noteIcon,
+    read: false,
+    date: 'March 15, 2025',
+  },
+  {
+    title: 'Reminder: Stay Hydrated!',
+    message: 'Drinking enough water is essential! Don’t forget to order.',
+    icon: announceIcon,
+    read: false,
+    date: 'March 15, 2025',
+  },
+  {
+    title: 'Update Your Address for Faster Deliveries!',
+    message: 'Update your address now for faster and more accurate deliveries.',
+    icon: announceIcon,
+    read: false,
+    date: 'March 15, 2025',
+  },
+])
 
-        {
-          title: 'Delivery Delayed Due to Weather Conditions',
-          message:
-            'We apologize for the delay. Due to heavy rain, your order may arrive later than expected. Stay safe!',
-          icon: warningIcon,
-          read: false,
-          date: 'March 17, 2025',
-        },
-        {
-          title: 'Friendly Reminder: Check Your Water Supply',
-          message:
-            'Running low on water? Don’t wait until it’s too late—reorder today and avoid last-minute stress!',
-          icon: bellIcon,
-          read: false,
-          date: 'March 16, 2025',
-        },
-        {
-          title: 'We Value Your Feedback!',
-          message:
-            'How was your last order? Let us know by rating your experience. Your feedback helps us improve!',
-          icon: noteIcon,
-          read: false,
-          date: 'March 15, 2025',
-        },
-        {
-          title: 'Reminder: Stay Hydrated!',
-          message:
-            'Drinking enough water is essential for your health! Don’t forget to place your next order before you run out.',
-          icon: announceIcon,
-          read: false,
-          date: 'March 15, 2025',
-        },
-        {
-          title: 'Update Your Address for Faster Deliveries!',
-          message:
-            "We've improved our delivery system! Update your address now for faster and more accurate deliveries.",
-          icon: announceIcon,
-          read: false,
-          date: 'March 15, 2025',
-        },
-      ],
-      visibleNotifications: 5,
-      showLoadMore: true,
-      selectAll: false,
-      deleteAll: false,
-      selectedNotifications: [],
-      showDeleteAllModal: false,
-      showDeleteSelectedModal: false,
-      selectedNotificationDetails: null,
-    }
-  },
-  methods: {
-    loadMoreNotifications() {
-      const remaining = this.notifications.length - this.visibleNotifications
-      if (remaining > 0) {
-        this.visibleNotifications += 5
-      }
-      if (this.visibleNotifications >= this.notifications.length) {
-        this.showLoadMore = false
-      }
-    },
-    toggleAllNotifications() {
-      this.notifications.forEach((notification) => {
-        notification.read = this.selectAll
-      })
-    },
-    confirmDeleteAll() {
-      this.notifications = []
-      this.showDeleteAllModal = false
-      this.deleteAll = false
-    },
-    cancelDeleteAll() {
-      this.showDeleteAllModal = false
-      this.deleteAll = false
-    },
-    confirmDeleteSelected() {
-      this.notifications = this.notifications.filter(
-        (_, index) => !this.selectedNotifications.includes(index),
-      )
-      this.selectedNotifications = []
-      this.showDeleteSelectedModal = false
-    },
-    cancelDeleteSelected() {
-      this.showDeleteSelectedModal = false
-    },
-    viewDetails(notification) {
-      this.selectedNotificationDetails = notification
-    },
-  },
-  watch: {
-    notifications: function (newNotifications) {
-      newNotifications.forEach((notification) => {
-        console.log(notification.icon) // Check the icon being used
-      })
-    },
-  },
+const visibleNotifications = ref(5)
+const showLoadMore = ref(true)
+const selectAll = ref(false)
+const deleteAll = ref(false)
+const selectedNotifications = ref([])
+const showDeleteAllModal = ref(false)
+const showDeleteSelectedModal = ref(false)
+const selectedNotificationDetails = ref(null)
+
+function loadMoreNotifications() {
+  visibleNotifications.value += 5
+  if (visibleNotifications.value >= notifications.value.length) {
+    showLoadMore.value = false
+  }
+}
+
+function toggleAllNotifications() {
+  for (let i = 0; i < notifications.value.length; i++) {
+    notifications.value[i].read = selectAll.value
+  }
+}
+
+function confirmDeleteAll() {
+  notifications.value = []
+  showDeleteAllModal.value = false
+  deleteAll.value = false
+}
+
+function cancelDeleteAll() {
+  showDeleteAllModal.value = false
+  deleteAll.value = false
+}
+
+function confirmDeleteSelected() {
+  notifications.value = notifications.value.filter(
+    (_, index) => !selectedNotifications.value.includes(index),
+  )
+  selectedNotifications.value = []
+  showDeleteSelectedModal.value = false
+}
+
+function cancelDeleteSelected() {
+  showDeleteSelectedModal.value = false
+}
+
+function viewDetails(notification) {
+  selectedNotificationDetails.value = notification
 }
 </script>
 

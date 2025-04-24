@@ -106,107 +106,76 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logonImage from '@/assets/img/logon.png'
 import { supabase } from '@/supabase'
 
-export default {
-  setup() {
-    const loading = ref(false)
-    const router = useRouter()
-    const currentForm = ref<'login' | 'signup'>('login')
-    const email = ref('')
-    const password = ref('')
-    const confirmPassword = ref('')
-    const passwordType = ref('password')
-    const confirmPasswordType = ref('password')
+const loading = ref(false)
+const router = useRouter()
+const currentForm = ref<'login' | 'signup'>('login')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const passwordType = ref<'password' | 'text'>('password')
+const confirmPasswordType = ref<'password' | 'text'>('password')
 
-    const switchToSignup = () => {
-      currentForm.value = 'signup'
-      password.value = ''
-      confirmPassword.value = ''
-    }
+const switchToSignup = () => {
+  currentForm.value = 'signup'
+  password.value = ''
+  confirmPassword.value = ''
+}
 
-    const switchToLogin = () => {
-      currentForm.value = 'login'
-      password.value = ''
-    }
+const switchToLogin = () => {
+  currentForm.value = 'login'
+  password.value = ''
+}
 
-    const handleLogin = async () => {
-      loading.value = true
+const handleLogin = async () => {
+  loading.value = true
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value,
+  })
+  loading.value = false
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.value,
-        password: password.value,
-      })
+  if (error) {
+    alert(error.message)
+    return
+  }
 
-      loading.value = false
+  console.log('Logged in as:', data.user)
+  router.push('/home')
+}
 
-      if (error) {
-        alert(error.message)
-        return
-      }
+const handleSignup = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert("Passwords don't match!")
+    return
+  }
 
-      const user = data.user
-      console.log('Logged in as:', user)
+  loading.value = true
+  const { data, error } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value,
+  })
+  loading.value = false
 
-      router.push('/home')
-    }
+  if (error) {
+    alert(error.message)
+  } else {
+    alert('A confirmation email has been sent. Please check your inbox.')
+    router.push('/home')
+  }
+}
 
-    const handleSignup = async () => {
-      if (password.value !== confirmPassword.value) {
-        alert("Passwords don't match!")
-        return
-      }
+const togglePasswordVisibility = () => {
+  passwordType.value = passwordType.value === 'password' ? 'text' : 'password'
+}
 
-      loading.value = true
-
-      const { data, error } = await supabase.auth.signUp({
-        email: email.value,
-        password: password.value,
-      })
-
-      loading.value = false
-
-      if (error) {
-        alert(error.message)
-      } else {
-        const user = data.user
-        alert(
-          'A confirmation email has been sent to your email address. Please check your inbox and confirm your email.',
-        )
-
-        router.push('/home')
-      }
-    }
-
-    const togglePasswordVisibility = () => {
-      passwordType.value = passwordType.value === 'password' ? 'text' : 'password'
-    }
-
-    const toggleConfirmPasswordVisibility = () => {
-      confirmPasswordType.value = confirmPasswordType.value === 'password' ? 'text' : 'password'
-    }
-
-    return {
-      currentForm,
-      switchToSignup,
-      switchToLogin,
-      handleLogin,
-      handleSignup,
-      logonImage,
-      loading,
-      email,
-      password,
-      confirmPassword,
-      passwordType,
-      confirmPasswordType,
-      togglePasswordVisibility,
-      toggleConfirmPasswordVisibility,
-    }
-  },
+const toggleConfirmPasswordVisibility = () => {
+  confirmPasswordType.value = confirmPasswordType.value === 'password' ? 'text' : 'password'
 }
 </script>
 
