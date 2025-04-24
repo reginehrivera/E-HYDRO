@@ -169,6 +169,7 @@ const confirmPasswordRules = computed(() => [
 
 // Route-based check
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
+
 </script>
 
 

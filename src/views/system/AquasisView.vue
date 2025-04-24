@@ -91,8 +91,8 @@
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
-              <div v-if="isMyAccountPage">
-              <v-col col="12" md="7" class="">
+
+              <v-col col="12" md="7" class="" v-if="SelectedPage">
                 <v-container class="right-container">
                   <v-row class="first-row">
                     <v-col col="6" class="grp-checkbox">
@@ -231,7 +231,7 @@
 
                 <!---->
               </v-col>
-            </div>
+         
               <!--end Right Column-->
             </v-row>
           </v-container>
@@ -247,9 +247,11 @@ import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
 import { ref,computed } from 'vue'
-
+import { useRoute } from 'vue-router'
 const selected = ref([''])
 const items = ['']
+const route =useRoute()
+const SelectedPage = computed(() => route.name === 'aquasis')
 
 // Increasing and Decreasing number of gallon
 const numberOfGallon = ref(0)
@@ -263,7 +265,7 @@ const toggleDecrease = () => {
 }
 
 
-const isMyAccountPage = computed(() => route.name === 'aquasis')
+
 
 </script>
 

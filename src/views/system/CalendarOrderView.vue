@@ -21,11 +21,9 @@
                   label="Confirmed Date"
                   readonly
                 ></v-text-field>
-
 </template>
-
 <script setup>
-import AquasisView from '@/views/system/AquasisView.vue'
+ import AquasisView from '@/views/system/AquasisView.vue'
 import { ref,computed } from 'vue'
 
 const date = ref(null)
