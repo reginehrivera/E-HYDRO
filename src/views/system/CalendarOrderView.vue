@@ -1,6 +1,6 @@
 <template>
 <div>
-  
+
 </div>
 <v-card class="mx-auto pa-4" max-width="600"  rounded="lg" border>
             <v-confirm-edit v-model="date">
@@ -26,7 +26,7 @@
 
 <script>
 import AquasisView from '@/views/system/AquasisView.vue'
-import { ref } from 'vue'
+import { ref,computed } from 'vue'
 
 const date = ref(null)
 const tempModel = ref(null)

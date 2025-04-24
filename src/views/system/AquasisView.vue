@@ -93,11 +93,6 @@
               <!--Right Column-->
 
               <v-col col="12" md="7" class="">
-
-
-
-
-
                 <v-container class="right-container">
                   <v-row class="first-row">
                     <v-col col="6" class="grp-checkbox">
@@ -197,8 +192,9 @@
                 <v-container class="bottom-btn mx-auto">
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" sm="4" xs="4" class="set-sched-btn">
-                      <router-link class="no-underline" to="#">
-                        <v-btn variant="none" class="full-btn" @click="confirmOutside" >
+                      <router-link  :to="{ name: 'calendarorder' }"
+                 :class="{ 'v-btn--active': $route.name === 'calendarorder' }">
+                        <v-btn variant="none" class="full-btn" >
                             <!-- External confirm/cancel buttons -->
 
                           <div>
@@ -302,8 +298,7 @@ h2 {
     max-width: 100%;
   }
 }
-.img-style {
-}
+
 .img-style img {
   border: #04448d 3px solid;
   border-radius: 10px;
