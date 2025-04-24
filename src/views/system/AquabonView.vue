@@ -40,7 +40,8 @@
                       </v-col>
                       <v-col cols="12" md="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
-                        <p4 class="blue-color">per gallon</p4><br />
+                        <p class="blue-color">per gallon</p>
+                        <br />
                         <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
@@ -163,7 +164,9 @@
                       <v-btn variant="none" class="cancel-btn">Cancel</v-btn>
                     </v-col>
                     <v-col cols="12" md="6">
-                      <router-link class="no-underline" to="/summary">
+                      <router-link
+                        :to="{ name: 'summary', query: { orders: JSON.stringify(orders) } }"
+                      >
                         <v-btn variant="none" class="order-btn">Order Now</v-btn>
                       </router-link>
                     </v-col>
@@ -196,7 +199,9 @@
                       </v-btn>
                     </v-col>
                     <v-col cols="12" md="4" class="order-bottom-btn">
-                      <router-link class="no-underline" to="/summary">
+                      <router-link
+                        :to="{ name: 'summary', query: { orders: JSON.stringify(orders) } }"
+                      >
                         <v-btn variant="none" class="full-btn">
                           <div>
                             <h5>Order now</h5>
