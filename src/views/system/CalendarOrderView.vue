@@ -1,6 +1,6 @@
 <template>
 <div>
-
+<AquasisView/>
 </div>
 <v-card class="mx-auto pa-4" max-width="600"  rounded="lg" border>
             <v-confirm-edit v-model="date">
@@ -24,7 +24,7 @@
 
 </template>
 
-<script>
+<script setup>
 import AquasisView from '@/views/system/AquasisView.vue'
 import { ref,computed } from 'vue'
 

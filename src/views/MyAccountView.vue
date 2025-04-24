@@ -124,57 +124,54 @@
     </main>
   </div>
 </template>
-<script>
+<script setup>
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-export default {
-  name: 'MyAccountView',
-  components: {
-    NavigationBar,
-  },
-  data() {
-    return {
-      valid: false,
-      firstname: '',
-      lastname: '',
-      email: '',
-      phone: '',
-      newPassword: '',
-      confirmPassword: '',
 
-      nameRules: [
-        (v) => !!v || 'Name is required.',
-        (v) => v.length <= 10 || 'Name must be less than 10 characters.',
-      ],
+const route = useRoute()
 
-      emailRules: [
-        (v) => !!v || 'E-mail is required.',
-        (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid.',
-      ],
+// Form fields
+const valid = ref(false)
+const firstname = ref('')
+const lastname = ref('')
+const email = ref('')
+const phone = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
 
-      phoneRules: [
-        (v) => !!v || 'Phone number is required.',
-        (v) => /^\d{10,15}$/.test(v) || 'Phone number must be valid (10–15 digits).',
-      ],
+// Validation Rules
+const nameRules = [
+  v => !!v || 'Name is required.',
+  v => v.length <= 10 || 'Name must be less than 10 characters.',
+]
 
-      passwordRules: [
-        (v) => !!v || 'Password is required.',
-        (v) => v.length >= 6 || 'Password must be at least 6 characters.',
-      ],
-    }
-  },
-  computed: {
-    confirmPasswordRules() {
-      return [
-        (v) => !!v || 'Confirmation is required.',
-        (v) => v === this.newPassword || 'Passwords do not match.',
-      ]
-    },
-    isMyAccountPage() {
-      return this.$route.name === 'Myaccount'
-    },
-  },
-}
+const emailRules = [
+  v => !!v || 'E-mail is required.',
+  v => /.+@.+\..+/.test(v) || 'E-mail must be valid.',
+]
+
+const phoneRules = [
+  v => !!v || 'Phone number is required.',
+  v => /^\d{10,15}$/.test(v) || 'Phone number must be valid (10–15 digits).',
+]
+
+const passwordRules = [
+  v => !!v || 'Password is required.',
+  v => v.length >= 6 || 'Password must be at least 6 characters.',
+]
+
+// Computed for confirm password
+const confirmPasswordRules = computed(() => [
+  v => !!v || 'Confirmation is required.',
+  v => v === newPassword.value || 'Passwords do not match.',
+])
+
+// Route-based check
+const isMyAccountPage = computed(() => route.name === 'Myaccount')
 </script>
+
+
 
 <style scoped>
 .content {
