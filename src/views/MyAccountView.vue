@@ -4,51 +4,22 @@
     <NavigationBar />
     <main class="content">
       <!--  card  -->
-      <v-card
-        class="v-card ms-5"
-        max-width="344"
-        height="25rem"
-        hover
-        :style="{ background: 'linear-gradient(10deg,#BBDEFB,#C5CAE9)' }"
-      >
-        <v-card-item>
-          <v-parallax src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" cover>
-            <v-avatar color="surface-variant" size="90" class="avatar">
-              <span class="text-h5">CJ</span>
-            </v-avatar>
-          </v-parallax>
-          <v-card-title> Edit Profile </v-card-title>
-        </v-card-item>
 
-        <v-card-text>
-
-          <router-link
-            :to="{ name: 'addresses' }"
-            class="link"
-            :class="{ 'v-btn--active': $route.name === 'addresses' }"
-            >Address</router-link
-          >
-          <br />
-          <router-link
-            :to="{ name: 'Myaccount' }"
-            class="link"
-            :class="{ 'v-btn--active': $route.name === 'Myaccount' }"
-          >
-            Profile Settings</router-link
-          >
-          <br />
-          Payment & methods <br />
-          Privacy & Security
-        </v-card-text>
-      </v-card>
      <div v-if="isMyAccountPage">
       <v-card
         class="v-cardv2"
-        height="500"
-        width="900"
+        height="600"
+        width="1200"
         hover
         :style="{ background: 'linear-gradient(10deg,#BBDEFB,#C5CAE9)' }"
       >
+      <div class="d-flex justify-center my-4">
+    <v-avatar color="red" size="80">
+      <span class="text-h5">CJ</span>
+    </v-avatar>
+  </div>
+  <div class="d-flex justify-center my">John Doe</div>
+  <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
         <v-form v-model="valid">
           <v-container>
             Edit Profile
@@ -184,13 +155,9 @@ const isMyAccountPage = computed(() => route.name === 'Myaccount')
   padding: 2rem;
 
 }
-.v-card {
-  margin-top: 7.5rem;
-}
+
 .v-cardv2 {
-  position: relative;
-  right: -30rem;
-  top: -33rem;
+top: 5rem;
 }
 .v-container {
   padding: 40px;
