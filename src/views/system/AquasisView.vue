@@ -91,7 +91,7 @@
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
-
+              <div v-if="isMyAccountPage">
               <v-col col="12" md="7" class="">
                 <v-container class="right-container">
                   <v-row class="first-row">
@@ -231,6 +231,7 @@
 
                 <!---->
               </v-col>
+            </div>
               <!--end Right Column-->
             </v-row>
           </v-container>
@@ -262,7 +263,7 @@ const toggleDecrease = () => {
 }
 
 
-
+const isMyAccountPage = computed(() => route.name === 'aquasis')
 
 </script>
 
