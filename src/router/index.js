@@ -80,6 +80,11 @@ const router = createRouter({
       name: 'addresses',
       component: AddressesView,
     },
+    {
+      path:'/calendarorder',
+      name:'calendarorder',
+      component:CalendarOrderView,
+    },
 
   ],
 })
