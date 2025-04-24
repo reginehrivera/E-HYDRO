@@ -338,7 +338,7 @@
                   <div class="total-right mb-3"><h4>Total: ₱346 {{}}.00</h4></div>
                   <v-row class="cancel-order-btns">
                     <v-col col="12" md="6" class="text-start">
-                      <v-btn variant="none" class="cancel-btn">Cancel</v-btn>
+                      <v-btn variant="none" class="cancel-btn" @click="cancelOutside">Cancel</v-btn>
                     </v-col>
                     <v-col col="12" md="6" class="">
                       <v-btn variant="none" class="order-btn" @click="confirmOutside">Order Now</v-btn>
@@ -447,6 +447,13 @@ function confirmOutside() {
   }
 }
 
+function cancelOutside() {
+  date.value = null  
+  tempModel.value = null
+  if (confirmActions.value?.cancel) {
+    confirmActions.value.cancel()
+  }
+}
 
 
 </script>
