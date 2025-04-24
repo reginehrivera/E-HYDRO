@@ -2,25 +2,8 @@
 <div>
 <AquasisView/>
 </div>
-<v-card class="mx-auto pa-4" max-width="600"  rounded="lg" border>
-            <v-confirm-edit v-model="date">
-      <template v-slot:default="{ model, actions }">
-        <v-row justify="center" >
-        <v-date-picker hide-header="false" width="550" v-model="model.value" ref="datePickerRef" />
-        <!-- Save references for use outside -->
-      </v-row>
-        <v-hover v-if="capture(model, actions)" />
-      </template>
-    </v-confirm-edit>
-  </v-card>
 
-                  <!-- Shown below the date picker Remove if necessary   -->
-                   <!-- input rani para makita if mo gana ang add schedule -->
-                <v-text-field
-                  :model-value="formattedDate"
-                  label="Confirmed Date"
-                  readonly
-                ></v-text-field>
+
 </template>
 <script setup>
  import AquasisView from '@/views/system/AquasisView.vue'

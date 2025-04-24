@@ -231,8 +231,160 @@
 
                 <!---->
               </v-col>
-         
+
               <!--end Right Column-->
+              <!-- calendar extension -->
+
+              <v-col col="12" md="7" class="" v-if="PageIsSelect">
+                <v-card class="mx-auto pa-4" max-width="600"  rounded="lg" border>
+            <v-confirm-edit v-model="date">
+      <template v-slot:default="{ model, actions }">
+        <v-row justify="center" >
+        <v-date-picker hide-header="false" width="550" v-model="model.value" ref="datePickerRef" />
+        <!-- Save references for use outside -->
+      </v-row>
+        <v-hover v-if="capture(model, actions)" />
+      </template>
+    </v-confirm-edit>
+  </v-card>
+
+                  <!-- Shown below the date picker Remove if necessary   -->
+                   <!-- input rani para makita if mo gana ang add schedule -->
+                <v-text-field
+                  :model-value="formattedDate"
+                  label="Confirmed Date"
+                  readonly
+                ></v-text-field>
+                <v-container class="right-container">
+                  <v-row class="first-row">
+                    <v-col col="6" class="grp-checkbox">
+                      <h4 class="blue-color">Order Option</h4>
+                      <div class="checkboxes">
+                        <div class="checkbox-one">
+                          <v-checkbox
+                            v-model="selected"
+                            label="Refill Only"
+                            value="Refill Only"
+                            color="primary"
+                            class="checkbox-top"
+                          ></v-checkbox>
+                        </div>
+                        <div class="checkbox-two">
+                          <v-checkbox
+                            v-model="selected"
+                            label="Buy with New Gallon"
+                            value="Buy with New Gallon"
+                            color="primary"
+                            class="checkbox-bottom"
+                          ></v-checkbox>
+                        </div>
+                      </div>
+                    </v-col>
+                    <v-divider></v-divider>
+                  </v-row>
+
+                  <v-row class="second-row">
+                    <v-col col="12" md="2" sm="2"
+                      ><!--1st row-->
+                      <v-card class="text-center card-img" width="95"
+                        ><img src="@/assets/img/gallon-aquasis.png"
+                      /></v-card>
+                    </v-col>
+
+                    <v-col col="12" md="10" sm="10" class="pl-6"
+                      ><!--second row-->
+                      <v-row
+                        ><!--1st row for 2nd row-->
+                        <v-col col="12">
+                          <h5 class="blue-color">Aquasis Water Refilling Station</h5>
+                          <h6>Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal</h6>
+                        </v-col>
+                      </v-row>
+                      <v-row
+                        ><!--2nd row for 2nd row-->
+                        <v-col col="12" md="6" sm="6" xs="12" class="">
+                          <p>₱ 25.00 per gallon</p>
+                        </v-col>
+                        <v-col col="12" md="6" sm="6" xs="12" class="">
+                          <v-container d-flex align-center class="btn-group">
+                            <v-row>
+                              <v-btn
+                                rounded="0"
+                                class="btn-minus"
+                                variant="plain"
+                                size="small"
+                                @click="toggleDecrease"
+                                ><v-icon>mdi-minus</v-icon></v-btn
+                              >
+                              <p class="text-h6 text-center">{{ numberOfGallon }}</p>
+                              <v-btn
+                                rounded="0"
+                                class="btn-plus"
+                                variant="plain"
+                                size="small"
+                                @click="toggleIncrease"
+                                ><v-icon>mdi-plus</v-icon></v-btn
+                              >
+                            </v-row>
+                          </v-container>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                  <v-divider></v-divider>
+                  <div class="text-center">
+
+                  </div>
+                  <div class="total-right mb-3"><h4>Total: ₱346 {{}}.00</h4></div>
+                  <v-row class="cancel-order-btns">
+                    <v-col col="12" md="6" class="text-start">
+                      <v-btn variant="none" class="cancel-btn">Cancel</v-btn>
+                    </v-col>
+                    <v-col col="12" md="6" class="">
+                      <v-btn variant="none" class="order-btn" @click="confirmOutside">Order Now</v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+                <v-container class="bottom-btn mx-auto">
+                  <v-row class="text-center mx-auto">
+                    <v-col cols="12" md="4" sm="4" xs="4" class="set-sched-btn">
+                      <router-link  :to="{ name: 'calendarorder' }"
+                 :class="{ 'v-btn--active': $route.name === 'calendarorder' }">
+                        <v-btn variant="none" class="full-btn" >
+                            <!-- External confirm/cancel buttons -->
+
+                          <div>
+                            <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
+                            <h3>schedule</h3>
+                          </div>
+                        </v-btn>
+                      </router-link>
+                    </v-col>
+
+                    <v-col cols="12" md="4" sm="4" xs="4" class="bulk-btn">
+                      <router-link class="no-underline" to="#">
+                        <v-btn variant="none" class="full-btn" >
+                          <div>
+                            <h5>Order in bulk</h5>
+                            <h3>Save ₱10.00</h3>
+                          </div>
+                        </v-btn>
+                      </router-link>
+                    </v-col>
+
+                    <v-col cols="12" md="4" sm="4" xs="4" class="order-bottom-btn">
+                      <router-link class="no-underline" to="#">
+                        <v-btn variant="none" class="full-btn" >
+                          <div>
+                            <h5>Order now</h5>
+                            <h3>₱20 | each</h3>
+                          </div>
+                        </v-btn>
+                      </router-link>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-col>
             </v-row>
           </v-container>
         </template>
@@ -252,6 +404,7 @@ const selected = ref([''])
 const items = ['']
 const route =useRoute()
 const SelectedPage = computed(() => route.name === 'aquasis')
+const PageIsSelect = computed(() => route.name === 'calendarorder')
 
 // Increasing and Decreasing number of gallon
 const numberOfGallon = ref(0)
@@ -264,6 +417,35 @@ const toggleDecrease = () => {
   }
 }
 
+const date = ref(null)
+const tempModel = ref(null)
+const confirmActions = ref(null)
+
+// Capture model/actions for external access
+function capture(model, actions) {
+  tempModel.value = model
+  confirmActions.value = actions
+  return true
+}
+
+// Format date
+const formattedDate = computed(() => {
+  if (!date.value) return ''
+  const d = new Date(date.value)
+  return d.toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+  })
+})
+
+// External Save
+function confirmOutside() {
+  if (tempModel.value && confirmActions.value) {
+    date.value = tempModel.value.value
+    confirmActions.value.save(tempModel.value.value)
+  }
+}
 
 
 
