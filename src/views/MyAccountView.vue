@@ -6,14 +6,8 @@
       <!--  card  -->
 
       <div v-if="isMyAccountPage">
-        <v-card
-          class="v-cardv2"
-          height="600"
-          width="1000"
-          hover
-          :style="{ background: 'linear-gradient(10deg,#BBDEFB,#C5CAE9)' }"
-        >
-          <span class="text-h5 font-weight-medium">Profile Settings</span>
+        <v-card class="v-cardv2" height="600" width="1000" hover :style="{ background: '#D9D9D9' }">
+          <span class="text-h5 font-weight-medium d-flex justify-center my-4">Profile Settings</span>
           <div class="d-flex justify-center my-4">
             <v-avatar color="red" size="80">
               <span class="text-h5">CJ</span>
@@ -23,68 +17,62 @@
           <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
           <v-form v-model="valid">
             <v-container>
-              Edit Profile
-              <v-row justify="start">
-                <v-col v-for="k in 1" :key="k" cols="6">
+
+              <v-row justify="start"  style="max-height:90px">
+                <v-col v-for="k in 1" :key="k" cols="6" >
+                  <span style="color:#919191;">First Name</span>
                   <v-text-field
-                    v-model="firstname"
-                    :counter="10"
-                    :rules="nameRules"
                     label="First name"
-                    required
+                    model-value=""
+                    variant="solo"
                   ></v-text-field>
                 </v-col>
 
                 <v-col v-for="k in 1" :key="k" cols="6">
+                 <span style="color:#919191;">Last Name</span>
                   <v-text-field
-                    v-model="lastname"
-                    :counter="10"
-                    :rules="nameRules"
                     label="Last name"
-                    required
+                    model-value=""
+                    variant="solo"
                   ></v-text-field>
                 </v-col>
               </v-row>
 
-              <v-row justify="start">
+              <v-row justify="start" style="max-height:90px">
                 <v-col v-for="k in 1" :key="k" cols="6">
-                  <v-text-field
-                    v-model="email"
-                    :rules="emailRules"
-                    label="E-mail"
-                    required
-                  ></v-text-field>
+                  <span style="color:#919191;">Email</span>
+                  <v-text-field label="Email" model-value="" variant="solo"></v-text-field>
                 </v-col>
                 <v-col v-for="k in 1" :key="k" cols="6">
+                  <span style="color:#919191;">Phone Number</span>
                   <v-text-field
-                    v-model="phone"
-                    :rules="phoneRules"
-                    label="Phone Number"
-                    required
+                    label="Phone number"
+                    model-value=""
+                    variant="solo"
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row justify="start">
                 <v-col v-for="k in 1" :key="k" cols="6">
+                  <span style="color:#919191;">New Password</span>
                   <v-text-field
-                    v-model="newPassword"
-                    :rules="passwordRules"
                     label="New Password"
-                    required
+                    model-value=""
+                    variant="solo"
                   ></v-text-field>
                 </v-col>
                 <v-col v-for="k in 1" :key="k" cols="6">
+                  <span style="color:#919191;">Confrim Password</span>
                   <v-text-field
-                    v-model="confirmPassword"
-                    :rules="confirmPasswordRules"
                     label="Confirm Password"
-                    required
+                    model-value=""
+                    variant="solo"
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-row justify="end">
+              <v-row justify="center">
                 <v-col cols="12" md="4" sm="6">
-                  <v-btn :style="{ backgroundColor: '#64B5F6', color: 'black' }" rounded="lg" block
+                  <v-btn :style="{ backgroundColor: '#022650', color: 'white' }" rounded="lg" block
                     >Save Changes</v-btn
                   >
                 </v-col>
@@ -101,9 +89,8 @@
             height="500"
             width="1000"
             hover
-            :style="{ background: 'linear-gradient(10deg,#BBDEFB,#C5CAE9)' }"
+            :style="{ background: '#D9D9D9' }"
           >
-
             <div class="d-flex justify-end">
               <v-btn class="btn" :style="{ background: '#64B5F6' }" @click="overlay = !overlay">
                 + Add Address
@@ -197,36 +184,44 @@
               </v-overlay>
             </div>
             <v-container>
-            <div class="d-flex justify-center my-4">
-              <v-avatar color="red" size="80">
-                <span class="text-h5">CJ</span>
-              </v-avatar>
-            </div>
-            <div class="d-flex justify-center my">John Doe</div>
-            <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
-            <span class="spanex">Address</span>
+              <div class="d-flex justify-center my-4">
+                <v-avatar color="red" size="80">
+                  <span class="text-h5">CJ</span>
+                </v-avatar>
+              </div>
+              <div class="d-flex justify-center my">John Doe</div>
+              <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
+              <span class="spanex">Address</span>
 
-            <v-row class="row" style="max-height: 50px;">
-              <v-col cols="12" md="2" sm="2" class="SpaceinBetween" >
-                <v-text-field placeholder="name" variant="plain" readonly="">JohnDoe</v-text-field>
-              </v-col>
-              <v-col cols="12" md="4" sm="6">
-                <v-text-field placeholder="contact no" variant="plain" readonly="">0999999999</v-text-field>
-              </v-col>
-            </v-row>
-            <v-row class="row" style="max-height: 50px;">
-              <v-col cols="12" md="4" sm="6">
-                <v-text-field placeholder="street" variant="plain" readonly="">ampayon</v-text-field>
-              </v-col>
-            </v-row>
-            <v-row class="row" style="max-height: 50px;">
-              <v-col cols="12" md="4" sm="6">
-                <v-text-field placeholder="city" variant="plain" readonly="">JohnDoe</v-text-field>
-              </v-col>
-            </v-row>
-            <v-row justify="end">
+              <v-row class="row" style="max-height: 50px">
+                <v-col cols="12" md="2" sm="2" class="SpaceinBetween">
+                  <v-text-field placeholder="name" variant="plain" readonly=""
+                    >JohnDoe</v-text-field
+                  >
+                </v-col>
                 <v-col cols="12" md="4" sm="6">
-                  <v-btn :style="{ backgroundColor: '#64B5F6', color: 'black' }" rounded="lg" block
+                  <v-text-field placeholder="contact no" variant="plain" readonly=""
+                    >0999999999</v-text-field
+                  >
+                </v-col>
+              </v-row>
+              <v-row class="row" style="max-height: 50px">
+                <v-col cols="12" md="4" sm="6">
+                  <v-text-field placeholder="street" variant="plain" readonly=""
+                    >ampayon</v-text-field
+                  >
+                </v-col>
+              </v-row>
+              <v-row class="row" style="max-height: 50px">
+                <v-col cols="12" md="4" sm="6">
+                  <v-text-field placeholder="city" variant="plain" readonly=""
+                    >JohnDoe</v-text-field
+                  >
+                </v-col>
+              </v-row>
+              <v-row justify="center">
+                <v-col cols="12" md="4" sm="6">
+                  <v-btn :style="{ backgroundColor: '#022650', color: 'white' }" rounded="lg" block
                     >Save Changes</v-btn
                   >
                 </v-col>
@@ -606,7 +601,7 @@ function submit() {
   color: #1565c0 !important;
   font-weight: bold;
 }
-.SpaceinBetween{
-padding: -20px;
+.SpaceinBetween {
+  padding: -20px;
 }
 </style>
