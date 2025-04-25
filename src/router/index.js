@@ -7,6 +7,7 @@ import AquasisView from '@/views/system/AquasisView.vue'
 import AquabonView from '@/views/system/AquabonView.vue'
 import ColdpointView from '@/views/system/ColdpointView.vue'
 import WaterdropsView from '@/views/system/WaterdropsView.vue'
+import OrderPage from '@/views/OrderPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/waterdrops',
       name: 'waterdrops',
       component: WaterdropsView,
+    },
+    {
+      path: '/order',
+      name: 'order',
+      component: OrderPage,
     },
   ],
 })

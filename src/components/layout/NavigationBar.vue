@@ -8,7 +8,7 @@
       <ul v-show="!mobile" class="navigation">
         <li><router-link class="link" :to="{ name: 'home' }">Home</router-link></li>
         <li><router-link class="link" :to="{ name: 'station' }">Station</router-link></li>
-        <li><router-link class="link" :to="{ name: '' }">My Order</router-link></li>
+        <li><router-link class="link" :to="{ name: 'order' }">My Order</router-link></li>
         <li class="notification-wrapper">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
           <div v-if="showNotifications" class="notification-dropdown">

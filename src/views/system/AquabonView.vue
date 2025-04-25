@@ -83,6 +83,42 @@
 
                   <v-divider></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
+                <v-container>
+                  <!-- Review Input -->
+                  <v-card class="pa-4 mb-6">
+                    <v-card-title>Leave a Review</v-card-title>
+                    <v-card-text>
+                      <v-rating
+                        v-model="newReview.rating"
+                        background-color="grey lighten-1"
+                        color="yellow darken-2"
+                        large
+                      />
+                      <v-textarea
+                        v-model="newReview.comment"
+                        label="Your comment"
+                        outlined
+                        auto-grow
+                      />
+                      <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
+                    </v-card-text>
+                  </v-card>
+
+                  <!-- Reviews List -->
+                  <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
+                    <v-card-title class="d-flex align-center justify-space-between">
+                      <v-rating
+                        v-model="review.rating"
+                        readonly
+                        color="yellow darken-2"
+                        small
+                      />
+                    </v-card-title>
+                    <v-card-text>{{ review.comment }}</v-card-text>
+                  </v-card>
+                </v-container>
+                  <!----->
+
                 </v-container>
               </v-col>
               <!--End Left Column-->
@@ -236,4 +272,30 @@ const toggleDecrease = () => {
     numberOfGallon.value--
   }
 }
+
+// Reviews
+const newReview = ref({
+  rating: 0,
+  comment: ''
+})
+
+const reviews = ref([])
+
+function submitReview() {
+  if (newReview.value.rating && newReview.value.comment.trim()) {
+    reviews.value.push({ ...newReview.value })
+    newReview.value.rating = 0
+    newReview.value.comment = ''
+  } else {
+    alert('Please provide both a rating and comment.')
+  }
+}
+
 </script>
+
+<style scoped>
+.v-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+</style>
