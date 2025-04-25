@@ -3,10 +3,11 @@
     <template #content>
       <StationLayout>
         <template #dashboardcontent>
+          <!--Card Station Area-->
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>Aquabon Water Refilling Station</h2>
+                <h2>Aquasis Water Refilling Station</h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -14,7 +15,7 @@
                 </router-link>
               </v-col>
             </v-row>
-
+            <!--Left Column-->
             <v-row>
               <v-col cols="12" md="5">
                 <v-container class="left-container">
@@ -29,26 +30,97 @@
                       />
                     </v-col>
                   </v-row>
+                  <!--Description-->
                   <v-container class="description-card">
                     <v-row class="description-row">
                       <v-col cols="12" md="7" class="description shrink-line">
                         <p class="shrink-line">
-                          <v-icon class="blue-color">mdi-map-marker</v-icon>
-                          177 Cancer St. Montilla Blvd Highway, Guingona Subdivision Brgy JP Rizal,
-                          Butuan City, Philippines
+                          <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
+                          Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
                         </p>
                       </v-col>
                       <v-col cols="12" md="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
-                        <p class="blue-color">per gallon</p>
-                        <br />
+                        <p4 class="blue-color">per gallon</p4><br />
                         <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
                   </v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-container class="contact-btn text-center">
+                        <v-row>
+                          <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
+                            <router-link to="" class="no-underline w-100">
+                              <v-btn
+                                class="social-contact w-100"
+                                rounded="0"
+                                variant="flat"
+                                prepend-icon="mdi-facebook-messenger"
+                              >
+                                <span class="text-center">Messenger</span>
+                                <v-tooltip activator="parent" location="bottom"
+                                  >Madam Bertud</v-tooltip
+                                >
+                              </v-btn>
+                            </router-link>
+                          </v-col>
+                          <v-col cols="12" sm="6" class="d-flex justify-center">
+                            <router-link to="" class="no-underline w-100">
+                              <v-btn
+                                class="social-contact w-100"
+                                rounded="0"
+                                variant="flat"
+                                prepend-icon="mdi-phone"
+                              >
+                                <span class="text-center">Phone Number</span>
+                                <v-tooltip activator="parent" location="bottom"
+                                  >09517978870</v-tooltip
+                                >
+                              </v-btn>
+                            </router-link>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-col>
+                  </v-row>
+
+                  <v-divider></v-divider>
+                  <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
+                  <v-container>
+                    <!-- Review Input -->
+                    <v-card class="pa-4 mb-6">
+                      <v-card-title>Leave a Review</v-card-title>
+                      <v-card-text>
+                        <v-rating
+                          v-model="newReview.rating"
+                          background-color="grey lighten-1"
+                          color="yellow darken-2"
+                          large
+                        />
+                        <v-textarea
+                          v-model="newReview.comment"
+                          label="Your comment"
+                          outlined
+                          auto-grow
+                        />
+                        <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
+                      </v-card-text>
+                    </v-card>
+
+                    <!-- Reviews List -->
+                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
+                      <v-card-title class="d-flex align-center justify-space-between">
+                        <v-rating v-model="review.rating" readonly color="yellow darken-2" small />
+                      </v-card-title>
+                      <v-card-text>{{ review.comment }}</v-card-text>
+                    </v-card>
+                  </v-container>
+                  <!----->
                 </v-container>
               </v-col>
-
+              <!--End Left Column-->
+              <!--Right Column-->
               <v-col cols="12" md="7" class="d-flex flex-column align-start">
                 <v-date-picker
                   v-if="showCalendar"
@@ -68,20 +140,24 @@
                     <v-col cols="6" class="grp-checkbox">
                       <h4 class="blue-color">Order Option</h4>
                       <div class="checkboxes">
-                        <v-checkbox
-                          v-model="order.selected"
-                          label="Refill Only"
-                          value="Refill Only"
-                          color="primary"
-                          class="checkbox-top"
-                        />
-                        <v-checkbox
-                          v-model="order.selected"
-                          label="Buy with New Gallon"
-                          value="Buy with New Gallon"
-                          color="primary"
-                          class="checkbox-bottom"
-                        />
+                        <div class="checkbox-one">
+                          <v-checkbox
+                            v-model="order.selected"
+                            label="Refill Only"
+                            value="Refill Only"
+                            color="primary"
+                            class="checkbox-top"
+                          ></v-checkbox>
+                        </div>
+                        <div class="checkbox-two">
+                          <v-checkbox
+                            v-model="order.selected"
+                            label="Buy with New Gallon"
+                            value="Buy with New Gallon"
+                            color="primary"
+                            class="checkbox-bottom"
+                          ></v-checkbox>
+                        </div>
                       </div>
                     </v-col>
                     <v-col cols="6">
@@ -149,7 +225,6 @@
                     </v-btn>
                   </div>
 
-                  <!-- Total Summary -->
                   <div class="total-right mb-3">
                     <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                     <p v-if="order.quantity >= 12" class="discount-text">
@@ -158,17 +233,9 @@
                     <h4>Total: ₱{{ getTotal(order) }}.00</h4>
                   </div>
 
-                  <!-- Bottom Buttons -->
                   <v-row class="cancel-order-btns">
                     <v-col cols="12" md="6" class="text-start">
                       <v-btn variant="none" class="cancel-btn">Cancel</v-btn>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <router-link
-                        :to="{ name: 'summary', query: { orders: JSON.stringify(orders) } }"
-                      >
-                        <v-btn variant="none" class="order-btn">Order Now</v-btn>
-                      </router-link>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -200,7 +267,10 @@
                     </v-col>
                     <v-col cols="12" md="4" class="order-bottom-btn">
                       <router-link
-                        :to="{ name: 'summary', query: { orders: JSON.stringify(orders) } }"
+                        :to="{
+                          name: 'summary',
+                          query: { orders: JSON.stringify(orders), schedule: selectedDate },
+                        }"
                       >
                         <v-btn variant="none" class="full-btn">
                           <div>
@@ -213,10 +283,13 @@
                   </v-row>
                 </v-container>
               </v-col>
+
+              <!--end Right Column-->
             </v-row>
           </v-container>
         </template>
       </StationLayout>
+      <!--End Card Station Area-->
     </template>
   </NavigationBar>
 </template>
@@ -226,51 +299,83 @@ import { ref, computed } from 'vue'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-const showCalendar = ref(false)
-const selectedDate = ref(null)
-const items = ['Carmen, Butuan City', 'Ampayon, Butuan City']
+// Review logic
+const newReview = ref({
+  rating: 0,
+  comment: '',
+})
+const reviews = ref([])
 
-const orders = ref([{ selected: [], address: '', quantity: 0 }])
-
-const addNewOrder = () => {
-  orders.value.push({ selected: [], address: '', quantity: 0 })
-}
-
-const increaseGallon = (index) => {
-  if (orders.value[index].quantity < 12) {
-    orders.value[index].quantity++
+function submitReview() {
+  if (newReview.value.comment && newReview.value.rating) {
+    reviews.value.push({ ...newReview.value })
+    newReview.value.rating = 0
+    newReview.value.comment = ''
   }
 }
 
-const decreaseGallon = (index) => {
-  if (orders.value[index].quantity > 0) {
+// Calendar
+const showCalendar = ref(false)
+const selectedDate = ref(null)
+function confirmDateSelection() {
+  showCalendar.value = false
+}
+
+// Order logic
+const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
+const orders = ref([
+  {
+    selected: [],
+    address: '',
+    quantity: 0,
+  },
+])
+
+function increaseGallon(index) {
+  orders.value[index].quantity++
+}
+
+function decreaseGallon(index) {
+  if (orders.value[index].quantity > 1) {
     orders.value[index].quantity--
   }
 }
 
-const orderInBulk = () => {
-  orders.value.forEach((order) => {
-    order.quantity = 12
+function addNewOrder() {
+  orders.value.push({
+    selected: [],
+    address: '',
+    quantity: 0,
   })
 }
 
-const getSubtotal = (order) => order.quantity * 25
-const getDiscount = (order) => (order.quantity >= 12 ? 10 : 0)
-const getTotal = (order) => getSubtotal(order) - getDiscount(order)
-
-const totalAllOrders = computed(() => {
-  return orders.value.reduce((total, order) => total + getTotal(order), 0)
-})
-
-const confirmDateSelection = () => {
-  if (selectedDate.value) {
-    showCalendar.value = false
-    console.log('Delivery date confirmed: ' + selectedDate.value)
-  }
+function getSubtotal(order) {
+  return order.quantity * 25
 }
+
+function getDiscount(order) {
+  return order.quantity >= 12 ? 10 : 0
+}
+
+function getTotal(order) {
+  return getSubtotal(order) - getDiscount(order)
+}
+
+function orderInBulk() {
+  orders.value.forEach((order) => {
+    order.quantity += 12
+  })
+}
+
+const totalAllOrders = computed(() => orders.value.reduce((sum, order) => sum + getTotal(order), 0))
 </script>
 
 <style scoped>
+.v-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .discount-text {
   color: red;
   font-weight: normal;

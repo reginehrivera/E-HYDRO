@@ -1,4 +1,3 @@
-<!-- OrderSummary.vue -->
 <template>
   <NavigationBar>
     <template #content>
@@ -90,6 +89,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
+import { supabase } from '@/supabase' // ✅ This uses your existing supabase.ts
 
 const route = useRoute()
 
@@ -112,11 +112,38 @@ const totalAllOrders = computed(() => {
 const cancelOrder = () => {
   console.log('Order canceled')
 }
+
 const editOrder = () => {
   console.log('Editing order')
 }
-const placeOrder = () => {
-  console.log('Order placed')
+
+const placeOrder = async () => {
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (userError || !userData.user) {
+    console.error('User not authenticated:', userError)
+    return
+  }
+
+  const userId = userData.user.id
+
+  for (const order of orders.value) {
+    const { data, error } = await supabase.from('orders').insert({
+      quantity: order.quantity,
+      total_price: getTotal(order),
+      payment_method: 'GCash',
+      status: 'Pending',
+      user_id: userId,
+      station_id: 1,
+      calendar: new Date().toISOString().slice(0, 10),
+      created_at: new Date().toISOString(),
+    })
+
+    if (error) {
+      console.error('Failed to place order:', error)
+    } else {
+      console.log('Order placed:', data)
+    }
+  }
 }
 </script>
 
