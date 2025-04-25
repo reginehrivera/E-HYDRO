@@ -139,63 +139,42 @@
 
           <!-- Rate Modal -->
           <div class="modal" v-if="showRateModal">
-            <div class="modal-content" style="position: relative">
-              <!-- Close Button -->
-              <button
-                style="
-                  position: absolute;
-                  top: 10px;
-                  right: 10px;
-                  background: none;
-                  border: none;
-                  font-size: 18px;
-                "
-                @click="showRateModal = false"
-              >
-                ✖
-              </button>
+  <div class="modal-content" style="position: relative">
+    <button
+      style="
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+      "
+      @click="showRateModal = false"
+    >
+      ✖
+    </button>
 
-              <!-- Modal Body -->
-              <div style="text-align: center; padding-bottom: 20px">
-                <h3 style="margin-bottom: 10px">How was your experience?</h3>
+    <v-card class="pa-4 mb-6">
+      <v-card-title>Leave a Review</v-card-title>
+      <v-card-text>
+        <v-rating
+          v-model="feedbacks.rating"
+          background-color="grey lighten-1"
+          color="yellow darken-2"
+          large
+        />
+        <v-textarea
+          v-model="feedbacks.comment"
+          label="Your comment"
+          outlined
+          auto-grow
+        />
+        <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
+      </v-card-text>
+    </v-card>
+  </div>
+</div>
 
-                <!-- Star Rating -->
-                <div class="stars" style="margin-bottom: 20px">
-                  <span
-                    v-for="n in 5"
-                    :key="n"
-                    class="star"
-                    :class="{ filled: n <= rating }"
-                    @click="rating = n"
-                  >
-                    ★
-                  </span>
-                </div>
-
-                <!-- Recommendation -->
-                <h4 style="margin-bottom: 5px">Do you recommend this station?</h4>
-                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px">
-                  <label><input type="radio" value="yes" v-model="recommend" /> Yes</label>
-                  <label><input type="radio" value="no" v-model="recommend" /> No</label>
-                </div>
-
-                <!-- Station Info Box -->
-                <div class="info-box" style="display: inline-block; text-align: left">
-                  <h4 style="text-align: center; margin-bottom: 10px">
-                    <strong>Station Details</strong>
-                  </h4>
-                  <p><strong>Station Name:</strong> AquaPure Water Station</p>
-                  <p><strong>Address:</strong> 123 Clean Water Ave., Cityville</p>
-                  <p><strong>Contact:</strong> 0912 345 6789</p>
-                </div>
-              </div>
-
-              <!-- Submit Button at Bottom -->
-              <div style="display: flex; justify-content: center; margin-top: 20px">
-                <button class="btn-primary" @click="submitRating">Submit</button>
-              </div>
-            </div>
-          </div>
 
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
@@ -300,14 +279,39 @@ const openRateModal = (order) => {
   showRateModal.value = true
 }
 
-const submitRating = () => {
+/*const submitRating = () => {
   showRateModal.value = false
   showSuccessModal.value = true
-}
+}*/
 
 const closeSuccessModal = () => {
   showSuccessModal.value = false
   selectedOrder.value = null
+}
+
+//feedbacks
+import { useReviewStore } from '@/stores/reviewStore'
+
+const reviewStore = useReviewStore()
+
+const feedbacks = ref({
+  rating: 0,
+  comment: ''
+})
+
+const stationId = 'station-123' // This should come from the actual order/station
+
+function submitReview() {
+  if (feedbacks.value.rating && feedbacks.value.comment.trim()) {
+    reviewStore.addReview(stationId, {
+      rating: feedbacks.value.rating,
+      comment: feedbacks.value.comment
+    })
+    feedbacks.value.rating = 0
+    feedbacks.value.comment = ''
+  } else {
+    alert('Please provide both a rating and comment.')
+  }
 }
 </script>
 
