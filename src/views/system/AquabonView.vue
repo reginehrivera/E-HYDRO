@@ -89,13 +89,13 @@
                     <v-card-title>Leave a Review</v-card-title>
                     <v-card-text>
                       <v-rating
-                        v-model="newReview.rating"
+                        v-model="feedbacks.rating"
                         background-color="grey lighten-1"
                         color="yellow darken-2"
                         large
                       />
                       <v-textarea
-                        v-model="newReview.comment"
+                        v-model="feedbacks.comment"
                         label="Your comment"
                         outlined
                         auto-grow
@@ -274,7 +274,7 @@ const toggleDecrease = () => {
 }
 
 // Reviews
-const newReview = ref({
+const feedbacks = ref({
   rating: 0,
   comment: ''
 })
@@ -282,10 +282,10 @@ const newReview = ref({
 const reviews = ref([])
 
 function submitReview() {
-  if (newReview.value.rating && newReview.value.comment.trim()) {
-    reviews.value.push({ ...newReview.value })
-    newReview.value.rating = 0
-    newReview.value.comment = ''
+  if (feedbacks.value.rating && feedbacks.value.comment.trim()) {
+    reviews.value.push({ ...feedbacks.value })
+    feedbacks.value.rating = 0
+    feedbacks.value.comment = ''
   } else {
     alert('Please provide both a rating and comment.')
   }
