@@ -147,15 +147,17 @@
                             value="Refill Only"
                             color="primary"
                             class="checkbox-top"
+                            @change="handleOptionChange"
                           ></v-checkbox>
                         </div>
                         <div class="checkbox-two">
                           <v-checkbox
                             v-model="order.selected"
-                            label="Buy with New Gallon"
-                            value="Buy with New Gallon"
+                            label="Buy with New Gallon (₱100.00)"
+                            value="Buy with New Gallon (₱100.00)"
                             color="primary"
                             class="checkbox-bottom"
+                            @change="handleOptionChange"
                           ></v-checkbox>
                         </div>
                       </div>
@@ -230,7 +232,6 @@
                     <p v-if="order.quantity >= 12" class="discount-text">
                       Discount: -₱{{ getDiscount(order) }}.00
                     </p>
-                    <h4>Total: ₱{{ getTotal(order) }}.00</h4>
                   </div>
 
                   <v-row class="cancel-order-btns">
@@ -242,8 +243,10 @@
 
                 <v-container class="text-end">
                   <v-divider class="my-4"></v-divider>
+                  <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
+                  <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
                   <h3>
-                    <b>Total All Orders: ₱{{ totalAllOrders }}.00</b>
+                    <b>Total All Orders: ₱{{ finalTotal }}.00</b>
                   </h3>
                 </v-container>
 
@@ -295,16 +298,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-// Review logic
-const newReview = ref({
-  rating: 0,
-  comment: '',
-})
+// Calendar and Reviews
+const showCalendar = ref(false)
+const selectedDate = ref(null)
+const newReview = ref({ rating: 0, comment: '' })
 const reviews = ref([])
+
+function confirmDateSelection() {
+  showCalendar.value = false
+}
 
 function submitReview() {
   if (newReview.value.comment && newReview.value.rating) {
@@ -314,60 +320,77 @@ function submitReview() {
   }
 }
 
-// Calendar
-const showCalendar = ref(false)
-const selectedDate = ref(null)
-function confirmDateSelection() {
-  showCalendar.value = false
-}
-
-// Order logic
+// Address items
 const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
-const orders = ref([
-  {
-    selected: [],
-    address: '',
-    quantity: 0,
-  },
-])
 
-function increaseGallon(index) {
-  orders.value[index].quantity++
-}
+// Orders and Totals
+const orders = ref([{ selected: [], address: '', quantity: 0 }])
 
-function decreaseGallon(index) {
-  if (orders.value[index].quantity > 1) {
-    orders.value[index].quantity--
-  }
-}
-
-function addNewOrder() {
-  orders.value.push({
-    selected: [],
-    address: '',
-    quantity: 0,
-  })
-}
+const totalDiscount = ref(0)
+const totalNewGallon = ref(0)
+const finalTotal = ref(0)
 
 function getSubtotal(order) {
-  return order.quantity * 25
+  const base = order.quantity * 25
+  const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100.00)')
+  const addon = hasNewGallon ? order.quantity * 100 : 0
+  return base + addon
 }
 
 function getDiscount(order) {
   return order.quantity >= 12 ? 10 : 0
 }
 
-function getTotal(order) {
-  return getSubtotal(order) - getDiscount(order)
+function updateTotals() {
+  let subtotal = 0
+  let discount = 0
+  let newGallonTotal = 0
+
+  orders.value.forEach((order) => {
+    const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100.00)')
+    subtotal += getSubtotal(order)
+    discount += getDiscount(order)
+    if (hasNewGallon) {
+      newGallonTotal += order.quantity * 100
+    }
+  })
+
+  totalNewGallon.value = newGallonTotal
+  totalDiscount.value = discount
+  finalTotal.value = subtotal - discount
+}
+
+function increaseGallon(index) {
+  orders.value[index].quantity++
+  updateTotals()
+}
+
+function decreaseGallon(index) {
+  if (orders.value[index].quantity > 1) {
+    orders.value[index].quantity--
+    updateTotals()
+  }
+}
+
+function addNewOrder() {
+  orders.value.push({ selected: [], address: '', quantity: 0 })
+  updateTotals()
 }
 
 function orderInBulk() {
   orders.value.forEach((order) => {
     order.quantity += 12
   })
+  updateTotals()
 }
 
-const totalAllOrders = computed(() => orders.value.reduce((sum, order) => sum + getTotal(order), 0))
+// Recalculate when options are toggled
+function handleOptionChange() {
+  updateTotals()
+}
+
+// Initial totals
+updateTotals()
 </script>
 
 <style scoped>
@@ -378,7 +401,5 @@ const totalAllOrders = computed(() => orders.value.reduce((sum, order) => sum + 
 
 .discount-text {
   color: red;
-  font-weight: normal;
-  font-size: 15px;
 }
 </style>
