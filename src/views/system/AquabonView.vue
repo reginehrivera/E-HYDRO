@@ -159,8 +159,8 @@
                             <div class="checkbox-two">
                               <v-checkbox
                                 v-model="order.selected"
-                                label="Buy with New Gallon (₱100.00)"
-                                value="Buy with New Gallon (₱100.00)"
+                                label="Buy with New Gallon (₱100)"
+                                value="Buy with New Gallon (₱100)"
                                 color="primary"
                                 class="checkbox-bottom"
                                 @change="handleOptionChange"
@@ -256,8 +256,19 @@
                       </v-row>
                     </v-container>
                   </div>
+
                   <div class="text-end">
                     <v-divider class="my-4"></v-divider>
+                    <div class="d-flex align-center mb-4">
+                      <h4 class="text-start mr-2">Payment Method:</h4>
+                      <v-select
+                        label="Select Payment Method"
+                        :items="['Cash on Delivery', 'GCash']"
+                        variant="outlined"
+                        density="compact"
+                        style="width: 180px; font-size: 14px; min-height: 32px"
+                      ></v-select>
+                    </div>
                     <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
                     <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
                     <h3>
