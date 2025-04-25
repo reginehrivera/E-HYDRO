@@ -83,36 +83,11 @@
 
                   <v-divider></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                <v-container>
-                  <!-- Review Input -->
-                  <v-card class="pa-4 mb-6">
-                    <v-card-title>Leave a Review</v-card-title>
-                    <v-card-text>
-                      <v-rating
-                        v-model="feedbacks.rating"
-                        background-color="grey lighten-1"
-                        color="yellow darken-2"
-                        large
-                      />
-                      <v-textarea
-                        v-model="feedbacks.comment"
-                        label="Your comment"
-                        outlined
-                        auto-grow
-                      />
-                      <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
-                    </v-card-text>
-                  </v-card>
-
-                  <!-- Reviews List -->
+                  <v-container>
+                  <h2>Reviews for this Station</h2>
                   <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
-                    <v-card-title class="d-flex align-center justify-space-between">
-                      <v-rating
-                        v-model="review.rating"
-                        readonly
-                        color="yellow darken-2"
-                        small
-                      />
+                    <v-card-title>
+                      <v-rating :model-value="review.rating" readonly color="yellow darken-2" small />
                     </v-card-title>
                     <v-card-text>{{ review.comment }}</v-card-text>
                   </v-card>
@@ -274,22 +249,13 @@ const toggleDecrease = () => {
 }
 
 // Reviews
-const feedbacks = ref({
-  rating: 0,
-  comment: ''
-})
+import { computed } from 'vue'
+import { useReviewStore } from '@/stores/reviewStore'
 
-const reviews = ref([])
+const reviewStore = useReviewStore()
 
-function submitReview() {
-  if (feedbacks.value.rating && feedbacks.value.comment.trim()) {
-    reviews.value.push({ ...feedbacks.value })
-    feedbacks.value.rating = 0
-    feedbacks.value.comment = ''
-  } else {
-    alert('Please provide both a rating and comment.')
-  }
-}
+const stationId = 'station-123' // Should be dynamic (from route param maybe)
+const reviews = computed(() => reviewStore.getReviewsByStation(stationId))  
 
 </script>
 
