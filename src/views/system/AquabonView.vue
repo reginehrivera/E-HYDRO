@@ -439,11 +439,6 @@ async function placeOrder() {
   showSuccessDialog.value = true
 }
 
-function goToOrderPage() {
-  showSuccessDialog.value = false
-  router.push('/order')
-}
-
 function handleOptionChange() {
   updateTotals()
 }
