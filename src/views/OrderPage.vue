@@ -41,6 +41,7 @@
                     {{ order.status }}
                   </span>
                 </div>
+                <p><strong>Water Refilling Station:</strong> {{ order.station }}</p>
                 <p><strong>Date:</strong> {{ order.date }}</p>
                 <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
                 <p><strong>Total:</strong> ₱{{ order.total.toFixed(2) }}</p>
@@ -51,7 +52,7 @@
                   <button class="btn-primary" @click="viewDetails(order)">View Details</button>
                 </div>
                 <div class="action-buttons" v-if="order.status === 'Completed'">
-                  <router-link :to="`/station`" class="btn-border no-underline"
+                  <router-link :to="order.router" class="btn-border no-underline"
                     >Re-Order</router-link
                   >
                   <button class="btn-primary" @click="openRateModal(order)">Rate</button>
@@ -95,6 +96,7 @@
               <h3>Order #{{ selectedOrder?.id }}</h3>
               <div class="info-box">
                 <h4><strong>Order Summary</strong></h4>
+                <h5>{{ selectedOrder?.station }} Water Refilling Station  </h5>
                 <p><strong>Order Date:</strong> {{ selectedOrder?.date }}</p>
                 <p>
                   <strong>Status:</strong>
@@ -221,6 +223,7 @@ const orders = ref([
   {
     id: 12345,
     date: 'April 18, 2025',
+    station: 'Aquasis',
     quantity: 3,
     total: 180,
     orderType: 'Single Purchase',
@@ -231,16 +234,19 @@ const orders = ref([
   {
     id: 12346,
     date: 'April 10, 2025',
+    station: 'Aquabon',
     quantity: 2,
     total: 120,
     orderType: 'Subscription',
     status: 'Completed',
     deliveryAddress: '456 Oak Rd, Townsville',
     deliveryDate: 'April 12, 2025',
+    router: '/aquabon',
   },
   {
     id: 12347,
     date: 'April 15, 2025',
+    station: 'Waterdrops',
     quantity: 5,
     total: 300,
     orderType: 'Single Purchase',
@@ -476,6 +482,9 @@ const closeSuccessModal = () => {
 .info-box h4 {
   margin-bottom: 10px;
   font-size: 16px;
+}
+.info-box h5 {
+  font-size: 14px;
 }
 
 .info-box p {

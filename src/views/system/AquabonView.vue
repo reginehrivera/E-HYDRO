@@ -83,8 +83,8 @@
 
                   <v-divider></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                <!--<v-container>
-
+                <v-container>
+                  <!-- Review Input -->
                   <v-card class="pa-4 mb-6">
                     <v-card-title>Leave a Review</v-card-title>
                     <v-card-text>
@@ -104,7 +104,7 @@
                     </v-card-text>
                   </v-card>
 
-
+                  <!-- Reviews List -->
                   <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
                     <v-card-title class="d-flex align-center justify-space-between">
                       <v-rating
@@ -116,7 +116,7 @@
                     </v-card-title>
                     <v-card-text>{{ review.comment }}</v-card-text>
                   </v-card>
-                </v-container>-->
+                </v-container>
                   <!----->
 
                 </v-container>
@@ -274,7 +274,7 @@ const toggleDecrease = () => {
 }
 
 // Reviews
-/*const newReview = ref({
+const newReview = ref({
   rating: 0,
   comment: ''
 })
@@ -289,7 +289,7 @@ function submitReview() {
   } else {
     alert('Please provide both a rating and comment.')
   }
-}*/
+}
 
 </script>
 
