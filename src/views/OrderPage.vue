@@ -139,43 +139,41 @@
 
           <!-- Rate Modal -->
           <div class="modal" v-if="showRateModal">
-  <div class="modal-content" style="position: relative">
-    <button
-      style="
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: none;
-        border: none;
-        font-size: 18px;
-      "
-      @click="showRateModal = false"
-    >
-      ✖
-    </button>
+            <div class="modal-content" style="position: relative">
+              <button
+                style="
+                  position: absolute;
+                  top: 10px;
+                  right: 10px;
+                  background: none;
+                  border: none;
+                  font-size: 18px;
+                "
+                @click="showRateModal = false"
+              >
+                ✖
+              </button>
 
-    <v-card class="pa-4 mb-6">
-      <v-card-title>Leave a Review</v-card-title>
-      <v-card-text>
-        <v-rating
-          v-model="feedbacks.rating"
-          background-color="grey lighten-1"
-          color="yellow darken-2"
-          large
-        />
-        <v-textarea
-          v-model="feedbacks.comment"
-          label="Your comment"
-          outlined
-          auto-grow
-        />
-        <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
-      </v-card-text>
-    </v-card>
-  </div>
-</div>
-
-
+              <v-card class="pa-4 mb-6">
+                <v-card-title>Leave a Review</v-card-title>
+                <v-card-text>
+                  <v-rating
+                    v-model="feedbacks.rating"
+                    background-color="grey lighten-1"
+                    color="yellow darken-2"
+                    large
+                  />
+                  <v-textarea
+                    v-model="feedbacks.comment"
+                    label="Your comment"
+                    outlined
+                    auto-grow
+                  />
+                  <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
+                </v-card-text>
+              </v-card>
+            </div>
+          </div>
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
@@ -194,7 +192,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 //import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
@@ -240,8 +238,8 @@ const filteredOrders = ref([...orders.value])
 
 const showCancelModal = ref(false)
 const showDetailsModal = ref(false)
-const showRateModal = ref(false)
-const showSuccessModal = ref(false)
+//const showRateModal = ref(false)
+//const showSuccessModal = ref(false)
 
 const cancelIndex = ref(null)
 const selectedOrder = ref(null)
@@ -279,39 +277,43 @@ const openRateModal = (order) => {
   showRateModal.value = true
 }
 
-/*const submitRating = () => {
-  showRateModal.value = false
-  showSuccessModal.value = true
-}*/
-
-const closeSuccessModal = () => {
-  showSuccessModal.value = false
-  selectedOrder.value = null
-}
-
-//feedbacks
 import { useReviewStore } from '@/stores/reviewStore'
 
-const reviewStore = useReviewStore()
+// State for modal visibility
+const showRateModal = ref(false)
+const showSuccessModal = ref(false)
 
-const feedbacks = ref({
+// Reactive state for feedback
+const feedbacks = reactive({
   rating: 0,
   comment: ''
 })
-
 const stationId = 'station-123' // This should come from the actual order/station
+// Mocked user data (replace with actual user data from auth system)
+const currentUser = {
+  username: 'Mae',
+  email: 'mae@example.com',
+  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com' // use default or from DB
+}
 
-function submitReview() {
-  if (feedbacks.value.rating && feedbacks.value.comment.trim()) {
-    reviewStore.addReview(stationId, {
-      rating: feedbacks.value.rating,
-      comment: feedbacks.value.comment
-    })
-    feedbacks.value.rating = 0
-    feedbacks.value.comment = ''
-  } else {
-    alert('Please provide both a rating and comment.')
-  }
+// Access the review store
+const reviewStore = useReviewStore()
+
+// Function to submit the review
+const submitReview = () => {
+  reviewStore.addReview(stationId, {
+    rating: feedbacks.rating,
+    comment: feedbacks.comment
+  }, currentUser)
+
+  // Close the rating modal and show success modal
+  showRateModal.value = false
+  showSuccessModal.value = true
+}
+
+// Function to close the success modal
+const closeSuccessModal = () => {
+  showSuccessModal.value = false
 }
 </script>
 

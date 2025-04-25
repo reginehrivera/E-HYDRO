@@ -1,14 +1,17 @@
-// stores/reviewStore.js
+
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useReviewStore = defineStore('reviewStore', () => {
-  const reviews = ref([]) // All reviews
+  const reviews = ref([])
 
-  function addReview(stationId, review) {
+  function addReview(stationId, review, user) {
     reviews.value.push({
       stationId,
-      ...review
+      ...review,
+      username: user.username,
+      email: user.email,
+      profilePhoto: user.profilePhoto
     })
   }
 

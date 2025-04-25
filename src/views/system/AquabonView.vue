@@ -82,16 +82,27 @@
                   </v-row>
 
                   <v-divider></v-divider>
+
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
                   <v-container>
-                  <h2>Reviews for this Station</h2>
-                  <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
-                    <v-card-title>
-                      <v-rating :model-value="review.rating" readonly color="yellow darken-2" small />
-                    </v-card-title>
-                    <v-card-text>{{ review.comment }}</v-card-text>
-                  </v-card>
-                </v-container>
+                    <p>
+                      4.9 <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings ({{ reviews.length }})
+                    </p>
+
+                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
+                      <v-card-title class="d-flex align-center gap-3">
+                        <v-avatar size="40">
+                          <img :src="review.profilePhoto" alt="Profile" />
+                        </v-avatar>
+                        <div>
+                          <div><strong>{{ review.username }}</strong></div>
+                          <div class="text-caption grey--text">{{ review.email }}</div>
+                          <v-rating :model-value="review.rating" readonly color="yellow darken-2" small />
+                        </div>
+                      </v-card-title>
+                      <v-card-text>{{ review.comment }}</v-card-text>
+                    </v-card>
+                  </v-container>
                   <!----->
 
                 </v-container>
@@ -255,7 +266,7 @@ import { useReviewStore } from '@/stores/reviewStore'
 const reviewStore = useReviewStore()
 
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
-const reviews = computed(() => reviewStore.getReviewsByStation(stationId))  
+const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 </script>
 
