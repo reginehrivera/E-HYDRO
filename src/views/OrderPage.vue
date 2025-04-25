@@ -213,8 +213,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/supabase'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
 const orders = ref([
@@ -303,6 +303,19 @@ const closeSuccessModal = () => {
   showSuccessModal.value = false
   selectedOrder.value = null
 }
+
+onMounted(async () => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('date_ordered', { ascending: false })
+
+  if (error) {
+    console.error('Failed to fetch orders:', error)
+  } else {
+    orders.value = data
+  }
+})
 </script>
 
 <style scoped>

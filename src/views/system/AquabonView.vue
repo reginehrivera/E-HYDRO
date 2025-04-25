@@ -135,119 +135,135 @@
                   </template>
                 </v-date-picker>
 
-                <v-container class="right-container" v-for="(order, index) in orders" :key="index">
-                  <v-row class="first-row">
-                    <v-col cols="6" class="grp-checkbox">
-                      <h4 class="blue-color">Order Option</h4>
-                      <div class="checkboxes">
-                        <div class="checkbox-one">
-                          <v-checkbox
-                            v-model="order.selected"
-                            label="Refill Only"
-                            value="Refill Only"
-                            color="primary"
-                            class="checkbox-top"
-                            @change="handleOptionChange"
-                          ></v-checkbox>
-                        </div>
-                        <div class="checkbox-two">
-                          <v-checkbox
-                            v-model="order.selected"
-                            label="Buy with New Gallon (₱100.00)"
-                            value="Buy with New Gallon (₱100.00)"
-                            color="primary"
-                            class="checkbox-bottom"
-                            @change="handleOptionChange"
-                          ></v-checkbox>
-                        </div>
+                <v-container class="right-container">
+                  <div class="scrollable-content">
+                    <v-container
+                      v-for="(order, index) in orders"
+                      :key="index"
+                      :ref="`order-${index}`"
+                    >
+                      <v-row class="first-row">
+                        <v-col cols="6" class="grp-checkbox">
+                          <h4 class="blue-color">Order Option</h4>
+                          <div class="checkboxes">
+                            <div class="checkbox-one">
+                              <v-checkbox
+                                v-model="order.selected"
+                                label="Refill Only"
+                                value="Refill Only"
+                                color="primary"
+                                class="checkbox-top"
+                                @change="handleOptionChange"
+                              ></v-checkbox>
+                            </div>
+                            <div class="checkbox-two">
+                              <v-checkbox
+                                v-model="order.selected"
+                                label="Buy with New Gallon (₱100.00)"
+                                value="Buy with New Gallon (₱100.00)"
+                                color="primary"
+                                class="checkbox-bottom"
+                                @change="handleOptionChange"
+                              ></v-checkbox>
+                            </div>
+                          </div>
+                        </v-col>
+                        <v-col cols="6">
+                          <h4 class="blue-color mb-3">Delivery Address Option</h4>
+                          <v-select
+                            v-model="order.address"
+                            :items="items"
+                            label="Select Address..."
+                          />
+                        </v-col>
+                      </v-row>
+
+                      <v-divider></v-divider>
+
+                      <v-row class="second-row">
+                        <v-col cols="12" md="2">
+                          <v-card class="text-center card-img" width="95">
+                            <img src="@/assets/img/gallon-aquabon.png" />
+                          </v-card>
+                        </v-col>
+                        <v-col cols="12" md="10" class="pl-6">
+                          <v-row>
+                            <v-col cols="12">
+                              <h5 class="blue-color">Aquabon Water Refilling Station</h5>
+                              <h6>
+                                Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal
+                              </h6>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" md="6">
+                              <p class="text-h6">₱ 25.00 per gallon</p>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                              <v-container d-flex align-center class="btn-group">
+                                <v-row>
+                                  <v-btn
+                                    rounded="0"
+                                    class="btn-minus"
+                                    variant="plain"
+                                    size="small"
+                                    @click="() => decreaseGallon(index)"
+                                  >
+                                    <v-icon>mdi-minus</v-icon>
+                                  </v-btn>
+                                  <p class="text-h6 text-center">{{ order.quantity }}</p>
+                                  <v-btn
+                                    rounded="0"
+                                    class="btn-plus"
+                                    variant="plain"
+                                    size="small"
+                                    @click="() => increaseGallon(index)"
+                                  >
+                                    <v-icon>mdi-plus</v-icon>
+                                  </v-btn>
+                                </v-row>
+                              </v-container>
+                            </v-col>
+                          </v-row>
+                        </v-col>
+                      </v-row>
+
+                      <v-divider></v-divider>
+
+                      <div class="text-center">
+                        <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
+                          <v-icon class="pr-3 text-center text-primary" size="large">
+                            mdi-plus-circle-outline
+                          </v-icon>
+                          <span class="text-dark">Place a new order for another location</span>
+                        </v-btn>
                       </div>
-                    </v-col>
-                    <v-col cols="6">
-                      <h4 class="blue-color mb-3">Delivery Address Option</h4>
-                      <v-select v-model="order.address" :items="items" label="Select Address..." />
-                    </v-col>
-                  </v-row>
 
-                  <v-divider></v-divider>
+                      <div class="total-right mb-3">
+                        <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
+                        <p v-if="order.quantity >= 12" class="discount-text">
+                          Discount: -₱{{ getDiscount(order) }}.00
+                        </p>
+                      </div>
 
-                  <v-row class="second-row">
-                    <v-col cols="12" md="2">
-                      <v-card class="text-center card-img" width="95">
-                        <img src="@/assets/img/gallon-aquabon.png" />
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" md="10" class="pl-6">
-                      <v-row>
-                        <v-col cols="12">
-                          <h5 class="blue-color">Aquabon Water Refilling Station</h5>
-                          <h6>Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal</h6>
+                      <v-row class="cancel-order-btns" v-if="orders.length > 1">
+                        <v-col cols="12" md="6" class="text-start">
+                          <v-btn variant="none" class="cancel-btn" @click="cancelOrder(index)"
+                            >Cancel</v-btn
+                          >
                         </v-col>
+                        <v-divider class="my-4"></v-divider>
                       </v-row>
-                      <v-row>
-                        <v-col cols="12" md="6">
-                          <p class="text-h6">₱ 25.00 per gallon</p>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                          <v-container d-flex align-center class="btn-group">
-                            <v-row>
-                              <v-btn
-                                rounded="0"
-                                class="btn-minus"
-                                variant="plain"
-                                size="small"
-                                @click="() => decreaseGallon(index)"
-                              >
-                                <v-icon>mdi-minus</v-icon>
-                              </v-btn>
-                              <p class="text-h6 text-center">{{ order.quantity }}</p>
-                              <v-btn
-                                rounded="0"
-                                class="btn-plus"
-                                variant="plain"
-                                size="small"
-                                @click="() => increaseGallon(index)"
-                              >
-                                <v-icon>mdi-plus</v-icon>
-                              </v-btn>
-                            </v-row>
-                          </v-container>
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                  </v-row>
-
-                  <v-divider></v-divider>
-
-                  <div class="text-center">
-                    <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
-                      <v-icon class="pr-3 text-center text-primary" size="large">
-                        mdi-plus-circle-outline
-                      </v-icon>
-                      <span class="text-dark">Place a new order for another location</span>
-                    </v-btn>
+                    </v-container>
                   </div>
-
-                  <div class="total-right mb-3">
-                    <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
-                    <p v-if="order.quantity >= 12" class="discount-text">
-                      Discount: -₱{{ getDiscount(order) }}.00
-                    </p>
+                  <div class="text-end">
+                    <v-divider class="my-4"></v-divider>
+                    <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
+                    <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
+                    <h3>
+                      <b>Total All Orders: ₱{{ finalTotal }}.00</b>
+                    </h3>
                   </div>
-
-                  <v-row class="cancel-order-btns">
-                    <v-col cols="12" md="6" class="text-start">
-                      <v-btn variant="none" class="cancel-btn">Cancel</v-btn>
-                    </v-col>
-                  </v-row>
-                </v-container>
-
-                <v-container class="text-end">
-                  <v-divider class="my-4"></v-divider>
-                  <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
-                  <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
-                  <h3>
-                    <b>Total All Orders: ₱{{ finalTotal }}.00</b>
-                  </h3>
                 </v-container>
 
                 <v-container>
@@ -269,19 +285,12 @@
                       </v-btn>
                     </v-col>
                     <v-col cols="12" md="4" class="order-bottom-btn">
-                      <router-link
-                        :to="{
-                          name: 'summary',
-                          query: { orders: JSON.stringify(orders), schedule: selectedDate },
-                        }"
-                      >
-                        <v-btn variant="none" class="full-btn">
-                          <div>
-                            <h5>Order now</h5>
-                            <h3>₱20 | each</h3>
-                          </div>
-                        </v-btn>
-                      </router-link>
+                      <v-btn variant="none" class="full-btn" @click="placeOrder">
+                        <div>
+                          <h5>Order now</h5>
+                          <h3>₱20 | each</h3>
+                        </div>
+                      </v-btn>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -295,12 +304,27 @@
       <!--End Card Station Area-->
     </template>
   </NavigationBar>
+  <v-dialog v-model="showSuccessDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h6">Order Successful</v-card-title>
+      <v-card-text>
+        {{ successMessage }}
+      </v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn color="primary" text @click="goToOrderPage">Okay</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { supabase } from '@/supabase' // ✅ import Supabase
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
+
+const router = useRouter()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
@@ -325,10 +349,12 @@ const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
 
 // Orders and Totals
 const orders = ref([{ selected: [], address: '', quantity: 0 }])
-
+const ordersContainer = ref(null)
 const totalDiscount = ref(0)
 const totalNewGallon = ref(0)
 const finalTotal = ref(0)
+const showSuccessDialog = ref(false)
+const successMessage = ref('')
 
 function getSubtotal(order) {
   const base = order.quantity * 25
@@ -373,8 +399,13 @@ function decreaseGallon(index) {
 }
 
 function addNewOrder() {
+  const newIndex = orders.value.length
   orders.value.push({ selected: [], address: '', quantity: 0 })
-  updateTotals()
+
+  const newOrderElement = ordersContainer.value.querySelector(`[ref='order-${newIndex}']`)
+  if (newOrderElement) {
+    newOrderElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 }
 
 function orderInBulk() {
@@ -384,13 +415,45 @@ function orderInBulk() {
   updateTotals()
 }
 
-// Recalculate when options are toggled
+async function placeOrder() {
+  const formattedOrders = orders.value.map((order) => ({
+    selected_options: order.selected,
+    address: order.address,
+    quantity: order.quantity,
+    subtotal: getSubtotal(order),
+    discount: getDiscount(order),
+    total: getSubtotal(order) - getDiscount(order),
+    date_ordered: new Date().toISOString(),
+    // You can add user_id here if needed
+  }))
+
+  const { error } = await supabase.from('orders').insert(formattedOrders)
+
+  if (error) {
+    console.error('Failed to insert orders:', error)
+    successMessage.value = 'Something went wrong. Please try again.'
+  } else {
+    successMessage.value = 'Your order has been placed successfully!'
+  }
+
+  showSuccessDialog.value = true
+}
+
+function goToOrderPage() {
+  showSuccessDialog.value = false
+  router.push('/order')
+}
+
 function handleOptionChange() {
   updateTotals()
 }
 
-// Initial totals
 updateTotals()
+
+function cancelOrder(index) {
+  orders.value.splice(index, 1)
+  updateTotals()
+}
 </script>
 
 <style scoped>
@@ -401,5 +464,11 @@ updateTotals()
 
 .discount-text {
   color: red;
+}
+
+.scrollable-content {
+  max-height: 470px;
+  overflow-y: auto;
+  padding-right: 8px;
 }
 </style>
