@@ -265,6 +265,7 @@
                       <div class="text-left">
                         <h4 class="text-start" style="margin-bottom: 9px">Payment Method:</h4>
                         <v-select
+                          v-model="paymentMethod"
                           label="Select Payment Method"
                           :items="['Cash on Delivery', 'GCash']"
                           variant="outlined"
@@ -394,6 +395,7 @@ const showSuccessDialog = ref(false)
 const successMessage = ref('Your order has been placed successfully!')
 const showIncompleteOrderDialog = ref(false)
 const incompleteOrderMessage = ref('Please complete your order before placing it.')
+const paymentMethod = ref('Cash on Delivery')
 
 function getSubtotal(order) {
   const base = order.quantity * 25
@@ -508,6 +510,7 @@ async function placeOrder() {
     user_id: userId,
     created_at: new Date().toISOString(),
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
+    payment_method: paymentMethod.value,
   }))
 
   const { data, error } = await supabase.from('orders').insert(orderToSave)
