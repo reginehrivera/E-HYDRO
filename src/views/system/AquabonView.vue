@@ -7,7 +7,7 @@
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>Aquasis Water Refilling Station</h2>
+                <h2>{{ station.name }}</h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -121,13 +121,17 @@
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
-              <v-col cols="12" md="7" class="d-flex flex-column align-start">
+              <v-col cols="12" md="7" class="d-flex flex-column align-center">
                 <v-date-picker
                   v-if="showCalendar"
                   v-model="selectedDate"
                   :min="new Date().toISOString().substr(0, 10)"
                   show-adjacent-months
-                  color="primary"
+                  class="custom-calendar"
+                  hide-header="false"
+                  width="600"
+                  color="#FD7B38"
+                  :selected-color="'#FD7B38'"
                 >
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
@@ -189,7 +193,7 @@
                         <v-col cols="12" md="10" class="pl-6">
                           <v-row>
                             <v-col cols="12">
-                              <h5 class="blue-color">Aquabon Water Refilling Station</h5>
+                              <h5 class="blue-color">{{ station.name }}</h5>
                               <h6>
                                 Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal
                               </h6>
@@ -397,6 +401,10 @@ const showIncompleteOrderDialog = ref(false)
 const incompleteOrderMessage = ref('Please complete your order before placing it.')
 const paymentMethod = ref('Cash on Delivery')
 
+const station = ref({
+  name: 'Aquabon Water Refilling Station',
+})
+
 function getSubtotal(order) {
   const base = order.quantity * 25
   const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100)')
@@ -512,6 +520,7 @@ async function placeOrder() {
     created_at: new Date().toISOString(),
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
     payment_method: paymentMethod.value,
+    station_name: station.value.name,
   }))
 
   const { data, error } = await supabase.from('orders').insert(orderToSave)
@@ -580,5 +589,23 @@ function handleIncompleteOrderOk() {
   text-overflow: ellipsis;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+.custom-calendar {
+  background-color: #2e2545;
+  color: white;
+
+  border-radius: 12px;
+
+  padding: 1rem;
+}
+
+.custom-calendar .v-date-picker-header {
+  background-color: #2e2545;
+}
+
+/* Optional: tweak day cells */
+.custom-calendar .v-btn {
+  color: white; /* Make calendar day numbers white */
 }
 </style>
