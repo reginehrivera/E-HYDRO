@@ -5,117 +5,138 @@
     <main class="content">
       <!--  card  -->
 
-      <div v-if="isMyAccountPage">
-        <v-row class="pa-4" align="start">
-  <!-- Left side: Profile Form -->
-  <v-col cols="12" md="9">
-    <v-card
-      class="v-cardv2"
-      height="600"
-      width="100%"
-      hover
-      :style="{ background: '#D9D9D9' }"
-    >
-      <span class="text-h5 font-weight-medium d-flex justify-center my-4">Profile Settings</span>
-      <div class="d-flex justify-center my-4">
-        <v-avatar color="red" size="80">
-          <span class="text-h5">CJ</span>
-        </v-avatar>
-      </div>
-      <div class="d-flex justify-center my">John Doe</div>
-      <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
+        <v-row class="flex-row-reverse">
+          <v-col md="3">
+            <v-card
+              class="card_permanent"
+              width="auto"
+              height="20rem"
+              hover
+              :style="{ background: '#D9D9D9' }"
+            >
+              <v-card-item>
+                <div class="d-flex mt-5 mb-2">
+                  <!-- Avatar on the left -->
+                  <v-avatar color="surface-variant" size="90">
+                    <span class="text-h5">CJ</span>
+                  </v-avatar>
 
-      <v-form v-model="valid">
-        <v-container>
-          <v-row justify="start" style="max-height:90px">
-            <v-col cols="6">
-              <span style="color:#919191;">First Name</span>
-              <v-text-field label="First name" model-value="" variant="solo" />
-            </v-col>
-            <v-col cols="6">
-              <span style="color:#919191;">Last Name</span>
-              <v-text-field label="Last name" model-value="" variant="solo" />
-            </v-col>
-          </v-row>
+                  <!-- Right section: name, email, and button -->
+                  <div class="ms-4 d-flex flex-column justify-start">
+                    <span>John Doe</span>
+                    <span>John@gmail.com</span>
+                    <v-btn
+                      size="small"
+                      :style="{ background: '#07ACAF', color: 'white' }"
+                      class="mt-2 align-self-start"
+                    >
+                      Edit Profile
+                    </v-btn>
+                  </div>
+                </div>
 
-          <v-row justify="start" style="max-height:90px">
-            <v-col cols="6">
-              <span style="color:#919191;">Email</span>
-              <v-text-field label="Email" model-value="" variant="solo" />
-            </v-col>
-            <v-col cols="6">
-              <span style="color:#919191;">Phone Number</span>
-              <v-text-field label="Phone number" model-value="" variant="solo" />
-            </v-col>
-          </v-row>
+                <v-card-title>Edit Profile</v-card-title>
+              </v-card-item>
+              <v-card-text>
+                <div
+                  style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px"
+                >
+                  My Orders
+                </div>
+                <div
+                  style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px"
+                >
+                  <router-link
+                    :to="{ name: 'addresses' }"
+                    class="link"
+                    :class="{ 'v-btn--active': $route.name === 'addresses' }"
+                  >
+                    Delivery Address
+                  </router-link>
+                </div>
+                <div
+                  style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px"
+                >
+                  <router-link
+                    :to="{ name: 'Myaccount' }"
+                    class="link"
+                    :class="{ 'v-btn--active': $route.name === 'Myaccount' }"
+                  >
+                    Profile Settings
+                  </router-link>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
 
-          <v-row justify="start">
-            <v-col cols="6">
-              <span style="color:#919191;">New Password</span>
-              <v-text-field label="New Password" model-value="" variant="solo" />
-            </v-col>
-            <v-col cols="6">
-              <span style="color:#919191;">Confirm Password</span>
-              <v-text-field label="Confirm Password" model-value="" variant="solo" />
-            </v-col>
-          </v-row>
+          <!-- Left side: Profile Form -->
+          <v-col class="card-v2" v-if="isMyAccountPage">
+            <v-card class="" height="600" width="100%" hover :style="{ background: '#D9D9D9' }">
+              <span class="text-h5 font-weight-medium d-flex justify-center my-4"
+                >Profile Settings</span
+              >
+              <div class="d-flex justify-center my-4">
+                <v-avatar color="red" size="80">
+                  <span class="text-h5">CJ</span>
+                </v-avatar>
+              </div>
+              <div class="d-flex justify-center my">John Doe</div>
+              <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
 
-          <v-row justify="center">
-            <v-col cols="12" md="4" sm="6">
-              <v-btn
-                :style="{ backgroundColor: '#022650', color: 'white' }"
-                rounded="lg"
-                block
-              >Save Changes</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-    </v-card>
-  </v-col>
+              <v-form v-model="valid">
+                <v-container>
+                  <v-row justify="start" style="max-height: 90px">
+                    <v-col cols="6">
+                      <span style="color: #919191">First Name</span>
+                      <v-text-field label="First name" model-value="" variant="solo" />
+                    </v-col>
+                    <v-col cols="6">
+                      <span style="color: #919191">Last Name</span>
+                      <v-text-field label="Last name" model-value="" variant="solo" />
+                    </v-col>
+                  </v-row>
 
-  <!-- Right side: Sidebar Card -->
-  <v-col cols="12" md="3" class="d-flex justify-end">
-    <v-card
-      class="v-card"
-      width="344vh"
-      height="25rem"
-      hover
-      :style="{ background: 'linear-gradient(10deg,#BBDEFB,#C5CAE9)' }"
-    >
-      <v-card-item>
-        <v-parallax src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" cover>
-          <v-avatar color="surface-variant" size="90" class="avatar">
-            <span class="text-h5">CJ</span>
-          </v-avatar>
-        </v-parallax>
-        <v-card-title>Edit Profile</v-card-title>
-      </v-card-item>
+                  <v-row justify="start" style="max-height: 90px">
+                    <v-col cols="6">
+                      <span style="color: #919191">Email</span>
+                      <v-text-field label="Email" model-value="" variant="solo" />
+                    </v-col>
+                    <v-col cols="6">
+                      <span style="color: #919191">Phone Number</span>
+                      <v-text-field label="Phone number" model-value="" variant="solo" />
+                    </v-col>
+                  </v-row>
 
-      <v-card-text>
-        Order list <br />
-        <router-link
-          :to="{ name: 'addresses' }"
-          class="link"
-          :class="{ 'v-btn--active': $route.name === 'addresses' }"
-        >Address</router-link><br />
-        <router-link
-          :to="{ name: 'Myaccount' }"
-          class="link"
-          :class="{ 'v-btn--active': $route.name === 'Myaccount' }"
-        >Profile Settings</router-link><br />
-        Payment & methods <br />
-        Privacy & Security
-      </v-card-text>
-    </v-card>
-  </v-col>
-</v-row>
+                  <v-row justify="start">
+                    <v-col cols="6">
+                      <span style="color: #919191">New Password</span>
+                      <v-text-field label="New Password" model-value="" variant="solo" />
+                    </v-col>
+                    <v-col cols="6">
+                      <span style="color: #919191">Confirm Password</span>
+                      <v-text-field label="Confirm Password" model-value="" variant="solo" />
+                    </v-col>
+                  </v-row>
 
-      </div>
+                  <v-row justify="center">
+                    <v-col cols="12" md="4" sm="6">
+                      <v-btn
+                        :style="{ backgroundColor: '#022650', color: 'white' }"
+                        rounded="lg"
+                        block
+                        >Save Changes</v-btn
+                      >
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-card>
+          </v-col>
+
 
       <!-- Extension for addresses -->
       <div v-if="SelectedPage">
-        <div class="d-flex justify-center">
+        <div>
           <v-card
             class="v-cardv2"
             height="500"
@@ -127,7 +148,7 @@
               <v-btn class="btn" :style="{ background: '#64B5F6' }" @click="overlay = !overlay">
                 + Add Address
               </v-btn>
-              <v-overlay v-model="overlay" class="d-flex justify-center align-center">
+              <v-overlay v-model="overlay" class="justify-center align-center" style="top: 10rem;">
                 <div class="d-flex justify-content-center">
                   <v-row>
                     <v-col class="d-flex justify-center pa-0" cols="auto">
@@ -215,6 +236,7 @@
                 </div>
               </v-overlay>
             </div>
+            <!-- extension address -->
             <v-container>
               <div class="d-flex justify-center my-4">
                 <v-avatar color="red" size="80">
@@ -262,6 +284,7 @@
           </v-card>
         </div>
       </div>
+    </v-row>
     </main>
   </div>
 </template>
@@ -310,7 +333,6 @@ const confirmPasswordRules = computed(() => [
 
 // Route-based check
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
-
 //overlay
 
 const overlay = ref(false)
@@ -601,8 +623,12 @@ function submit() {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100vh;
+  min-height: 100vh; /* Remove the 100vh if not necessary */
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content from the top */
+  padding-top: 12rem;
 }
 .row {
   margin-left: 2rem;
@@ -615,11 +641,12 @@ function submit() {
   top: 1rem;
   margin-right: 2rem;
 }
-.v-cardv2 {
-  top: 5rem;
+.card-v2 {
+  top: 150px;
 }
-.v-card{
-  top: 5rem;
+.v-card {
+  position: relative;
+  top: -5rem;
 }
 .v-container {
   padding: 40px;
@@ -638,5 +665,17 @@ function submit() {
 }
 .SpaceinBetween {
   padding: -20px;
+}
+.container {
+  display: flex;
+  justify-content: flex-end; /* Positions the card to the right */
+  padding: 20px;
+}
+.v-cards {
+  max-width: 344px; /* Limiting the width */
+  height: 20rem;
+}
+.card_permanent {
+  position: relative;
 }
 </style>
