@@ -44,7 +44,10 @@ export const useOrderStore = defineStore('orders', {
         const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100)') // Check if 'New Gallon' option is selected
         const addon = hasNewGallon ? order.quantity * 100 : 0 // Add extra cost if 'New Gallon' is selected
         subtotal += base + addon // Add the total for the order
-        discount += order.quantity >= 12 ? 10 : 0 // Apply discount for orders with quantity 12 or more
+
+        // Updated discount logic (₱10 discount per 12 gallons ordered)
+        discount += Math.floor(order.quantity / 12) * 10
+
         if (hasNewGallon) {
           newGallonTotal += order.quantity * 100 // Add total for new gallon orders
         }
@@ -72,6 +75,7 @@ export const useOrderStore = defineStore('orders', {
       const order = this.orders.find((order) => order.id === orderId)
       if (order) {
         order.status = newStatus
+        this.updateTotals() // <-- Added this to refresh totals if needed
       }
     },
   },

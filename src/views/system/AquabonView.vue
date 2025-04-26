@@ -496,19 +496,18 @@ async function placeOrder() {
     return
   }
 
-  // Trigger success message immediately
-  successMessage.value = 'Your order has been placed successfully!'
-  showSuccessDialog.value = true
+  // Generate random ID for each order placed
+  const randomId = Math.floor(Math.random() * 1000000) // Example random id
 
-  // Now, insert the order into the database
+  // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
+    id: randomId, // Include random ID
     quantity: order.quantity,
     total_price: getSubtotal(order),
     status: 'To Deliver',
     user_id: userId,
     created_at: new Date().toISOString(),
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
-    // Ensure `id` is not included here!
   }))
 
   const { data, error } = await supabase.from('orders').insert(orderToSave)
@@ -516,8 +515,12 @@ async function placeOrder() {
   if (error) {
     console.error('Error placing order:', error)
     successMessage.value = 'Failed to place order: ' + error.message
+    showSuccessDialog.value = true
   } else {
-    // Optional: Clear the order form after placing order
+    successMessage.value = 'Your order has been placed successfully!'
+    showSuccessDialog.value = true
+
+    // Clear the order form
     orders.value = [{ selected: [], address: '', quantity: 0 }]
     updateTotals()
   }

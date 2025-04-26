@@ -33,7 +33,7 @@
 
           <!-- Order Cards -->
           <transition-group name="fade" tag="div">
-            <div class="order-card" v-for="(order, index) in filteredOrders" :key="order.id">
+            <div class="order-card" v-for="(order, index) in filteredOrdersStore" :key="order.id">
               <div class="order-info">
                 <div class="order-top">
                   <strong>Order #{{ order.id }}</strong>
@@ -199,10 +199,16 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-//import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { supabase } from '@/supabase'
+import { useOrderStore } from '@/stores/orders'
+import { useReviewStore } from '@/stores/reviewStore'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
+// —————————————————————————————————————————
+// 1) Dummy orders (always present)
+// —————————————————————————————————————————
 const orders = ref([
   {
     id: 12345,
@@ -214,6 +220,7 @@ const orders = ref([
     status: 'To Deliver',
     deliveryAddress: '123 Main St, Cityville',
     deliveryDate: 'April 20, 2025',
+    router: '/aquasis',
   },
   {
     id: 12346,
@@ -237,95 +244,136 @@ const orders = ref([
     status: 'Cancelled',
     deliveryAddress: '789 Pine Ln, Villagetown',
     deliveryDate: 'April 18, 2025',
+    router: '/waterdrops',
   },
 ])
 
+// —————————————————————————————————————————
+// 2) Pinia store setup
+// —————————————————————————————————————————
+const router = useRouter()
+const orderStore = useOrderStore()
+
+// —————————————————————————————————————————
+// 3) UI state & review setup
+// —————————————————————————————————————————
 const selectedFilter = ref('All')
-const filteredOrders = ref([...orders.value])
-
 const showCancelModal = ref(false)
-const showDetailsModal = ref(false)
-//const showRateModal = ref(false)
-//const showSuccessModal = ref(false)
-
 const cancelIndex = ref(null)
+const showDetailsModal = ref(false)
 const selectedOrder = ref(null)
-const rating = ref(0)
-const recommend = ref('')
-
-const filterOrders = (status) => {
-  selectedFilter.value = status
-  filteredOrders.value =
-    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
-}
-
-const promptCancel = (index) => {
-  cancelIndex.value = index
-  showCancelModal.value = true
-}
-
-const cancelOrder = () => {
-  if (cancelIndex.value !== null) {
-    orders.value[cancelIndex.value].status = 'Cancelled'
-    filterOrders(selectedFilter.value) // Refresh filtered list
-    showCancelModal.value = false
-  }
-}
-
-const viewDetails = (order) => {
-  selectedOrder.value = order
-  showDetailsModal.value = true
-}
-
-const openRateModal = (order) => {
-  selectedOrder.value = order
-  rating.value = 0
-  recommend.value = ''
-  showRateModal.value = true
-}
-
-import { useReviewStore } from '@/stores/reviewStore'
-
-// State for modal visibility
 const showRateModal = ref(false)
 const showSuccessModal = ref(false)
 
-// Reactive state for feedback
 const feedbacks = reactive({
   rating: 0,
   comment: '',
 })
-const stationId = 'station-123' // This should come from the actual order/station
-// Mocked user data (replace with actual user data from auth system)
 const currentUser = {
   username: 'Mae',
   email: 'mae@example.com',
-  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com', // use default or from DB
+  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com',
 }
-
-// Access the review store
+const stationId = 'station-123'
 const reviewStore = useReviewStore()
 
-// Function to submit the review
-const submitReview = () => {
+// —————————————————————————————————————————
+// 4) Computed with fallback to dummy
+// —————————————————————————————————————————
+const filteredOrdersStore = computed(() => {
+  const list = orderStore.orders.length ? orderStore.orders : orders.value
+  if (selectedFilter.value === 'All') return list
+  return list.filter((o) => o.status === selectedFilter.value)
+})
+
+// —————————————————————————————————————————
+// 5) UI handlers
+// —————————————————————————————————————————
+function filterOrders(status) {
+  selectedFilter.value = status
+}
+
+function promptCancel(idx) {
+  cancelIndex.value = idx
+  showCancelModal.value = true
+}
+
+async function cancelOrder() {
+  const o = filteredOrdersStore.value[cancelIndex.value]
+  if (!o) return
+  o.status = 'Cancelled'
+  await supabase.from('orders').update({ status: 'Cancelled' }).eq('id', o.id)
+  showCancelModal.value = false
+}
+
+function viewDetails(order) {
+  selectedOrder.value = order
+  showDetailsModal.value = true
+}
+
+function openRateModal(order) {
+  selectedOrder.value = order
+  feedbacks.rating = 0
+  feedbacks.comment = ''
+  showRateModal.value = true
+}
+
+function submitReview() {
   reviewStore.addReview(
     stationId,
-    {
-      rating: feedbacks.rating,
-      comment: feedbacks.comment,
-    },
+    { rating: feedbacks.rating, comment: feedbacks.comment },
     currentUser,
   )
-
-  // Close the rating modal and show success modal
   showRateModal.value = false
   showSuccessModal.value = true
 }
 
-// Function to close the success modal
-const closeSuccessModal = () => {
+function closeSuccessModal() {
   showSuccessModal.value = false
 }
+
+// —————————————————————————————————————————
+// 6) Fetch live orders & merge with dummy on mount
+// —————————————————————————————————————————
+onMounted(async () => {
+  const { data: userData } = await supabase.auth.getUser()
+  const userId = userData.user?.id
+  if (!userId) {
+    router.push('/login')
+    return
+  }
+
+  const { data: rows, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('could not load orders', error)
+    return
+  }
+
+  const mapped = rows.map((r) => ({
+    id: r.id,
+    date: new Date(r.created_at).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    station: r.station || 'Aquabon',
+    quantity: r.quantity,
+    total: r.total_price,
+    orderType: r.order_type || 'Refill Only',
+    status: r.status,
+    deliveryAddress: r.address || '—',
+    deliveryDate: new Date(r.calendar).toLocaleDateString(),
+    router: '/aquabon',
+  }))
+
+  // merge dummy + fetched
+  orderStore.setOrders([...orders.value, ...mapped])
+})
 </script>
 
 <style scoped>
