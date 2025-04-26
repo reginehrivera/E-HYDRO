@@ -504,6 +504,7 @@ async function placeOrder() {
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
     id: randomId, // Include random ID
+    address: order.address,
     quantity: order.quantity,
     total_price: getSubtotal(order),
     status: 'To Deliver',
