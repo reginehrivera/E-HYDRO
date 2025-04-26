@@ -448,7 +448,7 @@ function confirmOutside() {
 }
 
 function cancelOutside() {
-  date.value = null  
+  date.value = null
   tempModel.value = null
   if (confirmActions.value?.cancel) {
     confirmActions.value.cancel()
