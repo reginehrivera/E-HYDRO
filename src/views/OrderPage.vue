@@ -206,9 +206,6 @@ import { useOrderStore } from '@/stores/orders'
 import { useReviewStore } from '@/stores/reviewStore'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-// —————————————————————————————————————————
-// 1) Dummy orders (always present)
-// —————————————————————————————————————————
 const orders = ref([
   {
     id: 12345,
@@ -277,18 +274,12 @@ const currentUser = {
 const stationId = 'station-123'
 const reviewStore = useReviewStore()
 
-// —————————————————————————————————————————
-// 4) Computed with fallback to dummy
-// —————————————————————————————————————————
 const filteredOrdersStore = computed(() => {
   const list = orderStore.orders.length ? orderStore.orders : orders.value
   if (selectedFilter.value === 'All') return list
   return list.filter((o) => o.status === selectedFilter.value)
 })
 
-// —————————————————————————————————————————
-// 5) UI handlers
-// —————————————————————————————————————————
 function filterOrders(status) {
   selectedFilter.value = status
 }
@@ -332,9 +323,6 @@ function closeSuccessModal() {
   showSuccessModal.value = false
 }
 
-// —————————————————————————————————————————
-// 6) Fetch live orders & merge with dummy on mount
-// —————————————————————————————————————————
 onMounted(async () => {
   const { data: userData } = await supabase.auth.getUser()
   const userId = userData.user?.id
@@ -371,8 +359,7 @@ onMounted(async () => {
     router: '/aquabon',
   }))
 
-  // merge dummy + fetched
-  orderStore.setOrders([...orders.value, ...mapped])
+  orderStore.setOrders([...mapped, ...orders.value])
 })
 </script>
 
