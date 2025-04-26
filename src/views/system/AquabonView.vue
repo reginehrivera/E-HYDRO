@@ -121,13 +121,17 @@
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
-              <v-col cols="12" md="7" class="d-flex flex-column align-start">
+              <v-col cols="12" md="7" class="d-flex flex-column align-center">
                 <v-date-picker
                   v-if="showCalendar"
                   v-model="selectedDate"
                   :min="new Date().toISOString().substr(0, 10)"
                   show-adjacent-months
-                  color="primary"
+                  class="custom-calendar"
+                  hide-header="false"
+                  width="600"
+                  color="#FD7B38"
+                  :selected-color="'#FD7B38'"
                 >
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
@@ -402,4 +406,24 @@ updateTotals()
 .discount-text {
   color: red;
 }
+
+
+/* calendar */
+.custom-calendar {
+  background-color: #2E2545;
+  color: white; /* Make text readable */
+  border-radius: 12px; /* Optional: make it a little rounded */
+  padding: 1rem; /* Optional: add some inner spacing */
+}
+
+/* Optional: also make header background match */
+.custom-calendar .v-date-picker-header {
+  background-color: #2E2545;
+}
+
+/* Optional: tweak day cells */
+.custom-calendar .v-btn {
+  color: white; /* Make calendar day numbers white */
+}
+
 </style>
