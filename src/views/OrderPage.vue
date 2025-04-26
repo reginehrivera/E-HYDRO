@@ -41,17 +41,18 @@
                     {{ order.status }}
                   </span>
                 </div>
+                <p><strong>Water Refilling Station:</strong> {{ order.station }}</p>
                 <p><strong>Date:</strong> {{ order.date }}</p>
                 <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
                 <p><strong>Total:</strong> ₱{{ order.total.toFixed(2) }}</p>
               </div>
               <div class="order-actions">
                 <div class="action-buttons" v-if="order.status === 'To Deliver'">
-                  <button class="btn-border" @click="confirmCancel(order)">Cancel Order</button>
+                  <button class="btn-border" @click="promptCancel(index)">Cancel Order</button>
                   <button class="btn-primary" @click="viewDetails(order)">View Details</button>
                 </div>
                 <div class="action-buttons" v-if="order.status === 'Completed'">
-                  <router-link :to="`/aquabon`" class="btn-border no-underline"
+                  <router-link :to="order.router" class="btn-border no-underline"
                     >Re-Order</router-link
                   >
                   <button class="btn-primary" @click="openRateModal(order)">Rate</button>
@@ -64,12 +65,12 @@
             </div>
           </transition-group>
 
-          <!-- Confirmation Modal -->
+          <!-- Cancel Modal -->
           <div class="modal" v-if="showCancelModal">
             <div class="modal-content">
-              <p>Are you sure you want to cancel Order #{{ orderToCancel?.id }}?</p>
+              <p>Are you sure you want to cancel Order #{{ orders[cancelIndex].id }}?</p>
               <div class="modal-buttons">
-                <button class="btn-primary" @click="cancelOrderConfirmed">Yes</button>
+                <button class="btn-primary" @click="cancelOrder">Yes</button>
                 <button class="btn-border" @click="showCancelModal = false">No</button>
               </div>
             </div>
@@ -95,6 +96,7 @@
               <h3>Order #{{ selectedOrder?.id }}</h3>
               <div class="info-box">
                 <h4><strong>Order Summary</strong></h4>
+                <h5>{{ selectedOrder?.station }} Water Refilling Station</h5>
                 <p><strong>Order Date:</strong> {{ selectedOrder?.date }}</p>
                 <p>
                   <strong>Status:</strong>
@@ -138,63 +140,47 @@
           <!-- Rate Modal -->
           <div class="modal" v-if="showRateModal">
             <div class="modal-content" style="position: relative">
-              <!-- Close Button -->
               <button
+                class="orderpage-close-btn"
                 style="
                   position: absolute;
-                  top: 10px;
-                  right: 10px;
+                  top: 20px;
+                  right: 40px;
                   background: none;
                   border: none;
-                  font-size: 18px;
+                  font-size: 22px;
+                  color: #0557b6;
                 "
                 @click="showRateModal = false"
               >
                 ✖
               </button>
-
-              <!-- Modal Body -->
-              <div style="text-align: center; padding-bottom: 20px">
-                <h3 style="margin-bottom: 10px">How was your experience?</h3>
-
-                <!-- Star Rating -->
-                <div class="stars" style="margin-bottom: 20px">
-                  <span
-                    v-for="n in 5"
-                    :key="n"
-                    class="star"
-                    :class="{ filled: n <= rating }"
-                    @click="rating = n"
+              <v-card-title>How was your experience?</v-card-title>
+              <v-card-text>
+                <v-rating
+                  v-model="feedbacks.rating"
+                  background-color="grey lighten-1"
+                  color="yellow darken-2"
+                  large
+                  class=""
+                />
+                <v-textarea
+                  v-model="feedbacks.comment"
+                  label="Comment here..."
+                  color="primary"
+                  auto-grow
+                />
+                <div class="text-center">
+                  <v-btn
+                    class="mt-3 orderpage-submit-btn text-white"
+                    variant="none"
+                    @click="submitReview"
+                    >Submit</v-btn
                   >
-                    ★
-                  </span>
                 </div>
-
-                <!-- Recommendation -->
-                <h4 style="margin-bottom: 5px">Do you recommend this station?</h4>
-                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px">
-                  <label><input type="radio" value="yes" v-model="recommend" /> Yes</label>
-                  <label><input type="radio" value="no" v-model="recommend" /> No</label>
-                </div>
-
-                <!-- Station Info Box -->
-                <div class="info-box" style="display: inline-block; text-align: left">
-                  <h4 style="text-align: center; margin-bottom: 10px">
-                    <strong>Station Details</strong>
-                  </h4>
-                  <p><strong>Station Name:</strong> AquaPure Water Station</p>
-                  <p><strong>Address:</strong> 123 Clean Water Ave., Cityville</p>
-                  <p><strong>Contact:</strong> 0912 345 6789</p>
-                </div>
-              </div>
-
-              <!-- Submit Button at Bottom -->
-              <div style="display: flex; justify-content: center; margin-top: 20px">
-                <button class="btn-primary" @click="submitRating">Submit</button>
-              </div>
+              </v-card-text>
             </div>
           </div>
-
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
@@ -213,53 +199,78 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { supabase } from '@/supabase'
+import { ref, reactive } from 'vue'
+//import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-import { useOrderStore } from '@/stores/orders'
 
-const orderStore = useOrderStore()
+const orders = ref([
+  {
+    id: 12345,
+    date: 'April 18, 2025',
+    station: 'Aquasis',
+    quantity: 3,
+    total: 180,
+    orderType: 'Single Purchase',
+    status: 'To Deliver',
+    deliveryAddress: '123 Main St, Cityville',
+    deliveryDate: 'April 20, 2025',
+  },
+  {
+    id: 12346,
+    date: 'April 10, 2025',
+    station: 'Aquabon',
+    quantity: 2,
+    total: 120,
+    orderType: 'Subscription',
+    status: 'Completed',
+    deliveryAddress: '456 Oak Rd, Townsville',
+    deliveryDate: 'April 12, 2025',
+    router: '/aquabon',
+  },
+  {
+    id: 12347,
+    date: 'April 15, 2025',
+    station: 'Waterdrops',
+    quantity: 5,
+    total: 300,
+    orderType: 'Single Purchase',
+    status: 'Cancelled',
+    deliveryAddress: '789 Pine Ln, Villagetown',
+    deliveryDate: 'April 18, 2025',
+  },
+])
+
 const selectedFilter = ref('All')
+const filteredOrders = ref([...orders.value])
 
 const showCancelModal = ref(false)
 const showDetailsModal = ref(false)
-const showRateModal = ref(false)
-const showSuccessModal = ref(false)
-const orders = orderStore.orders
-const finalTotal = orderStore.finalTotal
-const orderToCancel = ref(null) // Add this to hold the order to be cancelled
+//const showRateModal = ref(false)
+//const showSuccessModal = ref(false)
+
+const cancelIndex = ref(null)
 const selectedOrder = ref(null)
 const rating = ref(0)
 const recommend = ref('')
 
-// Filtered orders will now be a computed property that automatically updates based on the selected filter
-const filteredOrders = computed(() => {
-  if (selectedFilter.value === 'All') {
-    return orderStore.orders
-  }
-  return orderStore.orders.filter((order) => order.status === selectedFilter.value)
-})
-
 const filterOrders = (status) => {
   selectedFilter.value = status
+  filteredOrders.value =
+    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
 }
 
-const confirmCancel = (order) => {
-  // Show the cancel confirmation modal
-  orderToCancel.value = order // Store the order to be cancelled
+const promptCancel = (index) => {
+  cancelIndex.value = index
   showCancelModal.value = true
 }
 
-const cancelOrderConfirmed = () => {
-  if (orderToCancel.value) {
-    // Update the status of the order to "Cancelled"
-    orderToCancel.value.status = 'Cancelled'
-    orderStore.updateOrderStatus(orderToCancel.value) // Update in the store
+const cancelOrder = () => {
+  if (cancelIndex.value !== null) {
+    orders.value[cancelIndex.value].status = 'Cancelled'
+    filterOrders(selectedFilter.value) // Refresh filtered list
+    showCancelModal.value = false
   }
-  showCancelModal.value = false // Close the modal
 }
-
-const cancelOrder = (order) => {}
 
 const viewDetails = (order) => {
   selectedOrder.value = order
@@ -273,40 +284,48 @@ const openRateModal = (order) => {
   showRateModal.value = true
 }
 
-const submitRating = () => {
+import { useReviewStore } from '@/stores/reviewStore'
+
+// State for modal visibility
+const showRateModal = ref(false)
+const showSuccessModal = ref(false)
+
+// Reactive state for feedback
+const feedbacks = reactive({
+  rating: 0,
+  comment: '',
+})
+const stationId = 'station-123' // This should come from the actual order/station
+// Mocked user data (replace with actual user data from auth system)
+const currentUser = {
+  username: 'Mae',
+  email: 'mae@example.com',
+  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com', // use default or from DB
+}
+
+// Access the review store
+const reviewStore = useReviewStore()
+
+// Function to submit the review
+const submitReview = () => {
+  reviewStore.addReview(
+    stationId,
+    {
+      rating: feedbacks.rating,
+      comment: feedbacks.comment,
+    },
+    currentUser,
+  )
+
+  // Close the rating modal and show success modal
   showRateModal.value = false
   showSuccessModal.value = true
 }
 
+// Function to close the success modal
 const closeSuccessModal = () => {
   showSuccessModal.value = false
-  selectedOrder.value = null
 }
-
-onMounted(() => {
-  // Fetch orders from Supabase or other sources
-  // After fetching, update the store
-  orderStore.setOrders([
-    {
-      id: 12345,
-      date: 'April 18, 2025',
-      quantity: 3,
-      total: 180,
-      status: 'To Deliver',
-      deliveryAddress: '123 Main St',
-      deliveryDate: 'April 20, 2025',
-    },
-    {
-      id: 12346,
-      date: 'April 10, 2025',
-      quantity: 2,
-      total: 120,
-      status: 'Completed',
-      deliveryAddress: '456 Oak Rd',
-      deliveryDate: 'April 12, 2025',
-    },
-  ])
-})
 </script>
 
 <style scoped>
@@ -357,7 +376,6 @@ onMounted(() => {
 .active-filter {
   background-color: #02adef;
   color: white;
-  pointer-events: none;
 }
 
 .order-card {
@@ -429,7 +447,7 @@ onMounted(() => {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: #fff;
   padding: 30px;
   border-radius: 10px;
   width: 100%;
@@ -482,6 +500,9 @@ onMounted(() => {
   margin-bottom: 10px;
   font-size: 16px;
 }
+.info-box h5 {
+  font-size: 14px;
+}
 
 .info-box p {
   margin: 5px 0;
@@ -517,5 +538,33 @@ table th {
 
 .recommend-box {
   margin: 15px 0;
+}
+
+/**Rate Modal Style */
+.orderpage-submit-btn {
+  font-family: 'inter', sans-serif;
+  text-transform: none;
+  border-radius: 0 15px;
+  border: 2px solid #0557b6;
+  width: 50%;
+  font-weight: 600;
+}
+.orderpage-submit-btn {
+  background-color: #0557b6;
+  border-radius: 5px;
+}
+.modal-content .v-card-title {
+  font-family: 'familjen grotesk', sans-serif;
+  font-size: 19px;
+  color: #0557b6;
+  font-weight: 600;
+}
+.orderpage-submit-btn:hover {
+  background-color: #02adef;
+  border-color: #02adef;
+  color: #fff !important;
+}
+.orderpage-close-btn:hover {
+  color: #02adef !important;
 }
 </style>

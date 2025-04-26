@@ -7,41 +7,6 @@
           <v-divider></v-divider>
           <v-card-text>
             <v-expansion-panels multiple>
-              <!-- Profile Settings -->
-              <v-expansion-panel>
-                <v-expansion-panel-title>👤 Profile</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-text-field label="Full Name" v-model="profileName.value" />
-                  <v-text-field label="Email" v-model="profileEmail.value" />
-                  <v-btn color="primary" @click="saveProfile">Save</v-btn>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <!-- Payment Methods -->
-              <v-expansion-panel>
-                <v-expansion-panel-title>💳 Payment Methods</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <p>You can manage your e-wallets or linked accounts here.</p>
-                  <v-text-field label="GCash Number" v-model="gcash.value" />
-                  <v-text-field label="PayMaya Number" v-model="paymaya.value" />
-                  <v-btn color="primary" @click="savePayments">Update Payment Info</v-btn>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <!-- Privacy and Security -->
-              <v-expansion-panel>
-                <v-expansion-panel-title>🔒 Privacy & Security</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-switch
-                    v-model="enable2FA.value"
-                    label="Enable Two-Factor Authentication"
-                  ></v-switch>
-                  <v-btn color="primary" class="mt-2" @click="changePassword">
-                    Change Password
-                  </v-btn>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
               <!-- Language Preferences -->
               <v-expansion-panel>
                 <v-expansion-panel-title>🌐 Language Preferences</v-expansion-panel-title>
