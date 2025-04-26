@@ -105,7 +105,7 @@
                     >{{ selectedOrder?.status }}</span
                   >
                 </p>
-                <p><strong>Payment Method:</strong> GCash</p>
+                <p><strong>Payment Method:</strong> GCash </p>
               </div>
               <div class="info-box">
                 <h4><strong>Order Details</strong></h4>
@@ -140,38 +140,41 @@
           <!-- Rate Modal -->
           <div class="modal" v-if="showRateModal">
             <div class="modal-content" style="position: relative">
-              <button
+              <button class="orderpage-close-btn"
                 style="
                   position: absolute;
-                  top: 10px;
-                  right: 10px;
+                  top: 20px;
+                  right: 40px;
                   background: none;
                   border: none;
-                  font-size: 18px;
+                  font-size: 22px;
+                  color: #0557b6;
+
                 "
                 @click="showRateModal = false"
               >
                 ✖
               </button>
-
-              <v-card class="pa-4 mb-6">
-                <v-card-title>Leave a Review</v-card-title>
+                <v-card-title>How was your experience?</v-card-title>
                 <v-card-text>
                   <v-rating
                     v-model="feedbacks.rating"
                     background-color="grey lighten-1"
                     color="yellow darken-2"
                     large
+                    class=""
                   />
                   <v-textarea
                     v-model="feedbacks.comment"
-                    label="Your comment"
-                    outlined
+                    label="Comment here..."
+                    color="primary"
                     auto-grow
                   />
-                  <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
+                    <div class="text-center ">
+                    <v-btn class="mt-3 orderpage-submit-btn text-white" variant="none" @click="submitReview">Submit</v-btn>
+                    </div>
                 </v-card-text>
-              </v-card>
+
             </div>
           </div>
           <!-- Submission Success Modal -->
@@ -436,7 +439,7 @@ const closeSuccessModal = () => {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: #fff;
   padding: 30px;
   border-radius: 10px;
   width: 100%;
@@ -527,5 +530,33 @@ table th {
 
 .recommend-box {
   margin: 15px 0;
+}
+
+/**Rate Modal Style */
+.orderpage-submit-btn{
+  font-family: 'inter', sans-serif;
+  text-transform: none;
+  border-radius: 0 15px;
+  border: 2px solid #0557b6;
+  width: 50%;
+  font-weight: 600;
+}
+.orderpage-submit-btn{
+  background-color: #0557b6;
+  border-radius: 5px;
+}
+.modal-content .v-card-title{
+  font-family: 'familjen grotesk', sans-serif;
+  font-size: 19px;
+  color: #0557b6;
+  font-weight: 600;
+}
+.orderpage-submit-btn:hover{
+  background-color: #02adef;
+  border-color: #02adef;
+  color: #fff !important;
+}
+.orderpage-close-btn:hover{
+  color:#02adef !important;
 }
 </style>
