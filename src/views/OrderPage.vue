@@ -47,11 +47,11 @@
               </div>
               <div class="order-actions">
                 <div class="action-buttons" v-if="order.status === 'To Deliver'">
-                  <button class="btn-border" @click="promptCancel(index)">Cancel Order</button>
+                  <button class="btn-border" @click="confirmCancel(order)">Cancel Order</button>
                   <button class="btn-primary" @click="viewDetails(order)">View Details</button>
                 </div>
                 <div class="action-buttons" v-if="order.status === 'Completed'">
-                  <router-link :to="`/station`" class="btn-border no-underline"
+                  <router-link :to="`/aquabon`" class="btn-border no-underline"
                     >Re-Order</router-link
                   >
                   <button class="btn-primary" @click="openRateModal(order)">Rate</button>
@@ -64,12 +64,12 @@
             </div>
           </transition-group>
 
-          <!-- Cancel Modal -->
+          <!-- Confirmation Modal -->
           <div class="modal" v-if="showCancelModal">
             <div class="modal-content">
-              <p>Are you sure you want to cancel Order #{{ orders[cancelIndex].id }}?</p>
+              <p>Are you sure you want to cancel Order #{{ orderToCancel?.id }}?</p>
               <div class="modal-buttons">
-                <button class="btn-primary" @click="cancelOrder">Yes</button>
+                <button class="btn-primary" @click="cancelOrderConfirmed">Yes</button>
                 <button class="btn-border" @click="showCancelModal = false">No</button>
               </div>
             </div>
@@ -213,74 +213,53 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/supabase'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
+import { useOrderStore } from '@/stores/orders'
 
-const orders = ref([
-  {
-    id: 12345,
-    date: 'April 18, 2025',
-    quantity: 3,
-    total: 180,
-    orderType: 'Single Purchase',
-    status: 'To Deliver',
-    deliveryAddress: '123 Main St, Cityville',
-    deliveryDate: 'April 20, 2025',
-  },
-  {
-    id: 12346,
-    date: 'April 10, 2025',
-    quantity: 2,
-    total: 120,
-    orderType: 'Subscription',
-    status: 'Completed',
-    deliveryAddress: '456 Oak Rd, Townsville',
-    deliveryDate: 'April 12, 2025',
-  },
-  {
-    id: 12347,
-    date: 'April 15, 2025',
-    quantity: 5,
-    total: 300,
-    orderType: 'Single Purchase',
-    status: 'Cancelled',
-    deliveryAddress: '789 Pine Ln, Villagetown',
-    deliveryDate: 'April 18, 2025',
-  },
-])
-
+const orderStore = useOrderStore()
 const selectedFilter = ref('All')
-const filteredOrders = ref([...orders.value])
 
 const showCancelModal = ref(false)
 const showDetailsModal = ref(false)
 const showRateModal = ref(false)
 const showSuccessModal = ref(false)
-
-const cancelIndex = ref(null)
+const orders = orderStore.orders
+const finalTotal = orderStore.finalTotal
+const orderToCancel = ref(null) // Add this to hold the order to be cancelled
 const selectedOrder = ref(null)
 const rating = ref(0)
 const recommend = ref('')
 
+// Filtered orders will now be a computed property that automatically updates based on the selected filter
+const filteredOrders = computed(() => {
+  if (selectedFilter.value === 'All') {
+    return orderStore.orders
+  }
+  return orderStore.orders.filter((order) => order.status === selectedFilter.value)
+})
+
 const filterOrders = (status) => {
   selectedFilter.value = status
-  filteredOrders.value =
-    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
 }
 
-const promptCancel = (index) => {
-  cancelIndex.value = index
+const confirmCancel = (order) => {
+  // Show the cancel confirmation modal
+  orderToCancel.value = order // Store the order to be cancelled
   showCancelModal.value = true
 }
 
-const cancelOrder = () => {
-  if (cancelIndex.value !== null) {
-    orders.value[cancelIndex.value].status = 'Cancelled'
-    filterOrders(selectedFilter.value) // Refresh filtered list
-    showCancelModal.value = false
+const cancelOrderConfirmed = () => {
+  if (orderToCancel.value) {
+    // Update the status of the order to "Cancelled"
+    orderToCancel.value.status = 'Cancelled'
+    orderStore.updateOrderStatus(orderToCancel.value) // Update in the store
   }
+  showCancelModal.value = false // Close the modal
 }
+
+const cancelOrder = (order) => {}
 
 const viewDetails = (order) => {
   selectedOrder.value = order
@@ -304,17 +283,29 @@ const closeSuccessModal = () => {
   selectedOrder.value = null
 }
 
-onMounted(async () => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .order('date_ordered', { ascending: false })
-
-  if (error) {
-    console.error('Failed to fetch orders:', error)
-  } else {
-    orders.value = data
-  }
+onMounted(() => {
+  // Fetch orders from Supabase or other sources
+  // After fetching, update the store
+  orderStore.setOrders([
+    {
+      id: 12345,
+      date: 'April 18, 2025',
+      quantity: 3,
+      total: 180,
+      status: 'To Deliver',
+      deliveryAddress: '123 Main St',
+      deliveryDate: 'April 20, 2025',
+    },
+    {
+      id: 12346,
+      date: 'April 10, 2025',
+      quantity: 2,
+      total: 120,
+      status: 'Completed',
+      deliveryAddress: '456 Oak Rd',
+      deliveryDate: 'April 12, 2025',
+    },
+  ])
 })
 </script>
 
@@ -366,6 +357,7 @@ onMounted(async () => {
 .active-filter {
   background-color: #02adef;
   color: white;
+  pointer-events: none;
 }
 
 .order-card {

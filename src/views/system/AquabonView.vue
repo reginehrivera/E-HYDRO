@@ -135,7 +135,7 @@
                   </template>
                 </v-date-picker>
 
-                <v-container class="right-container">
+                <v-container class="right-container" ref="ordersContainer">
                   <div class="scrollable-content">
                     <v-container
                       v-for="(order, index) in orders"
@@ -259,25 +259,35 @@
 
                   <div class="text-end">
                     <v-divider class="my-4"></v-divider>
-                    <div class="d-flex align-center mb-4">
-                      <h4 class="text-start mr-2">Payment Method:</h4>
-                      <v-select
-                        label="Select Payment Method"
-                        :items="['Cash on Delivery', 'GCash']"
-                        variant="outlined"
-                        density="compact"
-                        style="width: 180px; font-size: 14px; min-height: 32px"
-                      ></v-select>
+
+                    <div class="d-flex justify-space-between align-start mb-4">
+                      <!-- Payment Method LEFT -->
+                      <div class="text-left">
+                        <h4 class="text-start" style="margin-bottom: 9px">Payment Method:</h4>
+                        <v-select
+                          label="Select Payment Method"
+                          :items="['Cash on Delivery', 'GCash']"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          persistent-hint
+                          class="stable-select"
+                        />
+                      </div>
+
+                      <!-- Total Details RIGHT -->
+                      <div class="text-right">
+                        <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
+                        <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
+                        <h3>
+                          <b>Total All Orders: ₱{{ finalTotal }}.00</b>
+                        </h3>
+                      </div>
                     </div>
-                    <h4>Total New Gallon Add-on: ₱{{ totalNewGallon }}.00</h4>
-                    <h4 class="discount-text">Total Discount: -₱{{ totalDiscount }}.00</h4>
-                    <h3>
-                      <b>Total All Orders: ₱{{ finalTotal }}.00</b>
-                    </h3>
                   </div>
                 </v-container>
 
-                <v-container>
+                <v-container v-for="(order, index) in orders" :key="index" ref="orderRefs">
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" class="set-sched-btn">
                       <v-btn variant="none" class="full-btn" @click="showCalendar = !showCalendar">
@@ -315,17 +325,30 @@
       <!--End Card Station Area-->
     </template>
   </NavigationBar>
+
+  <!-- Success Dialog for Completed Orders -->
   <v-dialog v-model="showSuccessDialog" max-width="400">
     <v-card>
       <v-card-title class="text-h6">Order Successful</v-card-title>
-      <v-card-text>
-        {{ successMessage }}
-      </v-card-text>
+      <v-card-text>{{ successMessage }}</v-card-text>
       <v-card-actions class="justify-end">
-        <v-btn color="primary" text @click="goToOrderPage">Okay</v-btn>
+        <v-btn color="primary" text @click="handleDialogOk">Okay</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <!-- End Success Dialog -->
+
+  <!-- Incomplete Order Dialog -->
+  <v-dialog v-model="showIncompleteOrderDialog" max-width="400">
+    <v-card>
+      <v-card-title class="text-h6">Incomplete Order</v-card-title>
+      <v-card-text>{{ incompleteOrderMessage }}</v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn color="primary" text @click="handleIncompleteOrderOk">Okay</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- End Incomplete Order Dialog -->
 </template>
 
 <script setup>
@@ -334,8 +357,11 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase' // ✅ import Supabase
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
+import { useOrderStore } from '@/stores/orders'
 
 const router = useRouter()
+const orderRefs = ref([])
+const orderStore = useOrderStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
@@ -365,11 +391,13 @@ const totalDiscount = ref(0)
 const totalNewGallon = ref(0)
 const finalTotal = ref(0)
 const showSuccessDialog = ref(false)
-const successMessage = ref('')
+const successMessage = ref('Your order has been placed successfully!')
+const showIncompleteOrderDialog = ref(false)
+const incompleteOrderMessage = ref('Please complete your order before placing it.')
 
 function getSubtotal(order) {
   const base = order.quantity * 25
-  const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100.00)')
+  const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100)')
   const addon = hasNewGallon ? order.quantity * 100 : 0
   return base + addon
 }
@@ -384,7 +412,7 @@ function updateTotals() {
   let newGallonTotal = 0
 
   orders.value.forEach((order) => {
-    const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100.00)')
+    const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100)')
     subtotal += getSubtotal(order)
     discount += getDiscount(order)
     if (hasNewGallon) {
@@ -403,20 +431,23 @@ function increaseGallon(index) {
 }
 
 function decreaseGallon(index) {
-  if (orders.value[index].quantity > 1) {
+  if (orders.value[index].quantity > 0) {
     orders.value[index].quantity--
     updateTotals()
   }
 }
 
-function addNewOrder() {
-  const newIndex = orders.value.length
-  orders.value.push({ selected: [], address: '', quantity: 0 })
+import { nextTick } from 'vue'
 
-  const newOrderElement = ordersContainer.value.querySelector(`[ref='order-${newIndex}']`)
-  if (newOrderElement) {
-    newOrderElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+function addNewOrder() {
+  orders.value.push({ selected: [], address: '', quantity: 0 })
+  nextTick(() => {
+    const lastIndex = orders.value.length - 1
+    const lastOrderEl = orderRefs.value[lastIndex]
+    if (lastOrderEl?.$el) {
+      lastOrderEl.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  })
 }
 
 function orderInBulk() {
@@ -424,30 +455,6 @@ function orderInBulk() {
     order.quantity += 12
   })
   updateTotals()
-}
-
-async function placeOrder() {
-  const formattedOrders = orders.value.map((order) => ({
-    selected_options: order.selected,
-    address: order.address,
-    quantity: order.quantity,
-    subtotal: getSubtotal(order),
-    discount: getDiscount(order),
-    total: getSubtotal(order) - getDiscount(order),
-    date_ordered: new Date().toISOString(),
-    // You can add user_id here if needed
-  }))
-
-  const { error } = await supabase.from('orders').insert(formattedOrders)
-
-  if (error) {
-    console.error('Failed to insert orders:', error)
-    successMessage.value = 'Something went wrong. Please try again.'
-  } else {
-    successMessage.value = 'Your order has been placed successfully!'
-  }
-
-  showSuccessDialog.value = true
 }
 
 function handleOptionChange() {
@@ -459,6 +466,75 @@ updateTotals()
 function cancelOrder(index) {
   orders.value.splice(index, 1)
   updateTotals()
+}
+
+async function getUserId() {
+  const { data, error } = await supabase.auth.getUser()
+  if (error) {
+    console.error('Cannot get user:', error)
+    return null
+  }
+  return data.user?.id || null
+}
+
+async function placeOrder() {
+  const isValidOrder = orders.value.some(
+    (order) => order.quantity > 0 && order.selected.length > 0 && order.address !== '',
+  )
+
+  if (!isValidOrder) {
+    incompleteOrderMessage.value = 'Please complete your order before placing it.'
+    showIncompleteOrderDialog.value = true
+    return
+  }
+
+  const userId = await getUserId()
+
+  if (!userId) {
+    successMessage.value = 'Please login first before placing an order.'
+    showSuccessDialog.value = true
+    return
+  }
+
+  // Trigger success message immediately
+  successMessage.value = 'Your order has been placed successfully!'
+  showSuccessDialog.value = true
+
+  // Now, insert the order into the database
+  const orderToSave = orders.value.map((order) => ({
+    quantity: order.quantity,
+    total_price: getSubtotal(order),
+    status: 'To Deliver',
+    user_id: userId,
+    created_at: new Date().toISOString(),
+    calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
+    // Ensure `id` is not included here!
+  }))
+
+  const { data, error } = await supabase.from('orders').insert(orderToSave)
+
+  if (error) {
+    console.error('Error placing order:', error)
+    successMessage.value = 'Failed to place order: ' + error.message
+  } else {
+    // Optional: Clear the order form after placing order
+    orders.value = [{ selected: [], address: '', quantity: 0 }]
+    updateTotals()
+  }
+}
+
+function handleDialogOk() {
+  showSuccessDialog.value = false
+  // Reset the order form
+  orders.value = [{ selected: [], address: '', quantity: 0 }]
+  updateTotals()
+
+  // Navigate to the next page (e.g., /order page)
+  router.push('/order')
+}
+
+function handleIncompleteOrderOk() {
+  showIncompleteOrderDialog.value = false
 }
 </script>
 
@@ -476,5 +552,26 @@ function cancelOrder(index) {
   max-height: 470px;
   overflow-y: auto;
   padding-right: 8px;
+}
+
+.stable-select {
+  width: 200px; /* enough for longest option */
+  height: 42px !important;
+}
+
+.stable-select .v-input__control {
+  height: 42px !important;
+  min-height: 42px !important;
+}
+
+.stable-select .v-field__input {
+  height: 42px !important;
+  line-height: 42px !important;
+  font-size: 14px !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 </style>
