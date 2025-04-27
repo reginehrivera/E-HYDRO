@@ -349,8 +349,9 @@
     <v-card>
       <v-card-title class="text-h6">Order Successful</v-card-title>
       <v-card-text>{{ successMessage }}</v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn color="primary" text @click="handleDialogOk">Okay</v-btn>
+      <v-card-actions class="justify-center">
+        <v-btn class="custom-okay-btn" @click="handleDialogOk"> Okay </v-btn>
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -361,8 +362,8 @@
     <v-card>
       <v-card-title class="text-h6">Incomplete Order</v-card-title>
       <v-card-text>{{ incompleteOrderMessage }}</v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn color="primary" text @click="handleIncompleteOrderOk">Okay</v-btn>
+      <v-card-actions class="justify-center">
+        <v-btn class="custom-okay-btn" @click="handleIncompleteOrderOk"> Okay </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -676,5 +677,14 @@ const averageRating = computed(() => {
 }
 .modal-content::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+.custom-okay-btn {
+  background-color: #02adef;
+  color: white;
+}
+
+.custom-okay-btn:hover {
+  background-color: #0296d1;
 }
 </style>
