@@ -180,12 +180,17 @@
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
-              <h3>✅ Submission Successful!</h3>
               <p>🎉 Thank you for your feedback!</p>
-              <p>Your review helps improve the service of AquaPure Water Station.</p>
-              <div class="modal-buttons">
-                <button class="btn-primary" @click="closeSuccessModal">OK</button>
+              <p>Your review helps improve the service of Aquabon Water Refilling Station.</p>
+              <div>
+                <router-link to="/aquabon">
+                <v-btn class="submission-view-btn mt-3">View review</v-btn>
+              </router-link>
               </div>
+              <div class="">
+                <v-btn class="submission-back-btn mt-1" @click="closeSuccessModal">Back</v-btn >
+              </div>
+
             </div>
           </div>
         </div>
@@ -558,5 +563,24 @@ table th {
 }
 .orderpage-close-btn:hover{
   color:#02adef !important;
+}
+.submission-back-btn{
+  text-transform: none;
+  color: #fff;
+  background-color: #02adef;
+}
+.submission-view-btn{
+  text-transform: none;
+  color: #0557b6;
+  border: 1px #02adef solid;
+}
+.submission-back-btn:hover{
+  color: #0557b6;
+
+}
+.submission-view-btn:hover{
+  color: #0557b6;
+  border: #02adef 1px solid;
+  background-color: #02adef;
 }
 </style>
