@@ -161,7 +161,8 @@
                     v-model="feedbacks.rating"
                     background-color="grey lighten-1"
                     color="yellow darken-2"
-                    large
+                    half-increments
+                    hover
                     class=""
                   />
                   <v-textarea
@@ -183,7 +184,7 @@
               <p>🎉 Thank you for your feedback!</p>
               <p>Your review helps improve the service of Aquabon Water Refilling Station.</p>
               <div>
-                <router-link to="/aquabon">
+                <router-link to="/aquabon#review-section">
                 <v-btn class="submission-view-btn mt-3">View review</v-btn>
               </router-link>
               </div>
@@ -299,7 +300,7 @@ const feedbacks = reactive({
 const stationId = 'station-123' // This should come from the actual order/station
 // Mocked user data (replace with actual user data from auth system)
 const currentUser = {
-  username: 'Mae',
+  username: 'Dae Del Kapeyun',
   email: 'mae@example.com',
   profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com' // use default or from DB
 }
@@ -452,12 +453,17 @@ const closeSuccessModal = () => {
   max-height: 90vh;
   overflow-y: auto;
 }
+.modal-content p {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+}
 
-.modal-buttons {
+/*.modal-buttons {
   display: flex;
   justify-content: space-around;
   margin-top: 20px;
-}
+}*/
 
 .fade-enter-active,
 .fade-leave-active {

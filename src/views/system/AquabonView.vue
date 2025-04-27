@@ -81,26 +81,30 @@
                     </v-col>
                   </v-row>
 
-                  <v-divider></v-divider>
+                  <v-divider :thickness="2" ></v-divider>
 
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                  <v-container>
-                    <p>
+                  <p class="review-style pl-8 pt-2">
                       4.9 <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings ({{ reviews.length }})
                     </p>
+                  <v-container id="review-section" class="modal-content">
 
-                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
-                      <v-card-title class="d-flex align-center gap-3">
-                        <v-avatar size="40">
+                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-2 pl-5 pr-5 review-card">
+                      <v-card-title class="d-flex align-center pt-4 ">
+                        <v-row>
+                        <v-col cols="12" md="2" class="">
+                        <v-avatar size="40" class="pl-4">
                           <img :src="review.profilePhoto" alt="Profile" />
                         </v-avatar>
-                        <div>
-                          <div><strong>{{ review.username }}</strong></div>
-                          <div class="text-caption grey--text">{{ review.email }}</div>
-                          <v-rating :model-value="review.rating" readonly color="yellow darken-2" small />
-                        </div>
+                        </v-col>
+                        <v-col cols="12" md="10">
+                          <div><P class="profile-name-style">{{ review.username }}</P></div>
+                          <div class="text-caption"><p class="profile-email-style" >{{ review.email }}</p></div>
+                        </v-col>
+                      </v-row>
                       </v-card-title>
-                      <v-card-text>{{ review.comment }}</v-card-text>
+                      <v-rating :model-value="review.rating" density="compact" readonly color="yellow darken" class="review-star pl-4"/>
+                      <v-card-text><p class="review-comment pl-2">{{ review.comment }}</p></v-card-text>
                     </v-card>
                   </v-container>
                   <!----->
@@ -271,8 +275,44 @@ const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 </script>
 
 <style scoped>
+.v-divider {
+  background-color: #000;
+  color: #1c238b;
+}
 .v-card {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.review-style{
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+.profile-name-style{
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+.profile-email-style{
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 13px;
+  font-weight: 400;
+  padding-top: 0%;
+  margin-top: -.50rem;
+}
+.review-card{
+  border: #0557B6 1px solid;
+  background-color: #DEE8EF;
+}
+.review-comment{
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 14px;
+}
+.modal-content {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 </style>
