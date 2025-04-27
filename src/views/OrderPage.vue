@@ -310,6 +310,11 @@ const reviewStore = useReviewStore()
 
 // Function to submit the review
 const submitReview = () => {
+  if (feedbacks.rating === 0 || feedbacks.comment.trim() === '') {
+    alert('Please provide a rating and a comment before submitting.');
+    return; // stop the function here, do NOT proceed
+  }
+
   reviewStore.addReview(stationId, {
     rating: feedbacks.rating,
     comment: feedbacks.comment

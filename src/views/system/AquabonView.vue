@@ -85,17 +85,17 @@
 
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
                   <p class="review-style pl-8 pt-2">
-                      4.9 <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings ({{ reviews.length }})
-                    </p>
+                    {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings ({{ reviews.length }})
+                    <v-tooltip activator="parent" location="right">Scroll down to view more reviews!</v-tooltip>
+                  </p>
                   <v-container id="review-section" class="modal-content">
-
-                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-2 pl-5 pr-5 review-card">
-                      <v-card-title class="d-flex align-center pt-4 ">
+                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-1 pl-5 pr-5 review-card">
+                      <v-card-title class="d-flex align-center pt-2">
                         <v-row>
                         <v-col cols="12" md="2" class="">
-                        <v-avatar size="40" class="pl-4">
-                          <img :src="review.profilePhoto" alt="Profile" />
-                        </v-avatar>
+                          <v-avatar size="40" class="pl-4">
+                            <img :src="review.profilePhoto" alt="Profile" />
+                          </v-avatar>
                         </v-col>
                         <v-col cols="12" md="10">
                           <div><P class="profile-name-style">{{ review.username }}</P></div>
@@ -272,6 +272,12 @@ const reviewStore = useReviewStore()
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
 const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
+const averageRating = computed(() => {
+  if (reviews.value.length === 0) return 0;
+  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0);
+  return (total / reviews.value.length).toFixed(1); // 1 decimal place
+});
+
 </script>
 
 <style scoped>
@@ -306,13 +312,17 @@ const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 }
 .review-comment{
   font-family: 'Familjen Grotesk', Times, serif;
-  font-size: 14px;
+  font-size: 13px;
+  margin-top: -.50rem;
 }
 .modal-content {
   border-radius: 10px;
   width: 100%;
   max-width: 500px;
-  max-height: 60vh;
+  max-height: 30vh;
   overflow-y: auto;
+}
+.modal-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 </style>
