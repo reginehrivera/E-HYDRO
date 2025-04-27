@@ -129,6 +129,7 @@
                       >
                     </v-card>
                   </v-container>
+
                   <!----->
                 </v-container>
               </v-col>
@@ -571,7 +572,6 @@ function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
 
-// Reviews
 import { computed, onMounted } from 'vue'
 import { useReviewStore } from '@/stores/reviewStore'
 
@@ -588,16 +588,32 @@ const averageRating = computed(() => {
 
 const actualReviews = ref([])
 
+// Fetch reviews from the store or Supabase
 async function fetchReviews() {
-  const { data, error } = await supabase
-    .from('reviews')
-    .select('*')
-    .order('created_at', { ascending: false })
+  // First, load reviews from localStorage if they exist
+  reviewStore.loadReviewsFromLocalStorage(stationId)
 
-  if (error) {
-    console.error('Error fetching reviews:', error)
-  } else {
-    actualReviews.value = data
+  // If no reviews in localStorage, check in the review store
+  if (reviews.value.length === 0) {
+    const storeReviews = reviewStore.getReviewsByStation(stationId)
+    if (storeReviews.length > 0) {
+      actualReviews.value = storeReviews
+    } else {
+      // If not in store, fetch from Supabase
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false }) // Newest reviews first
+
+      if (error) {
+        console.error('Error fetching reviews:', error)
+      } else {
+        actualReviews.value = data
+        // Save the fetched reviews into the store and localStorage
+        reviewStore.saveReviewsToLocalStorage(stationId)
+        reviewStore.setReviewsByStation(stationId, data)
+      }
+    }
   }
 }
 
@@ -620,18 +636,25 @@ async function submitActualReview(orderId) {
     if (error) {
       console.error('Error submitting review:', error)
     } else {
-      // Add the new review to the front of the list
-      actualReviews.value.unshift({
+      // Create the new review data
+      const newReviewData = {
         rating: newReview.value.rating,
         comment: newReview.value.comment,
         created_at: new Date().toISOString(),
         order_id: orderId,
         user_id: userId,
-      })
+      }
+
+      // Add the new review to the start of the list
+      actualReviews.value.unshift(newReviewData) // Add to top
 
       // Reset the new review form
       newReview.value.rating = 0
       newReview.value.comment = ''
+
+      // Also save the new review to the store and localStorage
+      reviewStore.addReview(stationId, newReviewData, user) // Assuming `user` is defined
+      reviewStore.saveReviewsToLocalStorage(stationId) // Save after adding review
     }
   }
 }

@@ -383,6 +383,22 @@ onMounted(async () => {
 
   orderStore.setOrders([...mapped, ...orders.value])
 })
+
+const updateOrderStatus = async () => {
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ status: 'Completed' }) // Update status to 'Completed'
+    .eq('id', '595275') // Match by order ID
+
+  if (error) {
+    console.error('Error updating order status:', error.message)
+    alert('Error updating order status.')
+    return
+  }
+
+  console.log('Order status updated successfully:', data)
+  alert('Order status updated to Completed!')
+}
 </script>
 
 <style scoped>
