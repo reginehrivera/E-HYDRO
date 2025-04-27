@@ -85,35 +85,48 @@
                     </v-col>
                   </v-row>
 
-                  <v-divider></v-divider>
+                  <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                  <v-container>
-                    <!-- Review Input -->
-                    <v-card class="pa-4 mb-6">
-                      <v-card-title>Leave a Review</v-card-title>
-                      <v-card-text>
-                        <v-rating
-                          v-model="newReview.rating"
-                          background-color="grey lighten-1"
-                          color="yellow darken-2"
-                          large
-                        />
-                        <v-textarea
-                          v-model="newReview.comment"
-                          label="Your comment"
-                          outlined
-                          auto-grow
-                        />
-                        <v-btn color="primary" class="mt-3" @click="submitReview">Submit</v-btn>
-                      </v-card-text>
-                    </v-card>
-
-                    <!-- Reviews List -->
-                    <v-card v-for="(review, index) in reviews" :key="index" class="mb-3">
-                      <v-card-title class="d-flex align-center justify-space-between">
-                        <v-rating v-model="review.rating" readonly color="yellow darken-2" small />
+                  <p class="review-style pl-8 pt-2">
+                    {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
+                    ({{ reviews.length }})
+                    <v-tooltip activator="parent" location="right"
+                      >Scroll down to view more reviews!</v-tooltip
+                    >
+                  </p>
+                  <v-container id="review-section" class="modal-content">
+                    <v-card
+                      v-for="(review, index) in reviews"
+                      :key="index"
+                      class="mb-1 pl-5 pr-5 review-card"
+                    >
+                      <v-card-title class="d-flex align-center pt-2">
+                        <v-row>
+                          <v-col cols="12" md="2" class="">
+                            <v-avatar size="40" class="pl-4">
+                              <img :src="review.profilePhoto" alt="Profile" />
+                            </v-avatar>
+                          </v-col>
+                          <v-col cols="12" md="10">
+                            <div>
+                              <P class="profile-name-style">{{ review.username }}</P>
+                            </div>
+                            <div class="text-caption">
+                              <p class="profile-email-style">{{ review.email }}</p>
+                            </div>
+                          </v-col>
+                        </v-row>
                       </v-card-title>
-                      <v-card-text>{{ review.comment }}</v-card-text>
+                      <v-rating
+                        :model-value="review.rating"
+                        density="compact"
+                        readonly
+                        color="yellow darken"
+                        class="review-star pl-4"
+                      />
+                      <v-card-text
+                        ><p class="review-comment pl-2">{{ review.comment }}</p></v-card-text
+                      >
                     </v-card>
                   </v-container>
                   <!----->
@@ -132,7 +145,7 @@
                   width="600"
                   color="#FD7B38"
                   :selected-color="'#FD7B38'"
-                >
+                  >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
                     <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
@@ -363,6 +376,7 @@ import { supabase } from '@/supabase' // ✅ import Supabase
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useOrderStore } from '@/stores/orders'
+import '@/assets/main.css'
 
 const router = useRouter()
 const orderRefs = ref([])
@@ -371,8 +385,6 @@ const orderStore = useOrderStore()
 // Calendar and Reviews
 const showCalendar = ref(false)
 const selectedDate = ref(null)
-const newReview = ref({ rating: 0, comment: '' })
-const reviews = ref([])
 
 function confirmDateSelection() {
   showCalendar.value = false
@@ -552,12 +564,58 @@ function handleDialogOk() {
 function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
+
+// Reviews
+import { computed } from 'vue'
+import { useReviewStore } from '@/stores/reviewStore'
+
+const reviewStore = useReviewStore()
+
+const stationId = 'station-123' // Should be dynamic (from route param maybe)
+const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
+
+const averageRating = computed(() => {
+  if (reviews.value.length === 0) return 0
+  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0)
+  return (total / reviews.value.length).toFixed(1) // 1 decimal place
+})
 </script>
 
 <style scoped>
+.v-divider {
+  background-color: #000;
+  color: #1c238b;
+}
+
 .v-card {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.review-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+.profile-name-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+.profile-email-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 13px;
+  font-weight: 400;
+  padding-top: 0%;
+  margin-top: -0.5rem;
+}
+.review-card {
+  border: #0557b6 1px solid;
+  background-color: #dee8ef;
+}
+.review-comment {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 13px;
+  margin-top: -0.5rem;
 }
 
 .discount-text {
@@ -607,5 +665,16 @@ function handleIncompleteOrderOk() {
 /* Optional: tweak day cells */
 .custom-calendar .v-btn {
   color: white; /* Make calendar day numbers white */
+}
+
+.modal-content {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+.modal-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 </style>

@@ -161,7 +161,8 @@
                   v-model="feedbacks.rating"
                   background-color="grey lighten-1"
                   color="yellow darken-2"
-                  large
+                  half-increments
+                  hover
                   class=""
                 />
                 <v-textarea
@@ -184,11 +185,15 @@
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
-              <h3>✅ Submission Successful!</h3>
               <p>🎉 Thank you for your feedback!</p>
-              <p>Your review helps improve the service of AquaPure Water Station.</p>
-              <div class="modal-buttons">
-                <button class="btn-primary" @click="closeSuccessModal">OK</button>
+              <p>Your review helps improve the service of Aquabon Water Refilling Station.</p>
+              <div>
+                <router-link to="/aquabon#review-section">
+                  <v-btn class="submission-view-btn mt-3">View review</v-btn>
+                </router-link>
+              </div>
+              <div class="">
+                <v-btn class="submission-back-btn mt-1" @click="closeSuccessModal">Back</v-btn>
               </div>
             </div>
           </div>
@@ -245,33 +250,36 @@ const orders = ref([
   },
 ])
 
-// —————————————————————————————————————————
-// 2) Pinia store setup
-// —————————————————————————————————————————
 const router = useRouter()
 const orderStore = useOrderStore()
 
-// —————————————————————————————————————————
-// 3) UI state & review setup
-// —————————————————————————————————————————
 const selectedFilter = ref('All')
 const showCancelModal = ref(false)
 const cancelIndex = ref(null)
 const showDetailsModal = ref(false)
 const selectedOrder = ref(null)
+
+// State for modal visibility
 const showRateModal = ref(false)
 const showSuccessModal = ref(false)
+
+const rating = ref(0)
+const recommend = ref('')
 
 const feedbacks = reactive({
   rating: 0,
   comment: '',
 })
-const currentUser = {
-  username: 'Mae',
-  email: 'mae@example.com',
-  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com',
-}
+
 const stationId = 'station-123'
+
+const currentUser = {
+  username: 'Dae Del Kapeyun',
+  email: 'mae@example.com',
+  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com', // use default or from DB
+}
+
+// Access the review store
 const reviewStore = useReviewStore()
 
 const filteredOrdersStore = computed(() => {
@@ -280,8 +288,10 @@ const filteredOrdersStore = computed(() => {
   return list.filter((o) => o.status === selectedFilter.value)
 })
 
-function filterOrders(status) {
+const filterOrders = (status) => {
   selectedFilter.value = status
+  filteredOrders.value =
+    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
 }
 
 function promptCancel(idx) {
@@ -302,24 +312,35 @@ function viewDetails(order) {
   showDetailsModal.value = true
 }
 
-function openRateModal(order) {
+const openRateModal = (order) => {
   selectedOrder.value = order
-  feedbacks.rating = 0
-  feedbacks.comment = ''
+  rating.value = 0
+  recommend.value = ''
   showRateModal.value = true
 }
 
-function submitReview() {
+// Function to submit the review
+const submitReview = () => {
+  if (feedbacks.rating === 0 || feedbacks.comment.trim() === '') {
+    alert('Please provide a rating and a comment before submitting.')
+    return // stop the function here, do NOT proceed
+  }
+
   reviewStore.addReview(
     stationId,
-    { rating: feedbacks.rating, comment: feedbacks.comment },
+    {
+      rating: feedbacks.rating,
+      comment: feedbacks.comment,
+    },
     currentUser,
   )
+
+  // Close the rating modal and show success modal
   showRateModal.value = false
   showSuccessModal.value = true
 }
-
-function closeSuccessModal() {
+// Function to close the success modal
+const closeSuccessModal = () => {
   showSuccessModal.value = false
 }
 
@@ -491,11 +512,17 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-.modal-buttons {
+.modal-content p {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+/*.modal-buttons {
   display: flex;
   justify-content: space-around;
   margin-top: 20px;
-}
+}*/
 
 .fade-enter-active,
 .fade-leave-active {
@@ -601,5 +628,24 @@ table th {
 }
 .orderpage-close-btn:hover {
   color: #02adef !important;
+}
+
+.submission-back-btn {
+  text-transform: none;
+  color: #fff;
+  background-color: #02adef;
+}
+.submission-view-btn {
+  text-transform: none;
+  color: #0557b6;
+  border: 1px #02adef solid;
+}
+.submission-back-btn:hover {
+  color: #0557b6;
+}
+.submission-view-btn:hover {
+  color: #0557b6;
+  border: #02adef 1px solid;
+  background-color: #02adef;
 }
 </style>
