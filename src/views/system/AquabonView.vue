@@ -387,6 +387,11 @@ const orderStore = useOrderStore()
 const showCalendar = ref(false)
 const selectedDate = ref(null)
 
+const newReview = ref({
+  rating: 0,
+  comment: '',
+})
+
 function confirmDateSelection() {
   showCalendar.value = false
 }
@@ -567,7 +572,7 @@ function handleIncompleteOrderOk() {
 }
 
 // Reviews
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useReviewStore } from '@/stores/reviewStore'
 
 const reviewStore = useReviewStore()
@@ -578,7 +583,62 @@ const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 const averageRating = computed(() => {
   if (reviews.value.length === 0) return 0
   const total = reviews.value.reduce((sum, review) => sum + review.rating, 0)
-  return (total / reviews.value.length).toFixed(1) // 1 decimal place
+  return (total / reviews.value.length).toFixed(1)
+})
+
+const actualReviews = ref([])
+
+async function fetchReviews() {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching reviews:', error)
+  } else {
+    actualReviews.value = data
+  }
+}
+
+async function submitActualReview(orderId) {
+  const userId = await getUserId()
+
+  if (!userId) {
+    console.error('User not logged in')
+    return
+  }
+
+  if (newReview.value.comment && newReview.value.rating) {
+    const { error } = await supabase.from('reviews').insert({
+      rating: newReview.value.rating,
+      comment: newReview.value.comment,
+      created_at: new Date().toISOString(),
+      order_id: orderId,
+      user_id: userId,
+    })
+    if (error) {
+      console.error('Error submitting review:', error)
+    } else {
+      // Add the new review to the front of the list
+      actualReviews.value.unshift({
+        rating: newReview.value.rating,
+        comment: newReview.value.comment,
+        created_at: new Date().toISOString(),
+        order_id: orderId,
+        user_id: userId,
+      })
+
+      // Reset the new review form
+      newReview.value.rating = 0
+      newReview.value.comment = ''
+    }
+  }
+}
+
+// Fetch reviews on page load
+onMounted(() => {
+  fetchReviews()
 })
 </script>
 

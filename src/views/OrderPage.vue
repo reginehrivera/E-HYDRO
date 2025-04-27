@@ -339,6 +339,7 @@ const submitReview = () => {
   showRateModal.value = false
   showSuccessModal.value = true
 }
+
 // Function to close the success modal
 const closeSuccessModal = () => {
   showSuccessModal.value = false
