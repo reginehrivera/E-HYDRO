@@ -184,9 +184,9 @@
               <p>🎉 Thank you for your feedback!</p>
               <p>Your review helps improve the service of Aquabon Water Refilling Station.</p>
               <div>
-                <router-link to="/aquabon#review-section">
-                <v-btn class="submission-view-btn mt-3">View review</v-btn>
-              </router-link>
+                <router-link :to="{ path: '/aquabon', hash: '#review-section' }">
+                  <v-btn class="submission-view-btn mt-3">View review</v-btn>
+                </router-link>
               </div>
               <div class="">
                 <v-btn class="submission-back-btn mt-1" @click="closeSuccessModal">Back</v-btn >
@@ -457,6 +457,7 @@ const closeSuccessModal = () => {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  border:#0557b6 1px solid;
 }
 .modal-content p {
   margin: 0;

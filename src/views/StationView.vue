@@ -1,98 +1,100 @@
-<template>
-  <NavigationBar>
-    <template #content>
-      <v-container fluid class="bg-image">
-        <!--first row-->
-        <v-row>
-          <v-col col="12" md="6">
-            <div class="title-phrase">
-              <h4 class="first-phrase">
-                Stay hydrated<v-icon class="icon-style">mdi-water</v-icon>
-              </h4>
-              <!---->
-            </div>
-          </v-col>
-          <!--Search Barr Area-->
-          <v-col col="12" md="6" class="search-bar">
-            <v-form class="search-form" role="search">
-              <v-row no-gutters>
-                <v-col cols="9" class="search-input">
-                  <v-text-field
-                    variant="outlined"
-                    placeholder="Search for water stations nearby..."
-                    density="comfortable"
-                    hide-details
-                    class="fst-italic"
-                    prepend-inner-icon="mdi-magnify"
-                    aria-label="Search"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="3">
-                  <v-btn type="submit" class="search-btn" color="" block
-                    ><span>Search </span></v-btn
-                  >
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-col>
-        </v-row>
-        <!--end first row-->
-
-        <!--second row-->
-        <v-row>
-          <v-col class="d-flex justify-center" cols="12">
-            <!--Station Card-->
-            <v-card class="mx-auto station-card" max-width="85%" elevation="24">
-              <v-card-title class="text-center pt-10">
-                <h2 class="text-h5">Available Water Refilling Stations</h2>
-                <h4 class="second-phrase">
-                  Place your order here<v-icon class="cart-run">mdi-cart-variant</v-icon>
-                </h4>
-                <v-slide-group v-model="model" class="pa-1" show-arrows>
-                  <v-slide-group-item
-                    v-for="(img, index) in images"
-                    :key="index"
-                    v-slot="{ toggle, selectedClass }"
-                  >
-                    <router-link :to="img.route" class="no-underline">
-                      <v-card
-                        :class="['ma-2', selectedClass]"
-                        height="480"
-                        width="300"
-                        @click="toggle"
-                        class="slide-group-style"
+  <template>
+    <NavigationBar>
+      <template #content>
+        <v-container fluid class="bg-image">
+          <!--first row-->
+          <v-container max-width="85%" class="pt-10"> <!--added-->
+            <v-row>
+              <v-col xl="12" lg="6" md="6" sm="12" xs="12">
+                <div class="title-phrase">
+                  <h4 class="first-phrase">
+                    Stay hydrated<v-icon class="icon-style">mdi-water</v-icon>
+                  </h4>
+                  <!---->
+                </div>
+              </v-col>
+              <!--Search Barr Area-->
+              <v-col xl="12" lg="6" md="6" sm="12" xs="12" class="search-bar" v-show="!mobile">
+                <v-form class="search-form" role="search" >
+                  <v-row no-gutters>
+                    <v-col cols="9" class="search-input">
+                      <v-text-field
+                        variant="outlined"
+                        placeholder="Search for water stations nearby..."
+                        density="comfortable"
+                        hide-details
+                        class="fst-italic"
+                        prepend-inner-icon="mdi-magnify"
+                        aria-label="Search"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="3">
+                      <v-btn type="submit" class="search-btn" color="" block
+                        ><span>Search </span></v-btn
                       >
-                        <v-card elevation="0" class="image-card">
-                          <v-img :src="img.src" class="mb-1 images"></v-img>
-                          <h4 class="pb-1 text-white order-now-text">Order Now!</h4>
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </v-col>
+            </v-row>
+          </v-container>
+          <!--end first row-->
+
+          <!--second row-->
+          <v-row>
+            <v-col class="d-flex justify-center" cols="12">
+              <!--Station Card-->
+              <v-card class="mx-auto station-card" max-width="85%" elevation="24">
+                <v-card-title class="text-center pt-10">
+                  <h2 class="text-h5">Available Water Refilling Stations</h2>
+                  <h4 class="second-phrase">
+                    Place your order here<v-icon class="cart-run">mdi-cart-variant</v-icon>
+                  </h4>
+                  <v-slide-group v-model="model" class="pa-1" show-arrows>
+                    <v-slide-group-item
+                      v-for="(img, index) in images"
+                      :key="index"
+                      v-slot="{ toggle, selectedClass }"
+                    >
+                      <router-link :to="img.route" class="no-underline">
+                        <v-card
+                          :class="['ma-2', selectedClass]"
+                          height="480"
+                          width="300"
+                          @click="toggle"
+                          class="slide-group-style"
+                        >
+                          <v-card elevation="0" class="image-card">
+                            <v-img :src="img.src" class="mb-1 images"></v-img>
+                            <h4 class="pb-1 text-white order-now-text">Order Now!</h4>
+                          </v-card>
+                          <v-card-title class="text-wrap text-start text-title">
+                            {{ img.title }}
+                          </v-card-title>
+                          <v-card-text class="text-subtitle-2 text-start text-description">
+                            <v-icon>mdi-map-marker</v-icon> {{ img.description }}
+                          </v-card-text>
+                          <v-card-text class="text-subtitle-2 text-start text-price">
+                            {{ img.price }}
+                          </v-card-text>
+                          <v-footer class="text-subtitle-2 text-start text-available">
+                            <v-icon class="text-success">mdi-circle</v-icon> Available
+                          </v-footer>
                         </v-card>
-                        <v-card-title class="text-wrap text-start text-title">
-                          {{ img.title }}
-                        </v-card-title>
-                        <v-card-text class="text-subtitle-2 text-start text-description">
-                          <v-icon>mdi-map-marker</v-icon> {{ img.description }}
-                        </v-card-text>
-                        <v-card-text class="text-subtitle-2 text-start text-price">
-                          {{ img.price }}
-                        </v-card-text>
-                        <v-footer class="text-subtitle-2 text-start text-available">
-                          <v-icon class="text-success">mdi-circle</v-icon> Available
-                        </v-footer>
-                      </v-card>
-                    </router-link>
-                  </v-slide-group-item>
-                </v-slide-group>
-              </v-card-title>
-              <v-card-subtitle class="pb-0"> </v-card-subtitle>
-            </v-card>
-            <!--End of station card-->
-          </v-col>
-        </v-row>
-        <!--end second row-->
-      </v-container>
-    </template>
-  </NavigationBar>
-</template>
+                      </router-link>
+                    </v-slide-group-item>
+                  </v-slide-group>
+                </v-card-title>
+                <v-card-subtitle class="pb-0"> </v-card-subtitle>
+              </v-card>
+              <!--End of station card-->
+            </v-col>
+          </v-row>
+          <!--end second row-->
+        </v-container>
+      </template>
+    </NavigationBar>
+  </template>
 
 <script setup>
 import { ref } from 'vue'
@@ -136,6 +138,23 @@ const images = ref([
     route: '/waterdrops',
   },
 ])
+
+//for search bar
+import { onMounted, onUnmounted } from 'vue'
+const mobile = ref(false)
+
+const checkScreen = () => {
+  mobile.value = window.innerWidth <= 750
+}
+
+onMounted(() => {
+  checkScreen()
+  window.addEventListener('resize', checkScreen)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
 </script>
 
 <style scoped>
@@ -152,8 +171,9 @@ const images = ref([
   font-size: 23px !important;
   color: #04448d;
   font-style: italic;
-  padding-left: 15%;
-  padding-top: 11% !important;
+  padding-top: 5% !important;
+  padding-left: 0%;
+  margin-left: 0%;
 }
 
 @keyframes water-bob {
@@ -175,6 +195,8 @@ const images = ref([
 .first-phrase {
   font-weight: 700;
   font-family: 'Faustina', serif;
+  padding-left: 0%;
+  margin-left: 0%;
 }
 .first-phrase {
   margin-bottom: -0.6rem;
@@ -214,7 +236,7 @@ const images = ref([
 
 .search-bar {
   padding-top: 10%;
-  padding-right: 8%;
+  padding-right: 0%;
 }
 .search-input {
   position: relative;
@@ -230,7 +252,6 @@ const images = ref([
   z-index: 1;
 }
 
-/* The running border using a ::before pseudo-element */
 .search-input .v-text-field::before {
   content: '';
   position: absolute;
@@ -338,4 +359,23 @@ const images = ref([
   background-color: #bee1ed00;
   margin-top: -1.7rem;
 }
+/**Media Responsive style this part */
+@media (max-width: 900px) {
+  .search-bar {
+    margin-top: 0%;
+    margin-bottom: 1rem;
+  }
+}
+
+  @media (max-width: 750px) {
+  .search-bar {
+  }
+}
+@media (max-width: 600px) {
+  .search-bar {
+    margin-top: 10%;
+  }
+}
+
+
 </style>

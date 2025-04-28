@@ -48,22 +48,25 @@
             </div>
           </li>
           <li>
+            
+          </li>
+          <li>
             <router-link class="link" :to="{ name: 'home' }"
               ><v-icon>mdi-home</v-icon>Home</router-link
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'station' }"
               ><v-icon>mdi-water</v-icon>Station</router-link
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'order' }"
               ><v-icon>mdi-cart</v-icon>My Order</router-link
             >
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'notification' }"
               ><v-icon>mdi-bell</v-icon> Notification</router-link
             >
           </li>

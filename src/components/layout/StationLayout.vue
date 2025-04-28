@@ -1,42 +1,60 @@
 <script setup>
+//for search bar
+import { ref, onMounted, onUnmounted } from 'vue'
+const mobile = ref(false)
+
+const checkScreen = () => {
+  mobile.value = window.innerWidth <= 750
+}
+
+onMounted(() => {
+  checkScreen()
+  window.addEventListener('resize', checkScreen)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
 </script>
 
 <template>
       <v-container fluid class="bg-image">
         <!--first row-->
-        <v-row>
-          <v-col col="12" md="6">
-            <div class="title-phrase">
-              <h4 class="first-phrase">
-                Stay hydrated<v-icon class="icon-style">mdi-water</v-icon>
-              </h4>
-              <!---->
-            </div>
-          </v-col>
-          <!--Search Barr Area-->
-          <v-col col="12" md="6" class="search-bar">
-            <v-form class="search-form" role="search">
-              <v-row no-gutters>
-                <v-col cols="9" class="search-input">
-                  <v-text-field
-                    variant="outlined"
-                    placeholder="Search for water stations nearby..."
-                    density="comfortable"
-                    hide-details
-                    class="fst-italic"
-                    prepend-inner-icon="mdi-magnify"
-                    aria-label="Search"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="3">
-                  <v-btn type="submit" class="search-btn" color="" block
-                    ><span>Search </span></v-btn
-                  >
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-col>
-        </v-row>
+        <v-container max-width="85%" class="pt-10"> <!--added-->
+            <v-row>
+              <v-col xl="12" lg="6" >
+                <div class="title-phrase">
+                  <h4 class="first-phrase">
+                    Stay hydrated<v-icon class="icon-style">mdi-water</v-icon>
+                  </h4>
+                  <!---->
+                </div>
+              </v-col>
+              <!--Search Barr Area-->
+              <v-col xl="12" lg="6" xs="12" class="search-bar" v-show="!mobile">
+                <v-form class="search-form" role="search">
+                  <v-row no-gutters>
+                    <v-col cols="9" class="search-input">
+                      <v-text-field
+                        variant="outlined"
+                        placeholder="Search for water stations nearby..."
+                        density="comfortable"
+                        hide-details
+                        class="fst-italic"
+                        prepend-inner-icon="mdi-magnify"
+                        aria-label="Search"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="3">
+                      <v-btn type="submit" class="search-btn" color="" block
+                        ><span>Search </span></v-btn
+                      >
+                    </v-col>
+                  </v-row>
+                </v-form>
+              </v-col>
+            </v-row>
+          </v-container>
         <!--end first row-->
         <slot name="dashboardcontent"></slot>
       </v-container>
@@ -55,8 +73,9 @@
   font-size: 23px !important;
   color: #04448d;
   font-style: italic;
-  padding-left: 15%;
-  padding-top: 11% !important;
+  padding-top: 5% !important;
+  padding-left: 0%;
+  margin-left: 0%;
 }
 
 @keyframes water-bob {
@@ -87,7 +106,7 @@
 
 .search-bar {
   padding-top: 10%;
-  padding-right: 8%;
+  padding-right: 0%;
 }
 .search-input {
   position: relative;

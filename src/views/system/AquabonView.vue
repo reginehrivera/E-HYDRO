@@ -277,7 +277,7 @@ const averageRating = computed(() => {
   const total = reviews.value.reduce((sum, review) => sum + review.rating, 0);
   return (total / reviews.value.length).toFixed(1); // 1 decimal place
 });
-
+  
 </script>
 
 <style scoped>
