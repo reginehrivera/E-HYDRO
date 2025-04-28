@@ -47,31 +47,31 @@
               <span class="second-word">-HYDRO</span>
             </div>
           </li>
-          <!--<li>
-            <div class="search-bar">
-            <input type="search" placeholder="Search nearby station..." class="search-input"/>
-            <span class="search-style-btn"><v-icon>mdi-magnify</v-icon></span>
-            </div>
-          </li>-->
           <li>
             <div class="search-bar" :class="{ expanded: isExpanded }">
-              <input
-                type="search"
-                placeholder="Search nearby station..."
-                class="search-input"
-                :class="{ visible: isExpanded }"
-                @submit="handleSearch"
-              />
-               <!-- Suggestions Dropdown -->
-               <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
-                        <li
-                          v-for="(suggestion, index) in filteredSuggestions"
-                          :key="index"
-                          @click="selectSuggestion(suggestion)"
-                        >
-                          {{ suggestion }}
-                        </li>
-                      </ul>
+              <form @submit.prevent="handleSearch" class="search-form">
+                <div class="search-input-wrapper">
+                  <input
+                    type="search"
+                    v-model="searchInput"
+                    placeholder="Search nearby station..."
+                    class="search-input"
+                    :class="{ visible: isExpanded }"
+                  />
+
+                  <!-- Suggestions Dropdown -->
+                  <ul v-if="isExpanded && searchInput && filteredSuggestions.length" class="suggestion-list">
+                    <li
+                      v-for="(suggestion, index) in filteredSuggestions"
+                      :key="index"
+                      @click="selectSuggestion(suggestion)"
+                    >
+                      {{ suggestion }}
+                    </li>
+                  </ul>
+                </div>
+              </form>
+
               <span class="search-style-btn" @click="toggleSearch">
                 <v-icon>mdi-magnify</v-icon>
               </span>
@@ -110,7 +110,6 @@
 </template>
 
 <script setup>
-
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const scrollPosition = ref(null)
@@ -145,18 +144,17 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreen)
 })
-//search bar collapse
+//search bar area
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
 const isExpanded = ref(false)
+const searchInput = ref('')
+const router = useRouter()
 
 const toggleSearch = () => {
   isExpanded.value = !isExpanded.value
 }
-
-//suggestion search list
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-const searchInput = ref('')
-const router = useRouter()
 
 const stations = {
   aquasis: '/aquasis',
@@ -167,11 +165,12 @@ const stations = {
 
 const filteredSuggestions = computed(() => {
   const input = searchInput.value.toLowerCase()
-  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+  return Object.keys(stations).filter((station) =>
+    station.toLowerCase().includes(input)
+  )
 })
 
-const handleSearch = (e) => {
-  e.preventDefault()
+const handleSearch = () => {
   const input = searchInput.value.trim().toLowerCase()
   if (stations[input]) {
     router.push(stations[input])
@@ -182,11 +181,10 @@ const handleSearch = (e) => {
 }
 
 const selectSuggestion = (station) => {
-  searchInput.value = station
   const lowerStation = station.toLowerCase()
   if (stations[lowerStation]) {
     router.push(stations[lowerStation])
-    searchInput.value = '' // clear after clicking suggestion (optional)
+    searchInput.value = '' // clear after selecting
   } else {
     alert('Station not found.')
   }
@@ -405,64 +403,37 @@ li {
   padding-top: 5px;
 }
 /**search bar sidebar style here */
-/*.search-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0%;
-  margin-right: 1.5rem;
-}
-.search-input{
-  width: 90%;
-  padding: 11px;
-  font-size: 14px;
-  color: #04448d;
-}
-.search-style-btn {
-  padding: 11px;
-  border-radius: 80%;
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
-  background-size: 200% auto;
-  background-position: left center;
-  transition: background-position 0.5s ease;
-}
-.search-style-btn:hover {
-  background-position: right center;
-}*/
-
 .search-bar {
   display: flex;
-  align-items: start;
+  align-items: center;
   margin-top: 0;
-  transition: all 0.2s ease;
+  transition: all 0.4s ease;
+  gap: 0.25rem;
 }
 
 .search-bar .search-input {
   width: 0;
   opacity: 0;
-  padding: 0;
   border: none;
-  background: transparent;
-  font-size: 14px;
+  border-radius: 20px;
+  background: transparent !important;
+  font-size: 13px;
   color: #04448d;
   transition: all 0.4s ease;
   pointer-events: none;
 }
 
 .search-bar.expanded .search-input {
-  width: 200px; /* adjust the expanded width */
-  opacity: 2;
+  width: 190px; /* adjust the expanded width */
+  opacity: 1;
   padding: 10px;
   border: 1px solid #04448d;
-  border-radius: 120px;
   background: #fff;
   pointer-events: auto;
 }
 
 .search-style-btn {
-  padding: 11px;
+  padding: 8px;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
@@ -475,5 +446,27 @@ li {
 .search-style-btn:hover {
   background-position: right center;
 }
+/* Suggestions List */
+.suggestion-list {
+  list-style: none;
+  position: absolute;
+  background-color: #dee8ef;
+  color: #000;
+  width: 58%;
+  max-height: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  overflow-y: auto;
+  z-index: 2;
+  margin-top: 2px;
+  padding-bottom: 4px;
+}
 
+.suggestion-list li {
+  padding: 6px 0px;
+  cursor: pointer;
+}
+.suggestion-list li:hover {
+  background-color: #e3f2fd;
+}
 </style>
