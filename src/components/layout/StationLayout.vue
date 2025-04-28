@@ -1,20 +1,60 @@
 <script setup>
+import '@/assets/main.css'
 //for search bar
+
+// Hides search bar when not mobile
 import { ref, onMounted, onUnmounted } from 'vue'
-const mobile = ref(false)
+const mobile = ref(null)
+const mobileNav = ref(null)
+const windowWidth = ref(window.innerWidth)
 
 const checkScreen = () => {
-  mobile.value = window.innerWidth <= 750
+  windowWidth.value = window.innerWidth
+  if (windowWidth.value <= 750) {
+    mobile.value = true
+  } else {
+    mobile.value = false
+    mobileNav.value = false
+  }
 }
 
 onMounted(() => {
-  checkScreen()
   window.addEventListener('resize', checkScreen)
+  checkScreen()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreen)
 })
+
+ //suggestion search list
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+const searchInput = ref('')
+const router = useRouter()
+
+const stations = {
+  aquasis: '/aquasis',
+  aquabon: '/aquabon',
+  'cold point': '/coldpoint',
+  'water drops': '/waterdrops',
+}
+
+const filteredSuggestions = computed(() => {
+  const input = searchInput.value.toLowerCase()
+  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+})
+
+const handleSearch = (e) => {
+  e.preventDefault()
+  const input = searchInput.value.trim().toLowerCase()
+  if (stations[input]) {
+    router.push(stations[input])
+    searchInput.value = ''
+  } else {
+    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+  }
+}
 </script>
 
 <template>
@@ -31,11 +71,12 @@ onUnmounted(() => {
                 </div>
               </v-col>
               <!--Search Barr Area-->
-              <v-col xl="12" lg="6" xs="12" class="search-bar" v-show="!mobile">
-                <v-form class="search-form" role="search">
+              <v-col cols="12" md="6" class="search-bar" v-show="!mobile">
+                <v-form class="search-form" role="search" @submit="handleSearch">
                   <v-row no-gutters>
                     <v-col cols="9" class="search-input">
                       <v-text-field
+                        v-model="searchInput"
                         variant="outlined"
                         placeholder="Search for water stations nearby..."
                         density="comfortable"
@@ -44,11 +85,22 @@ onUnmounted(() => {
                         prepend-inner-icon="mdi-magnify"
                         aria-label="Search"
                       ></v-text-field>
+
+                      <!-- Suggestions Dropdown-->
+                      <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                        <li
+                          v-for="(suggestion, index) in filteredSuggestions"
+                          :key="index"
+                          @click="selectSuggestion(suggestion)"
+                        >
+                          {{ suggestion }}
+                        </li>
+                      </ul>
                     </v-col>
                     <v-col cols="3">
-                      <v-btn type="submit" class="search-btn" color="" block
-                        ><span>Search </span></v-btn
-                      >
+                      <v-btn type="submit" class="search-btn" block>
+                        <span>Search</span>
+                      </v-btn>
                     </v-col>
                   </v-row>
                 </v-form>
@@ -101,75 +153,6 @@ onUnmounted(() => {
 .first-phrase {
   margin-bottom: -0.6rem;
 }
-
-/*-------Search Bar---------*/
-
-.search-bar {
-  padding-top: 10%;
-  padding-right: 0%;
-}
-.search-input {
-  position: relative;
-}
-
-/* Animated gradient border */
-.search-input .v-text-field {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid transparent;
-  color: #fff;
-  overflow: hidden;
-  z-index: 1;
-}
-
-/* The running border using a ::before pseudo-element */
-.search-input .v-text-field::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  z-index: -1;
-  border-radius: 12px;
-  background: linear-gradient(270deg, #90caf9, #42a5f5, #89c4dd, #408db3, #90caf9);
-  background-size: 400% 400%;
-  animation: gradient-run 6s ease infinite;
-  opacity: 1; /* Always visible */
-}
-
-/* Animation keyframes */
-@keyframes gradient-run {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.search-btn {
-  width: 100%;
-  height: 93%;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
-  background-size: 200% auto;
-  background-position: left center;
-  transition: background-position 0.5s ease;
-  margin-top: 0.11rem;
-}
-.search-btn:hover {
-  background-position: right center;
-}
-.search-btn span {
-  font-family: 'inter', sans-serif;
-  font-weight: 600;
-  text-transform: none;
-  color: #fff;
-}
-/*-------End Search Bar---------*/
 
 /*-------Station Style-------*/
 .station-container {

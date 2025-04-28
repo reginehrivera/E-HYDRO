@@ -47,8 +47,35 @@
               <span class="second-word">-HYDRO</span>
             </div>
           </li>
+          <!--<li>
+            <div class="search-bar">
+            <input type="search" placeholder="Search nearby station..." class="search-input"/>
+            <span class="search-style-btn"><v-icon>mdi-magnify</v-icon></span>
+            </div>
+          </li>-->
           <li>
-            
+            <div class="search-bar" :class="{ expanded: isExpanded }">
+              <input
+                type="search"
+                placeholder="Search nearby station..."
+                class="search-input"
+                :class="{ visible: isExpanded }"
+                @submit="handleSearch"
+              />
+               <!-- Suggestions Dropdown -->
+               <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                        <li
+                          v-for="(suggestion, index) in filteredSuggestions"
+                          :key="index"
+                          @click="selectSuggestion(suggestion)"
+                        >
+                          {{ suggestion }}
+                        </li>
+                      </ul>
+              <span class="search-style-btn" @click="toggleSearch">
+                <v-icon>mdi-magnify</v-icon>
+              </span>
+            </div>
           </li>
           <li>
             <router-link class="link" :to="{ name: 'home' }"
@@ -82,44 +109,89 @@
   <slot name="content"></slot>
 </template>
 
-<script>
-export default {
-  name: 'NavigationBar',
-  data() {
-    return {
-      scrollPosition: null,
-      mobile: null,
-      mobileNav: null,
-      windowWidth: window.innerWidth,
-      showNotifications: false, // ✅ Added
-    }
-  },
+<script setup>
 
-  created() {
-    window.addEventListener('resize', this.checkScreen)
-    this.checkScreen()
-  },
-  methods: {
-    toggleMobileNav() {
-      this.mobileNav = !this.mobileNav
-    },
+import { ref, onMounted, onUnmounted } from 'vue'
 
-    checkScreen() {
-      this.windowWidth = window.innerWidth
-      if (this.windowWidth <= 750) {
-        this.mobile = true
-        return
-      }
-      this.mobile = false
-      this.mobileNav = false
-      return
-    },
+const scrollPosition = ref(null)
+const mobile = ref(null)
+const mobileNav = ref(null)
+const windowWidth = ref(window.innerWidth)
+const showNotifications = ref(false)
 
-    toggleNotifications() {
-      this.showNotifications = !this.showNotifications
-    },
-  },
+const toggleMobileNav = () => {
+  mobileNav.value = !mobileNav.value
 }
+
+const checkScreen = () => {
+  windowWidth.value = window.innerWidth
+  if (windowWidth.value <= 750) {
+    mobile.value = true
+  } else {
+    mobile.value = false
+    mobileNav.value = false
+  }
+}
+
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value
+}
+
+onMounted(() => {
+  window.addEventListener('resize', checkScreen)
+  checkScreen()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
+//search bar collapse
+const isExpanded = ref(false)
+
+const toggleSearch = () => {
+  isExpanded.value = !isExpanded.value
+}
+
+//suggestion search list
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+const searchInput = ref('')
+const router = useRouter()
+
+const stations = {
+  aquasis: '/aquasis',
+  aquabon: '/aquabon',
+  'cold point': '/coldpoint',
+  'water drops': '/waterdrops',
+}
+
+const filteredSuggestions = computed(() => {
+  const input = searchInput.value.toLowerCase()
+  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+})
+
+const handleSearch = (e) => {
+  e.preventDefault()
+  const input = searchInput.value.trim().toLowerCase()
+  if (stations[input]) {
+    router.push(stations[input])
+    searchInput.value = ''
+  } else {
+    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+  }
+}
+
+const selectSuggestion = (station) => {
+  searchInput.value = station
+  const lowerStation = station.toLowerCase()
+  if (stations[lowerStation]) {
+    router.push(stations[lowerStation])
+    searchInput.value = '' // clear after clicking suggestion (optional)
+  } else {
+    alert('Station not found.')
+  }
+}
+
 </script>
 
 <style scoped>
@@ -247,7 +319,7 @@ li {
   flex-direction: column;
   position: fixed;
   width: 90%;
-  max-width: 250px;
+  max-width: 330px;
   height: 100%;
   backdrop-filter: blur(10px);
   left: 0;
@@ -332,4 +404,76 @@ li {
   cursor: pointer;
   padding-top: 5px;
 }
+/**search bar sidebar style here */
+/*.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0%;
+  margin-right: 1.5rem;
+}
+.search-input{
+  width: 90%;
+  padding: 11px;
+  font-size: 14px;
+  color: #04448d;
+}
+.search-style-btn {
+  padding: 11px;
+  border-radius: 80%;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  transition: background-position 0.5s ease;
+}
+.search-style-btn:hover {
+  background-position: right center;
+}*/
+
+.search-bar {
+  display: flex;
+  align-items: start;
+  margin-top: 0;
+  transition: all 0.2s ease;
+}
+
+.search-bar .search-input {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #04448d;
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+.search-bar.expanded .search-input {
+  width: 200px; /* adjust the expanded width */
+  opacity: 2;
+  padding: 10px;
+  border: 1px solid #04448d;
+  border-radius: 120px;
+  background: #fff;
+  pointer-events: auto;
+}
+
+.search-style-btn {
+  padding: 11px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  transition: background-position 0.5s ease;
+}
+
+.search-style-btn:hover {
+  background-position: right center;
+}
+
 </style>
