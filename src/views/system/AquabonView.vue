@@ -352,7 +352,6 @@
       <v-card-text>{{ successMessage }}</v-card-text>
       <v-card-actions class="justify-center">
         <v-btn class="custom-okay-btn" @click="handleDialogOk"> Okay </v-btn>
-        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -618,21 +617,36 @@ async function fetchReviews() {
 }
 
 async function submitActualReview(orderId) {
-  const userId = await getUserId()
+  const user = supabase.auth.user() // Get the currently authenticated user
 
-  if (!userId) {
+  if (!user) {
     console.error('User not logged in')
     return
   }
 
-  if (newReview.value.comment && newReview.value.rating) {
+  // Fetch additional user details from Supabase if needed (for example, profile photo, username, etc.)
+  const { data: userData, error: userError } = await supabase
+    .from('users') // Assuming you have a 'users' table to store user info
+    .select('username, email, profilePhoto') // Fields you need
+    .eq('id', user.id) // Get the user by their ID (from auth)
+    .single() // Fetch a single record
+
+  if (userError) {
+    console.error('Error fetching user data:', userError)
+    return
+  }
+
+  // Proceed if user data is found
+  if (userData) {
+    // Insert the review into Supabase
     const { error } = await supabase.from('reviews').insert({
       rating: newReview.value.rating,
       comment: newReview.value.comment,
       created_at: new Date().toISOString(),
       order_id: orderId,
-      user_id: userId,
+      user_id: user.id,
     })
+
     if (error) {
       console.error('Error submitting review:', error)
     } else {
@@ -642,7 +656,10 @@ async function submitActualReview(orderId) {
         comment: newReview.value.comment,
         created_at: new Date().toISOString(),
         order_id: orderId,
-        user_id: userId,
+        user_id: user.id,
+        username: userData.username,
+        email: userData.email,
+        profilePhoto: userData.profilePhoto,
       }
 
       // Add the new review to the start of the list
@@ -652,8 +669,8 @@ async function submitActualReview(orderId) {
       newReview.value.rating = 0
       newReview.value.comment = ''
 
-      // Also save the new review to the store and localStorage
-      reviewStore.addReview(stationId, newReviewData, user) // Assuming `user` is defined
+      // Save the new review in the review store
+      reviewStore.addReview(stationId, newReviewData)
       reviewStore.saveReviewsToLocalStorage(stationId) // Save after adding review
     }
   }

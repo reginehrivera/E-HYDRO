@@ -213,30 +213,6 @@ import NavigationBar from '@/components/layout/NavigationBar.vue'
 
 const orders = ref([
   {
-    id: 12345,
-    date: 'April 18, 2025',
-    station: 'Aquasis',
-    quantity: 3,
-    total: 180,
-    orderType: 'Single Purchase',
-    status: 'To Deliver',
-    deliveryAddress: '123 Main St, Cityville',
-    deliveryDate: 'April 20, 2025',
-    router: '/aquasis',
-  },
-  {
-    id: 12346,
-    date: 'April 10, 2025',
-    station: 'Aquabon',
-    quantity: 2,
-    total: 120,
-    orderType: 'Subscription',
-    status: 'Completed',
-    deliveryAddress: '456 Oak Rd, Townsville',
-    deliveryDate: 'April 12, 2025',
-    router: '/aquabon',
-  },
-  {
     id: 12347,
     date: 'April 15, 2025',
     station: 'Waterdrops',
@@ -273,11 +249,12 @@ const feedbacks = reactive({
 
 const stationId = 'station-123'
 
-const currentUser = {
-  username: 'Dae Del Kapeyun',
-  email: 'mae@example.com',
-  profilePhoto: 'https://i.pravatar.cc/100?u=mae@example.com', // use default or from DB
-}
+// State to hold the actual user data fetched from Supabase
+const currentUser = reactive({
+  username: '',
+  email: '',
+  profilePhoto: '',
+})
 
 // Access the review store
 const reviewStore = useReviewStore()
@@ -319,11 +296,33 @@ const openRateModal = (order) => {
   showRateModal.value = true
 }
 
-// Function to submit the review
-const submitReview = () => {
+const submitReview = async () => {
   if (feedbacks.rating === 0 || feedbacks.comment.trim() === '') {
     alert('Please provide a rating and a comment before submitting.')
-    return // stop the function here, do NOT proceed
+    return
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    alert('User not logged in.')
+    return
+  }
+
+  const { error } = await supabase.from('feedbacks').insert({
+    rating: feedbacks.rating,
+    comment: feedbacks.comment,
+    created_at: new Date().toISOString(),
+    order_id: selectedOrder.value.id, // ← FIXED
+    user_id: user.id,
+  })
+
+  if (error) {
+    console.error('Supabase insert error:', error)
+    alert('Failed to submit review.')
+    return
   }
 
   reviewStore.addReview(
@@ -332,10 +331,9 @@ const submitReview = () => {
       rating: feedbacks.rating,
       comment: feedbacks.comment,
     },
-    currentUser,
+    user,
   )
 
-  // Close the rating modal and show success modal
   showRateModal.value = false
   showSuccessModal.value = true
 }
@@ -535,11 +533,12 @@ const updateOrderStatus = async () => {
   font-family: 'Inter', sans-serif;
 }
 
-/*.modal-buttons {
+.modal-buttons {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 20px;
-}*/
+  gap: 20px;
+}
 
 .fade-enter-active,
 .fade-leave-active {

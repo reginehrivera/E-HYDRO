@@ -144,7 +144,7 @@ const selectSuggestion = (station) => {
   const lowerStation = station.toLowerCase()
   if (stations[lowerStation]) {
     router.push(stations[lowerStation])
-    searchInput.value = '' // clear after clicking suggestion (optional)
+    searchInput.value = '' 
   } else {
     alert('Station not found.')
   }
