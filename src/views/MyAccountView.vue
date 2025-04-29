@@ -9,8 +9,8 @@
         <v-col md="3">
           <v-card
             class="card_permanent"
-            width="auto"
-            height="20rem"
+            max-width="auto"
+            max-height="20rem"
             hover
             :style="{ background: '#D9D9D9' }"
           >
@@ -68,67 +68,123 @@
         </v-col>
 
         <!-- Left side: Profile Form -->
-        <v-col class="card-v2" v-if="isMyAccountPage">
-          <v-card class="" height="600" width="100%" hover :style="{ background: '#D9D9D9' }">
-            <span class="text-h5 font-weight-medium d-flex justify-center my-4"
-              >Profile Settings</span
+        <v-col cols="12" md="8" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
+          <v-slide-y-transition>
+            <v-card
+              class="w-100"
+              max-width="900"
+              hover
+              elevation="6"
+              :style="{ background: '#D9D9D9', transition: 'all 0.3s ease' }"
             >
-            <div class="d-flex justify-center my-4">
-              <v-avatar color="red" size="80">
-                <span class="text-h5">CJ</span>
-              </v-avatar>
-            </div>
-            <div class="d-flex justify-center my">John Doe</div>
-            <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
+              <span class="text-h5 font-weight-medium d-flex justify-center my-4">
+                Profile Settings
+              </span>
 
-            <v-form v-model="valid">
-              <v-container>
-                <v-row justify="start" style="max-height: 90px">
-                  <v-col cols="6">
-                    <span style="color: #919191">First Name</span>
-                    <v-text-field label="First name" model-value="" variant="solo" />
-                  </v-col>
-                  <v-col cols="6">
-                    <span style="color: #919191">Last Name</span>
-                    <v-text-field label="Last name" model-value="" variant="solo" />
-                  </v-col>
-                </v-row>
+              <div class="d-flex justify-center">
+                <v-avatar color="red" size="80">
+                  <span class="text-h5">CJ</span>
+                </v-avatar>
+              </div>
 
-                <v-row justify="start" style="max-height: 90px">
-                  <v-col cols="6">
-                    <span style="color: #919191">Email</span>
-                    <v-text-field label="Email" model-value="" variant="solo" />
-                  </v-col>
-                  <v-col cols="6">
-                    <span style="color: #919191">Phone Number</span>
-                    <v-text-field label="Phone number" model-value="" variant="solo" />
-                  </v-col>
-                </v-row>
+              <div class="d-flex justify-center">John Doe</div>
+              <div class="d-flex justify-center">JohnDoe@gmail.com</div>
 
-                <v-row justify="start">
-                  <v-col cols="6">
-                    <span style="color: #919191">New Password</span>
-                    <v-text-field label="New Password" model-value="" variant="solo" />
-                  </v-col>
-                  <v-col cols="6">
-                    <span style="color: #919191">Confirm Password</span>
-                    <v-text-field label="Confirm Password" model-value="" variant="solo" />
-                  </v-col>
-                </v-row>
+              <v-form v-model="valid">
+                <v-container fluid>
+                  <v-row no-gutters>
+                    <v-col>
+                      <span class="text-grey-darken-1">First Name</span>
+                      <v-text-field
+                        v-model="firstname"
+                        placeholder="Name"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                        :rules="nameRules"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <span class="text-grey-darken-1">Last Name</span>
+                      <v-text-field
+                        v-model="lastname"
+                        placeholder="Last name"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                        :rules="lastNameRules"
+                      />
+                    </v-col>
+                  </v-row>
 
-                <v-row justify="center">
-                  <v-col cols="12" md="4" sm="6">
-                    <v-btn
-                      :style="{ backgroundColor: '#022650', color: 'white' }"
-                      rounded="lg"
-                      block
-                      >Save Changes</v-btn
-                    >
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-form>
-          </v-card>
+                  <v-row no-gutters>
+                    <v-col>
+                      <span class="text-grey-darken-1">Email</span>
+                      <v-text-field
+                        v-model="email"
+                        placeholder="Email"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                        :rules="emailRules"
+                      />
+                    </v-col>
+                    <v-col>
+                      <span class="text-grey-darken-1">Phone Number</span>
+                      <v-text-field
+                        v-model="phone"
+                        placeholder="Phone number"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                        :rules="phoneRules"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row no-gutters>
+                    <v-col>
+                      <span class="text-grey-darken-1">New Password</span>
+                      <v-text-field
+                        v-model="newPassword"
+                        placeholder="New Password"
+                        variant="solo"
+                        density="compact"
+                        type="password"
+                        class="pa-0 ma-1"
+                        :rules="passwordRules"
+                      />
+                    </v-col>
+                    <v-col>
+                      <span class="text-grey-darken-1">Confirm Password</span>
+                      <v-text-field
+                        v-model="confirmPassword"
+                        placeholder="Confirm Password"
+                        variant="solo"
+                        density="compact"
+                        type="password"
+                        class="pa-0 ma-1"
+                        :rules="confirmPasswordRules"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row justify="center" no-gutters="">
+                    <v-col cols="12" sm="8" md="4">
+                      <v-btn
+                        :style="{ backgroundColor: '#022650', color: 'white' }"
+                        rounded="lg"
+                        block
+                        class="transition-all"
+                      >
+                        Save Changes
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-card>
+          </v-slide-y-transition>
         </v-col>
 
         <!-- Extension for addresses -->
@@ -136,8 +192,8 @@
           <div>
             <v-card
               class="v-cardv2"
-              height="500"
-              width="1000"
+              min-height="500"
+              min-width="900"
               hover
               :style="{ background: '#D9D9D9' }"
             >
@@ -235,51 +291,7 @@
               </div>
               <!-- extension address -->
               <v-container>
-                <div class="d-flex justify-center my-4">
-                  <v-avatar color="red" size="80">
-                    <span class="text-h5">CJ</span>
-                  </v-avatar>
-                </div>
-                <div class="d-flex justify-center my">John Doe</div>
-                <div class="d-flex justify-center my">JohnDoe@gmail.com</div>
-                <span class="spanex">Address</span>
-
-                <v-row class="row" style="max-height: 50px">
-                  <v-col cols="12" md="2" sm="2" class="SpaceinBetween">
-                    <v-text-field placeholder="name" variant="plain" readonly=""
-                      >JohnDoe</v-text-field
-                    >
-                  </v-col>
-                  <v-col cols="12" md="4" sm="6">
-                    <v-text-field placeholder="contact no" variant="plain" readonly=""
-                      >0999999999</v-text-field
-                    >
-                  </v-col>
-                </v-row>
-                <v-row class="row" style="max-height: 50px">
-                  <v-col cols="12" md="4" sm="6">
-                    <v-text-field placeholder="street" variant="plain" readonly=""
-                      >ampayon</v-text-field
-                    >
-                  </v-col>
-                </v-row>
-                <v-row class="row" style="max-height: 50px">
-                  <v-col cols="12" md="4" sm="6">
-                    <v-text-field placeholder="city" variant="plain" readonly=""
-                      >JohnDoe</v-text-field
-                    >
-                  </v-col>
-                </v-row>
-                <v-row justify="center">
-                  <v-col cols="12" md="4" sm="6">
-                    <v-btn
-                      :style="{ backgroundColor: '#022650', color: 'white' }"
-                      rounded="lg"
-                      block
-                      >Save Changes</v-btn
-                    >
-                  </v-col>
-                </v-row>
+                <span>Address </span>
               </v-container>
             </v-card>
           </div>
@@ -310,6 +322,11 @@ const nameRules = [
   (v) => v.length <= 10 || 'Name must be less than 10 characters.',
 ]
 
+const lastNameRules = [
+  (v) => !!v || 'Last name is required.',
+  (v) => v.length <= 10 || 'Last name must be less than 10 characters.',
+]
+
 const emailRules = [
   (v) => !!v || 'E-mail is required.',
   (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid.',
@@ -321,16 +338,14 @@ const phoneRules = [
 ]
 
 const passwordRules = [
-  (v) => !!v || 'Password is required.',
+  (v) => !!v || 'New password is required.',
   (v) => v.length >= 6 || 'Password must be at least 6 characters.',
 ]
 
-// Computed for confirm password
 const confirmPasswordRules = computed(() => [
-  (v) => !!v || 'Confirmation is required.',
+  (v) => !!v || 'Confirmation password is required.',
   (v) => v === newPassword.value || 'Passwords do not match.',
 ])
-
 // Route-based check
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
 //overlay
@@ -678,5 +693,11 @@ function submit() {
 }
 .card_permanent {
   position: relative;
+}
+
+/*spacing in profile */
+.vrow {
+  padding: 0px;
+  margin: 0px;
 }
 </style>
