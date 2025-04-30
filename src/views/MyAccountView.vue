@@ -188,16 +188,17 @@
         </v-col>
 
         <!-- Extension for addresses -->
-        <div v-if="SelectedPage">
-          <div>
+
+
             <v-card
               class="v-cardv2"
               min-height="500"
               min-width="900"
               hover
               :style="{ background: '#D9D9D9' }"
+              v-if="SelectedPage"
             >
-              <div class="d-flex justify-end">
+            <div class="d-flex justify-end">
                 <v-btn class="btn" :style="{ background: '#64B5F6' }" @click="overlay = !overlay">
                   + Add Address
                 </v-btn>
@@ -210,7 +211,7 @@
                             <v-text-field
                               ref="nameRef"
                               v-model="name"
-                              :error-messages="errorMessages"
+                              :error-messages="nameErrorMessages"
                               :rules="[() => !!name || 'This field is required']"
                               label="Full Name"
                               placeholder="John Doe"
@@ -219,14 +220,8 @@
                             <v-text-field
                               ref="addressRef"
                               v-model="address"
-                              :rules="[
-                                () => !!address || 'This field is required',
-                                () =>
-                                  (!!address && address.length <= 25) ||
-                                  'Address must be less than 25 characters',
-                                addressCheck,
-                              ]"
-                              counter="25"
+                              :error-messages="addressErrorMessages"
+                              :rules="[() => !!address || 'This field is required']"
                               label="Address Line"
                               placeholder="Snowy Rock Pl"
                               required
@@ -234,7 +229,8 @@
                             <v-text-field
                               ref="cityRef"
                               v-model="city"
-                              :rules="[() => !!city || 'This field is required', addressCheck]"
+                              :error-messages="cityErrorMessages"
+                              :rules="[() => !!city || 'This field is required']"
                               label="City"
                               placeholder="El Paso"
                               required
@@ -242,6 +238,7 @@
                             <v-text-field
                               ref="stateRef"
                               v-model="state"
+                              :error-messages="stateErrorMessages"
                               :rules="[() => !!state || 'This field is required']"
                               label="State/Province/Region"
                               placeholder="TX"
@@ -250,6 +247,7 @@
                             <v-text-field
                               ref="zipRef"
                               v-model="zip"
+                              :error-messages="zipErrorMessages"
                               :rules="[() => !!zip || 'This field is required']"
                               label="ZIP / Postal Code"
                               placeholder="79938"
@@ -259,6 +257,7 @@
                               ref="countryRef"
                               v-model="country"
                               :items="countries"
+                              :error-messages="countryErrorMessages"
                               :rules="[() => !!country || 'This field is required']"
                               label="Country"
                               placeholder="Select..."
@@ -269,18 +268,8 @@
                           <v-divider class="mt-12" />
 
                           <v-card-actions>
-                            <v-btn variant="text">Cancel</v-btn>
+                            <v-btn variant="text" @click="overlay = false">Cancel</v-btn>
                             <v-spacer />
-                            <v-slide-x-reverse-transition>
-                              <v-tooltip v-if="formHasErrors" location="left">
-                                <template #activator="{ props }">
-                                  <v-btn icon v-bind="props" @click="resetForm">
-                                    <v-icon>mdi-refresh</v-icon>
-                                  </v-btn>
-                                </template>
-                                <span>Refresh form</span>
-                              </v-tooltip>
-                            </v-slide-x-reverse-transition>
                             <v-btn color="primary" variant="text" @click="submit">Submit</v-btn>
                           </v-card-actions>
                         </v-card>
@@ -289,19 +278,55 @@
                   </div>
                 </v-overlay>
               </div>
+
               <!-- extension address -->
               <v-container>
                 <span>Address </span>
+                <v-divider :color="'black'" :thickness="2"></v-divider>
+                <v-container>
+                  <v-row class="mt-7" v-if="submissions.length > 0">
+                    <v-col
+                      v-for="(submission, index) in submissions"
+                      :key="index"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
+                      <v-card class="d-flex flex-column justify-space-between mt-16" variant="none">
+                        <v-card-text>
+                          <div class="d-flex justify-space-between align-center mb-2">
+                            <strong>address {{ index + 1 }}</strong>
+                            <v-btn
+                              density="comfortable"
+                              size="small"
+                              color="red"
+                              class="tight-text"
+                              @click="deleteSubmission(index)"
+                            >
+                              Delete
+                            </v-btn>
+                          </div>
+                          <div><strong>Full Name:</strong> {{ submission.name }}</div>
+                          <div><strong>Address:</strong> {{ submission.address }}</div>
+                          <div><strong>City:</strong> {{ submission.city }}</div>
+                          <div><strong>State:</strong> {{ submission.state }}</div>
+                          <div><strong>ZIP Code:</strong> {{ submission.zip }}</div>
+                          <div><strong>Country:</strong> {{ submission.country }}</div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </v-container>
             </v-card>
-          </div>
-        </div>
+
+
       </v-row>
     </main>
   </div>
 </template>
 <script setup>
-import { ref, computed, watch, reactive } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 const SelectedPage = computed(() => route.name === 'addresses')
@@ -360,227 +385,24 @@ watch(overlay, (val) => {
   }
 })
 
+const countries = ['Philippines']
+// Form values
 const name = ref('')
 const address = ref('')
 const city = ref('')
 const state = ref('')
 const zip = ref('')
 const country = ref('')
-const errorMessages = ref('')
-const formHasErrors = ref(false)
 
-const form = ref(null)
+// Error messages for each field
+const nameErrorMessages = ref('')
+const addressErrorMessages = ref('')
+const cityErrorMessages = ref('')
+const stateErrorMessages = ref('')
+const zipErrorMessages = ref('')
+const countryErrorMessages = ref('')
 
-const countries = [
-  'Afghanistan',
-  'Albania',
-  'Algeria',
-  'Andorra',
-  'Angola',
-  'Anguilla',
-  'Antigua &amp; Barbuda',
-  'Argentina',
-  'Armenia',
-  'Aruba',
-  'Australia',
-  'Austria',
-  'Azerbaijan',
-  'Bahamas',
-  'Bahrain',
-  'Bangladesh',
-  'Barbados',
-  'Belarus',
-  'Belgium',
-  'Belize',
-  'Benin',
-  'Bermuda',
-  'Bhutan',
-  'Bolivia',
-  'Bosnia &amp; Herzegovina',
-  'Botswana',
-  'Brazil',
-  'British Virgin Islands',
-  'Brunei',
-  'Bulgaria',
-  'Burkina Faso',
-  'Burundi',
-  'Cambodia',
-  'Cameroon',
-  'Cape Verde',
-  'Cayman Islands',
-  'Chad',
-  'Chile',
-  'China',
-  'Colombia',
-  'Congo',
-  'Cook Islands',
-  'Costa Rica',
-  'Cote D Ivoire',
-  'Croatia',
-  'Cruise Ship',
-  'Cuba',
-  'Cyprus',
-  'Czech Republic',
-  'Denmark',
-  'Djibouti',
-  'Dominica',
-  'Dominican Republic',
-  'Ecuador',
-  'Egypt',
-  'El Salvador',
-  'Equatorial Guinea',
-  'Estonia',
-  'Ethiopia',
-  'Falkland Islands',
-  'Faroe Islands',
-  'Fiji',
-  'Finland',
-  'France',
-  'French Polynesia',
-  'French West Indies',
-  'Gabon',
-  'Gambia',
-  'Georgia',
-  'Germany',
-  'Ghana',
-  'Gibraltar',
-  'Greece',
-  'Greenland',
-  'Grenada',
-  'Guam',
-  'Guatemala',
-  'Guernsey',
-  'Guinea',
-  'Guinea Bissau',
-  'Guyana',
-  'Haiti',
-  'Honduras',
-  'Hong Kong',
-  'Hungary',
-  'Iceland',
-  'India',
-  'Indonesia',
-  'Iran',
-  'Iraq',
-  'Ireland',
-  'Isle of Man',
-  'Israel',
-  'Italy',
-  'Jamaica',
-  'Japan',
-  'Jersey',
-  'Jordan',
-  'Kazakhstan',
-  'Kenya',
-  'Kuwait',
-  'Kyrgyz Republic',
-  'Laos',
-  'Latvia',
-  'Lebanon',
-  'Lesotho',
-  'Liberia',
-  'Libya',
-  'Liechtenstein',
-  'Lithuania',
-  'Luxembourg',
-  'Macau',
-  'Macedonia',
-  'Madagascar',
-  'Malawi',
-  'Malaysia',
-  'Maldives',
-  'Mali',
-  'Malta',
-  'Mauritania',
-  'Mauritius',
-  'Mexico',
-  'Moldova',
-  'Monaco',
-  'Mongolia',
-  'Montenegro',
-  'Montserrat',
-  'Morocco',
-  'Mozambique',
-  'Namibia',
-  'Nepal',
-  'Netherlands',
-  'Netherlands Antilles',
-  'New Caledonia',
-  'New Zealand',
-  'Nicaragua',
-  'Niger',
-  'Nigeria',
-  'Norway',
-  'Oman',
-  'Pakistan',
-  'Palestine',
-  'Panama',
-  'Papua New Guinea',
-  'Paraguay',
-  'Peru',
-  'Philippines',
-  'Poland',
-  'Portugal',
-  'Puerto Rico',
-  'Qatar',
-  'Reunion',
-  'Romania',
-  'Russia',
-  'Rwanda',
-  'Saint Pierre &amp; Miquelon',
-  'Samoa',
-  'San Marino',
-  'Satellite',
-  'Saudi Arabia',
-  'Senegal',
-  'Serbia',
-  'Seychelles',
-  'Sierra Leone',
-  'Singapore',
-  'Slovakia',
-  'Slovenia',
-  'South Africa',
-  'South Korea',
-  'Spain',
-  'Sri Lanka',
-  'St Kitts &amp; Nevis',
-  'St Lucia',
-  'St Vincent',
-  'St. Lucia',
-  'Sudan',
-  'Suriname',
-  'Swaziland',
-  'Sweden',
-  'Switzerland',
-  'Syria',
-  'Taiwan',
-  'Tajikistan',
-  'Tanzania',
-  'Thailand',
-  `Timor L'Este`,
-  'Togo',
-  'Tonga',
-  'Trinidad &amp; Tobago',
-  'Tunisia',
-  'Turkey',
-  'Turkmenistan',
-  'Turks &amp; Caicos',
-  'Uganda',
-  'Ukraine',
-  'United Arab Emirates',
-  'United Kingdom',
-  'United States',
-  'Uruguay',
-  'Uzbekistan',
-  'Venezuela',
-  'Vietnam',
-  'Virgin Islands (US)',
-  'Yemen',
-  'Zambia',
-  'Zimbabwe',
-]
-
-// Input refs for validation/reset
+// Form refs for validation
 const nameRef = ref()
 const addressRef = ref()
 const cityRef = ref()
@@ -597,15 +419,39 @@ const formRefs = {
   country: countryRef,
 }
 
-function addressCheck() {
-  errorMessages.value = address.value && !name.value ? `Hey! I'm required` : ''
-  return true
+const formHasErrors = ref(false)
+
+// Store all submissions
+const submissions = ref([])
+
+function submit() {
+  formHasErrors.value = false
+
+  // Validate each field
+  Object.values(formRefs).forEach((refInput) => {
+    if (refInput.value?.validate) {
+      const result = refInput.value.validate(true)
+      if (!result) formHasErrors.value = true
+    }
+  })
+
+  // If no errors, save the submission
+  if (!formHasErrors.value) {
+    submissions.value.push({
+      name: name.value,
+      address: address.value,
+      city: city.value,
+      state: state.value,
+      zip: zip.value,
+      country: country.value,
+    })
+
+    // Reset the form after submission
+    resetForm()
+  }
 }
 
 function resetForm() {
-  errorMessages.value = ''
-  formHasErrors.value = false
-
   Object.values(formRefs).forEach((refInput) => {
     if (refInput.value?.reset) {
       refInput.value.reset()
@@ -619,17 +465,18 @@ function resetForm() {
   zip.value = ''
   country.value = ''
 }
-
-function submit() {
-  formHasErrors.value = false
-
-  Object.values(formRefs).forEach((refInput) => {
-    if (refInput.value?.validate) {
-      const result = refInput.value.validate(true)
-      if (!result) formHasErrors.value = true
-    }
-  })
+function deleteSubmission(index) {
+  submissions.value.splice(index, 1)
 }
+// address
+// function formatText() {
+//   const code = 'P-3'
+//   const barangay = 'Liboon'
+//   const area = 'Ampayon'
+//   const house = 'Rigene Boarding house'
+
+//   return `${code} ${barangay} ${area},${area},${barangay} ${house}`
+// }
 </script>
 
 <style scoped>
@@ -699,5 +546,8 @@ function submit() {
 .vrow {
   padding: 0px;
   margin: 0px;
+}
+.tight-text {
+  letter-spacing: 0;
 }
 </style>
