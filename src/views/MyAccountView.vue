@@ -7,13 +7,7 @@
 
       <v-row class="flex-row-reverse">
         <v-col md="3">
-          <v-card
-            class="card_permanent"
-            max-width="auto"
-            max-height="20rem"
-            hover
-            :style="{ background: '#D9D9D9' }"
-          >
+          <v-card max-width="20rem" max-height="20rem" hover :style="{ background: '#D9D9D9' }">
             <v-card-item>
               <div class="d-flex mt-5 mb-2">
                 <!-- Avatar on the left -->
@@ -189,138 +183,155 @@
 
         <!-- Extension for addresses -->
 
-
-            <v-card
-              class="v-cardv2"
-              min-height="500"
-              min-width="900"
-              hover
-              :style="{ background: '#D9D9D9' }"
-              v-if="SelectedPage"
+        <v-card
+          class="v-cardv2"
+          min-height="500"
+          max-width="900"
+          hover
+          :style="{ background: '#D9D9D9' }"
+          v-if="SelectedPage"
+        >
+          <div class="d-flex justify-end">
+            <v-btn
+              class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg"
+              :style="{ backgroundColor: '#64B5F6' }"
+              @click="overlay = !overlay"
             >
-            <div class="d-flex justify-end">
-                <v-btn class="btn" :style="{ background: '#64B5F6' }" @click="overlay = !overlay">
-                  + Add Address
-                </v-btn>
-                <v-overlay v-model="overlay" class="justify-center align-center" style="top: 10rem">
-                  <div class="d-flex justify-content-center">
-                    <v-row>
-                      <v-col class="d-flex justify-center pa-0" cols="auto">
-                        <v-card ref="form" class="pa-4" style="width: fit-content; max-width: 100%">
-                          <v-card-text style="min-width: 360px">
-                            <v-text-field
-                              ref="nameRef"
-                              v-model="name"
-                              :error-messages="nameErrorMessages"
-                              :rules="[() => !!name || 'This field is required']"
-                              label="Full Name"
-                              placeholder="John Doe"
-                              required
-                            />
-                            <v-text-field
-                              ref="addressRef"
-                              v-model="address"
-                              :error-messages="addressErrorMessages"
-                              :rules="[() => !!address || 'This field is required']"
-                              label="Address Line"
-                              placeholder="Snowy Rock Pl"
-                              required
-                            />
-                            <v-text-field
-                              ref="cityRef"
-                              v-model="city"
-                              :error-messages="cityErrorMessages"
-                              :rules="[() => !!city || 'This field is required']"
-                              label="City"
-                              placeholder="El Paso"
-                              required
-                            />
-                            <v-text-field
-                              ref="stateRef"
-                              v-model="state"
-                              :error-messages="stateErrorMessages"
-                              :rules="[() => !!state || 'This field is required']"
-                              label="State/Province/Region"
-                              placeholder="TX"
-                              required
-                            />
-                            <v-text-field
-                              ref="zipRef"
-                              v-model="zip"
-                              :error-messages="zipErrorMessages"
-                              :rules="[() => !!zip || 'This field is required']"
-                              label="ZIP / Postal Code"
-                              placeholder="79938"
-                              required
-                            />
-                            <v-autocomplete
-                              ref="countryRef"
-                              v-model="country"
-                              :items="countries"
-                              :error-messages="countryErrorMessages"
-                              :rules="[() => !!country || 'This field is required']"
-                              label="Country"
-                              placeholder="Select..."
-                              required
-                            />
-                          </v-card-text>
+              + Add Address
+            </v-btn>
 
-                          <v-divider class="mt-12" />
+            <v-overlay v-model="overlay" class="justify-center align-center" style="top: 10rem">
+              <div class="d-flex justify-content-center">
+                <v-row>
+                  <v-col class="d-flex justify-center pa-0" cols="auto">
+                    <v-card ref="form" class="pa-4" style="width: fit-content; max-width: 100%">
+                      <v-card-text style="min-width: 360px">
+                        <!-- Warning message -->
+                        <v-alert v-if="formWarning" type="error">{{ formWarning }}</v-alert>
+                        <v-text-field
+                          ref="nameRef"
+                          v-model="name"
+                          :error-messages="nameErrorMessages"
+                          :rules="[() => !!name || 'This field is required']"
+                          label="Full Name"
+                          placeholder="John Doe"
+                          required
+                        />
+                        <v-text-field
+                          ref="addressRef"
+                          v-model="address"
+                          :error-messages="addressErrorMessages"
+                          :rules="[() => !!address || 'This field is required']"
+                          label="Address Line"
+                          placeholder="Snowy Rock Pl"
+                          required
+                        />
+                        <v-text-field
+                          ref="cityRef"
+                          v-model="city"
+                          :error-messages="cityErrorMessages"
+                          :rules="[() => !!city || 'This field is required']"
+                          label="City"
+                          placeholder="El Paso"
+                          required
+                        />
+                        <v-text-field
+                          ref="stateRef"
+                          v-model="state"
+                          :error-messages="stateErrorMessages"
+                          :rules="[() => !!state || 'This field is required']"
+                          label="State/Province/Region"
+                          placeholder="TX"
+                          required
+                        />
+                        <v-text-field
+                          ref="zipRef"
+                          v-model="zip"
+                          :error-messages="zipErrorMessages"
+                          :rules="[() => !!zip || 'This field is required']"
+                          label="ZIP / Postal Code"
+                          placeholder="79938"
+                          required
+                        />
+                        <v-autocomplete
+                          ref="countryRef"
+                          v-model="country"
+                          :items="countries"
+                          :error-messages="countryErrorMessages"
+                          :rules="[() => !!country || 'This field is required']"
+                          label="Country"
+                          placeholder="Select..."
+                          required
+                        />
+                      </v-card-text>
 
-                          <v-card-actions>
-                            <v-btn variant="text" @click="overlay = false">Cancel</v-btn>
-                            <v-spacer />
-                            <v-btn color="primary" variant="text" @click="submit">Submit</v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-col>
-                    </v-row>
-                  </div>
-                </v-overlay>
+                      <v-divider class="mt-12" />
+
+                      <v-card-actions>
+                        <v-btn variant="text" @click="overlay = false">Cancel</v-btn>
+                        <v-spacer />
+                        <v-btn color="primary" variant="text" @click="submit">Submit</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </div>
+            </v-overlay>
+          </div>
 
-              <!-- extension address -->
-              <v-container>
-                <span>Address </span>
-                <v-divider :color="'black'" :thickness="2"></v-divider>
-                <v-container>
-                  <v-row class="mt-7" v-if="submissions.length > 0">
-                    <v-col
-                      v-for="(submission, index) in submissions"
-                      :key="index"
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-card class="d-flex flex-column justify-space-between mt-16" variant="none">
-                        <v-card-text>
-                          <div class="d-flex justify-space-between align-center mb-2">
-                            <strong>address {{ index + 1 }}</strong>
-                            <v-btn
-                              density="comfortable"
-                              size="small"
-                              color="red"
-                              class="tight-text"
-                              @click="deleteSubmission(index)"
-                            >
-                              Delete
-                            </v-btn>
-                          </div>
-                          <div><strong>Full Name:</strong> {{ submission.name }}</div>
-                          <div><strong>Address:</strong> {{ submission.address }}</div>
-                          <div><strong>City:</strong> {{ submission.city }}</div>
-                          <div><strong>State:</strong> {{ submission.state }}</div>
-                          <div><strong>ZIP Code:</strong> {{ submission.zip }}</div>
-                          <div><strong>Country:</strong> {{ submission.country }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-container>
-            </v-card>
+          <!-- extension address -->
 
+          <container>
+            <v-col>
+              <span>Address </span>
+              <v-divider :color="'black'" :thickness="2"></v-divider>
+            </v-col>
+            <div class="scrollable-content">
+              <div class="flex-container" v-if="submissions.length > 0">
+                <v-col
+                  v-for="(submission, index) in submissions"
+                  :key="index"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card class="justify-space-between mt-16" variant="none">
+                    <v-card-text class="size-card">
+                      <!-- Header: address number + delete button -->
+                      <div class="d-flex flex-wrap justify-space-between align-center mb-4">
+                        <strong>Address {{ index + 1 }}</strong>
+                        <v-btn
+                          density="comfortable"
+                          size="small"
+                          color="red"
+                          class="tight-text"
+                          @click="deleteSubmission(index)"
+                        >
+                          Delete
+                        </v-btn>
+                      </div>
 
+                      <!-- Info section: responsive and wrapped properly -->
+                      <div class="text-body-2">
+                        <span class="mb-1"><strong>Full Name:</strong> {{ submission.name }}</span>
+                        <br />
+                        <span class="mb-1"><strong>Address:</strong> {{ submission.address }}</span
+                        ><br />
+                        <span class="mb-1"><strong>City:</strong> {{ submission.city }}</span
+                        ><br />
+                        <span class="mb-1"><strong>State:</strong> {{ submission.state }}</span
+                        ><br />
+                        <span class="mb-1"><strong>ZIP Code:</strong> {{ submission.zip }}</span
+                        ><br />
+                        <span><strong>Country:</strong> {{ submission.country }}</span>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </div>
+            </div>
+          </container>
+        </v-card>
       </v-row>
     </main>
   </div>
@@ -420,12 +431,31 @@ const formRefs = {
 }
 
 const formHasErrors = ref(false)
+const formWarning = ref('') // New warning for empty fields
 
 // Store all submissions
 const submissions = ref([])
 
 function submit() {
   formHasErrors.value = false
+  formWarning.value = '' // Reset warning
+
+  // Check for empty fields and add warning if necessary
+  if (
+    !name.value.trim() ||
+    !address.value.trim() ||
+    !city.value.trim() ||
+    !state.value.trim() ||
+    !zip.value.trim() ||
+    !country.value.trim()
+  ) {
+    formWarning.value = 'Please fill in all the fields.'
+    formHasErrors.value = true
+    setTimeout(() => {
+      formWarning.value = ''
+    }, 1000)
+    return
+  }
 
   // Validate each field
   Object.values(formRefs).forEach((refInput) => {
@@ -465,6 +495,7 @@ function resetForm() {
   zip.value = ''
   country.value = ''
 }
+
 function deleteSubmission(index) {
   submissions.value.splice(index, 1)
 }
@@ -500,9 +531,9 @@ function deleteSubmission(index) {
   margin-left: 1rem;
 }
 .btn {
-  position: relative;
   top: 1rem;
   margin-right: 2rem;
+  max-width: 250px;
 }
 .card-v2 {
   top: 150px;
@@ -538,9 +569,6 @@ function deleteSubmission(index) {
   max-width: 344px; /* Limiting the width */
   height: 20rem;
 }
-.card_permanent {
-  position: relative;
-}
 
 /*spacing in profile */
 .vrow {
@@ -550,4 +578,19 @@ function deleteSubmission(index) {
 .tight-text {
   letter-spacing: 0;
 }
+.scrollable-content {
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;
+  margin-top: 16px;
+  padding-right: 8px; /* Prevent scrollbar from overlapping content */
+  width: 899px;
+}
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.size-card {
+  max-width: 200px;
+}
+/* address card  */
 </style>
