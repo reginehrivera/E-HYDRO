@@ -73,14 +73,17 @@
 
               <!-- Profile Picture with Upload -->
               <div class="d-flex flex-column align-center">
-                <v-avatar size="80">
-                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                  <span v-else class="text-h5">CJ</span>
-                </v-avatar>
+                <div>
+                  <v-avatar size="80">
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                    <span v-else class="text-h5">CJ</span>
+                  </v-avatar>
 
-                <!-- Pencil icon triggers file input -->
-                <v-icon @click="triggerFileUpload" style="cursor: pointer"> mdi-pencil </v-icon>
-
+                  <!-- Pencil icon triggers file input -->
+                  <v-icon class="mt-9" @click="triggerFileUpload" style="cursor: pointer">
+                    mdi-pencil
+                  </v-icon>
+                </div>
                 <!-- Hidden file input -->
                 <input
                   ref="fileInput"
@@ -615,8 +618,8 @@ function clearForm() {
 }
 
 /* In your style section */
-.card-custom-size {
+/* .card-custom-size {
   width: 35rem;
-}
-/* address card  */
+} */
+
 </style>
