@@ -11,9 +11,9 @@
             <v-card-item>
               <div class="d-flex mt-5 mb-2">
                 <!-- Avatar on the left -->
-                <v-avatar color="deep-purple lighten-3" size="90">
+                <v-avatar color="surface-variant" size="90">
                   <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                  <span v-else class="text-h5">{{ initials || '??' }}</span>
+                  <span v-else class="text-h5">CJ</span>
                 </v-avatar>
 
                 <!-- Right section: name, email, and button -->
@@ -68,28 +68,22 @@
               :style="{ background: '#D9D9D9', transition: 'all 0.3s ease' }"
             >
               <span class="text-h5 font-weight-medium d-flex justify-center my-4">
-                Edit Profile
+                Profile Settings
               </span>
 
               <!-- Profile Picture with Upload -->
               <div class="d-flex flex-column align-center">
-<<<<<<< HEAD
                 <div>
                   <v-avatar size="80">
                     <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
                     <span v-else class="text-h5">CJ</span>
                   </v-avatar>
-=======
-                <v-avatar size="90" color="deep-purple lighten-3">
-                  <!-- 🎨 Add color here -->
-                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                  <span v-else class="text-h5 white--text">{{ initials || '??' }}</span>
-                  <!-- white text for contrast -->
-                </v-avatar>
-
-                <!-- Pencil icon triggers file input -->
-                <v-icon @click="triggerFileUpload" style="cursor: pointer"> mdi-pencil </v-icon>
->>>>>>> 2ffcaa2fc1a6450e7d51fa1e2cb0f6dd53d0be1b
+                  <v-avatar size="90" color="deep-purple lighten-3">
+                    <!-- 🎨 Add color here -->
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                    <span v-else class="text-h5 white--text">{{ initials || '??' }}</span>
+                    <!-- white text for contrast -->
+                  </v-avatar>
 
                   <!-- Pencil icon triggers file input -->
                   <v-icon class="mt-9" @click="triggerFileUpload" style="cursor: pointer">
@@ -384,6 +378,7 @@ const phone = ref('')
 
 const newPassword = ref('')
 const confirmPassword = ref('')
+const avatarUrl = ref(null) // Default: no avatar
 const valid = ref(false)
 
 // Handle file upload (for avatar)
@@ -446,26 +441,19 @@ function saveProfile() {
   dialogVisible.value = true
 }
 
-const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
-  return names
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-})
-
-const avatarUrl = ref('')
-
-// Update avatarUrl when user data is available
-onMounted(() => {
-  if (userStore.profilePhoto) {
-    avatarUrl.value = userStore.profilePhoto
-  }
-})
-
 import { onMounted } from 'vue'
 
+// When the page loads, retrieve the user data from localStorage
+onMounted(() => {
+  const storedProfile = localStorage.getItem('userProfile')
+  if (storedProfile) {
+    const parsedProfile = JSON.parse(storedProfile)
+    firstname.value = parsedProfile.fullname.split(' ')[0]
+    lastname.value = parsedProfile.fullname.split(' ')[1]
+    phone.value = parsedProfile.mobile
+    avatarUrl.value = parsedProfile.avatarUrl || null
+  }
+})
 // --- Address form logic ---
 const overlay = ref(false)
 const name = ref('')
@@ -636,8 +624,8 @@ function clearForm() {
 }
 
 /* In your style section */
-/* .card-custom-size {
+.card-custom-size {
   width: 35rem;
-} */
-
+}
+/* address card  */
 </style>

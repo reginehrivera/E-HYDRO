@@ -3,12 +3,7 @@ import { computed, ref, onMounted } from 'vue' // Make sure to import computed
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-<<<<<<< HEAD
-import MyAccountView from '@/views/MyAccountView.vue'
-// Access the Pinia store
-=======
 
->>>>>>> 2ffcaa2fc1a6450e7d51fa1e2cb0f6dd53d0be1b
 const userStore = useUserStore()
 
 const formAction = ref({ formProcess: false })
@@ -34,8 +29,6 @@ const goToMyAccount = () => {
 </script>
 
 <template>
-<<<<<<< HEAD
-=======
   <NavigationBar>
     <template #content>
       <v-row>
@@ -50,75 +43,65 @@ const goToMyAccount = () => {
                     <span v-else class="text-h5">{{ initials || '??' }}</span>
                   </v-avatar>
                 </div>
->>>>>>> 2ffcaa2fc1a6450e7d51fa1e2cb0f6dd53d0be1b
 
-  <NavigationBar />
-  <MyAccountView>
-    <!-- This content will appear inside the <slot /> in MyAccountView.vue -->
-    <v-row>
+                <!-- Profile Info below avatar -->
+                <v-row>
+                  <v-col cols="12">
+                    <v-row>
+                      <v-col cols="12" sm="6">
+                        <div class="field-label">Full Name</div>
+                        <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <div class="field-label">Mobile Number</div>
+                        <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <div class="field-label">Email</div>
+                        <div class="field-value">{{ userStore.email || 'N/A' }}</div>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <div class="field-label">Address</div>
+                        <div class="field-value">{{ userStore.address || 'N/A' }}</div>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
 
-<v-col cols="12">
-  <div class="profile-section d-flex flex-column align-center justify-center pa-6">
-    <div class="profile-wrapper">
-      <v-card class="pa-6 profile-card" flat>
-        <v-avatar class="avatar mt-5 mb-4" size="200">
-          <v-img
-            :src="profileImage || 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'"
-            cover
-          />
-        </v-avatar>
+                <!-- Edit Profile Button centered -->
+                <div class="d-flex justify-center mt-4">
+                  <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
+                    Edit Profile
+                  </v-btn>
+                </div>
+              </v-card>
+            </div>
+          </div>
 
-        <v-row>
-          <v-col cols="12">
-            <v-row>
-              <v-col cols="12" sm="6">
-                <div class="field-label">Full Name</div>
-                <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <div class="field-label">Mobile Number</div>
-                <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <div class="field-label">Email</div>
-                <div class="field-value">{{ userStore.email || 'N/A' }}</div>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <div class="field-label">Address</div>
-                <div class="field-value">{{ userStore.address || 'N/A' }}</div>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-
-        <div class="d-flex justify-center mt-4">
-          <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
-            Edit Profile
-          </v-btn>
-        </div>
-      </v-card>
-    </div>
-  </div>
-
-  <v-overlay
-    :model-value="formAction.formProcess || isLoadingUser"
-    class="align-center justify-center"
-  >
-    <v-progress-circular indeterminate size="64" />
-  </v-overlay>
-</v-col>
-</v-row>
-      <!-- More content here -->
-    </v-card>
-  </MyAccountView>
-
-
+          <!-- Loading overlay -->
+          <v-overlay
+            :model-value="formAction.formProcess || isLoadingUser"
+            class="align-center justify-center"
+          >
+            <v-progress-circular indeterminate size="64" />
+          </v-overlay>
+        </v-col>
+      </v-row>
+    </template>
+  </NavigationBar>
 </template>
 
 <style scoped>
+.profile-section {
+  background-image: url('@/assets/img/bg-home-no-gallon.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding-top: 100px;
+}
 
-<<<<<<< HEAD
-=======
 .profile-wrapper {
   width: 100%;
   max-width: 900px;
@@ -158,5 +141,4 @@ const goToMyAccount = () => {
   display: flex;
   align-items: center;
 }
->>>>>>> 2ffcaa2fc1a6450e7d51fa1e2cb0f6dd53d0be1b
 </style>
