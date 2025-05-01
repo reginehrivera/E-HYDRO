@@ -1,7 +1,6 @@
 // Pinia store: user.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import piniaPersist from 'pinia-plugin-persistedstate'
 
 export const useUserStore = defineStore('user', () => {
   const email = ref(localStorage.getItem('email') || '')

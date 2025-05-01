@@ -1,22 +1,25 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '@/stores/user' // Import the Pinia store
+import { computed, ref, onMounted } from 'vue' // Make sure to import computed
+import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-// Access the Pinia store
 const userStore = useUserStore()
 
 const formAction = ref({ formProcess: false })
-const profileImage = ref(null)
 const isLoadingUser = ref(false)
 const router = useRouter()
 
-onMounted(() => {
-  formAction.value.formProcess = true
-  // Fetch user profile data from the store
-  profileImage.value = userStore.avatar_url
-  formAction.value.formProcess = false
+const avatarUrl = computed(() => userStore.avatarUrl)
+const initials = computed(() => {
+  const name = userStore.fullname || ''
+  const parts = name.split(' ')
+  if (parts.length > 1) {
+    return parts[0][0] + parts[1][0]
+  } else if (parts.length === 1) {
+    return parts[0][0]
+  }
+  return ''
 })
 
 // Function to navigate to MyAccount page
@@ -33,16 +36,13 @@ const goToMyAccount = () => {
           <div class="profile-section d-flex flex-column align-center justify-center pa-6">
             <div class="profile-wrapper">
               <v-card class="pa-6 profile-card" flat>
-                <!-- Avatar inside the profile card with margin-bottom -->
-                <v-avatar class="avatar mt-5 mb-4" size="200">
-                  <v-img
-                    :src="
-                      profileImage ||
-                      'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'
-                    "
-                    cover
-                  />
-                </v-avatar>
+                <!-- Avatar centered -->
+                <div class="d-flex justify-center mb-6">
+                  <v-avatar color="deep-purple lighten-3" size="150">
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                    <span v-else class="text-h5">{{ initials || '??' }}</span>
+                  </v-avatar>
+                </div>
 
                 <!-- Profile Info below avatar -->
                 <v-row>
@@ -117,6 +117,12 @@ const goToMyAccount = () => {
 .avatar {
   display: block;
   margin: 0 auto;
+}
+
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
 }
 
 .field-label {
