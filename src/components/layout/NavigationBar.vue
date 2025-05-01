@@ -48,14 +48,18 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
-              <img
-                :src="user.image || require('@/assets/img/profile.png')"
-                alt="User Image"
-                class="profile-img"
-              />
-              <p class="username">{{ user.name || 'Guest' }}</p>
-              <router-link class="edit-btn" to="/MyAccount">Edit Profile</router-link>
+              <template v-if="avatarUrl">
+                <img :src="avatarUrl" alt="User Image" class="profile-img" />
+              </template>
+              <template v-else>
+                <div class="profile-initials">{{ initials }}</div>
+              </template>
+              <p class="username">{{ fullname }}</p>
+
+              <p class="email">{{ userStore.email }}</p>
+              <router-link class="edit-btn" to="/profile">Profile Info</router-link>
             </div>
+
             <ul>
               <li>
                 <router-link class="link" to="/settings">
@@ -121,51 +125,96 @@
   <slot name="content"></slot>
 </template>
 
-<script>
+<script setup>
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { supabase } from '@/supabase' // adjust path if needed
 
-export default {
-  name: 'NavigationBar',
-  data() {
-    return {
-      scrollPosition: null,
-      mobile: null,
-      mobileNav: null,
-      windowWidth: window.innerWidth,
-      showNotifications: false,
-      showProfileDropdown: false,
-    }
-  },
-  computed: {
-    // Retrieve the current user from the store
-    user() {
-      const store = useUserStore()
-      console.log('Current user:', store.user) // Log to check the user data
-      return store.user // Returns the user object (name and image)
-    },
-  },
-  created() {
-    window.addEventListener('resize', this.checkScreen)
-    this.checkScreen()
-  },
-  methods: {
-    toggleMobileNav() {
-      this.mobileNav = !this.mobileNav
-    },
-    checkScreen() {
-      this.windowWidth = window.innerWidth
-      this.mobile = this.windowWidth <= 750
-      if (!this.mobile) this.mobileNav = false
-    },
-    toggleNotifications() {
-      this.showNotifications = !this.showNotifications
-      this.showProfileDropdown = false
-    },
-    toggleProfileDropdown() {
-      this.showProfileDropdown = !this.showProfileDropdown
-      this.showNotifications = false
-    },
-  },
+const userStore = useUserStore()
+
+// You can access the avatarUrl here to display it
+const avatarUrl = computed(() => userStore.avatarUrl)
+// --- Refs ---
+const scrollPosition = ref(null)
+const mobile = ref(null)
+const mobileNav = ref(null)
+const windowWidth = ref(window.innerWidth)
+const showNotifications = ref(false)
+const showProfileDropdown = ref(false)
+
+// --- Auth User Data ---
+const authUser = ref(null)
+const initials = computed(() => {
+  if (authUser.value?.user_metadata?.full_name) {
+    return authUser.value.user_metadata.full_name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+  }
+  return 'U'
+})
+
+const fullname = computed(() => {
+  return userStore.fullname || authUser.value?.user_metadata?.full_name || 'User'
+})
+
+// Fetch authenticated user on mount
+onMounted(async () => {
+  window.addEventListener('resize', checkScreen)
+  checkScreen()
+
+  const { data, error } = await supabase.auth.getUser()
+  if (data?.user) {
+    authUser.value = data.user
+    console.log('Auth User:', data.user)
+  } else {
+    console.error('Auth error:', error)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
+
+// --- Methods ---
+function checkScreen() {
+  windowWidth.value = window.innerWidth
+  mobile.value = windowWidth.value <= 750
+  if (!mobile.value) {
+    mobileNav.value = false
+  }
+}
+
+function toggleMobileNav() {
+  mobileNav.value = !mobileNav.value
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  showProfileDropdown.value = false
+}
+
+function toggleProfileDropdown() {
+  showProfileDropdown.value = !showProfileDropdown.value
+  showNotifications.value = false
+}
+
+const handleLogout = () => {
+  // Clear user data from Pinia and localStorage
+  userStore.setUserData({
+    email: '',
+    fullname: '',
+    mobile: '',
+    avatar_url: '',
+  })
+  localStorage.removeItem('email')
+  localStorage.removeItem('fullname')
+  localStorage.removeItem('mobile')
+  localStorage.removeItem('avatar_url')
+
+  // Redirect to login page
+  router.push('/login')
 }
 </script>
 
@@ -418,7 +467,7 @@ li {
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   padding: 15px;
-  width: 220px;
+  width: 290px;
   z-index: 999;
 }
 
@@ -503,5 +552,18 @@ li {
 
 .link .v-icon {
   margin-right: 5px;
+}
+
+.profile-initials {
+  width: 50px;
+  height: 50px;
+  background-color: #4a90e2;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 </style>

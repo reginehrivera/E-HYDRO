@@ -68,6 +68,12 @@
 
           <form @submit.prevent="handleSignup" class="signup">
             <div class="field">
+              <input type="text" v-model="name" placeholder="Full Name" required />
+            </div>
+            <div class="field">
+              <input type="text" v-model="contactNumber" placeholder="Contact Number" required />
+            </div>
+            <div class="field">
               <input type="text" v-model="email" placeholder="Email Address" required />
             </div>
             <div class="field">
@@ -82,7 +88,7 @@
               <input
                 :type="confirmPasswordType"
                 v-model="confirmPassword"
-                placeholder="Confirm password"
+                placeholder="Confirm Password"
                 required
               />
               <span
@@ -91,10 +97,9 @@
                 @click="toggleConfirmPasswordVisibility"
               ></span>
             </div>
-
             <div class="field btn">
               <div class="btn-layer"></div>
-              <input type="submit" :value="'Signup'" />
+              <input type="submit" value="Signup" />
             </div>
             <div class="login-link">
               Already have an account? <a href="#" @click.prevent="switchToLogin">Login</a>
@@ -111,6 +116,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logonImage from '@/assets/img/logon.png'
 import { supabase } from '@/supabase'
+import { useUserStore } from '@/stores/user'
 
 const loading = ref(false)
 const router = useRouter()
@@ -120,6 +126,9 @@ const password = ref('')
 const confirmPassword = ref('')
 const passwordType = ref<'password' | 'text'>('password')
 const confirmPasswordType = ref<'password' | 'text'>('password')
+const name = ref('')
+const contactNumber = ref('')
+const error = ref('')
 
 const switchToSignup = () => {
   currentForm.value = 'signup'
@@ -134,19 +143,61 @@ const switchToLogin = () => {
 
 const handleLogin = async () => {
   loading.value = true
-  const { data, error } = await supabase.auth.signInWithPassword({
+  error.value = ''
+
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   })
-  loading.value = false
 
-  if (error) {
-    alert(error.message)
+  if (authError) {
+    console.error('Authentication error:', authError.message)
+    error.value = 'Incorrect email or password.'
+    loading.value = false
     return
   }
 
-  console.log('Logged in as:', data.user)
+  // Get the authenticated user
+  const user = authData.user
+
+  if (!user) {
+    console.error('Failed to fetch user info.')
+    error.value = 'Failed to retrieve user info.'
+    loading.value = false
+    return
+  }
+
+  // Fetch user metadata
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData?.user) {
+    console.error('Failed to fetch full user info:', userError?.message)
+    error.value = 'Failed to retrieve user info.'
+    loading.value = false
+    return
+  }
+
+  // Log the fetched user data to check if name and phone exist
+  console.log('User Metadata:', userData)
+
+  // After successful login
+  const userStore = useUserStore()
+  userStore.setUserData({
+    email: user.email,
+    fullname: userData.user.user_metadata?.name || user.email,
+    mobile: userData.user.user_metadata?.phone || '',
+    avatar_url: userData.user.user_metadata?.avatar_url || '',
+  })
+
+  // Store data in localStorage
+  localStorage.setItem('email', user.email)
+  localStorage.setItem('fullname', userData.user.user_metadata?.name || user.email)
+  localStorage.setItem('mobile', userData.user.user_metadata?.phone || '')
+  localStorage.setItem('avatar_url', userData.user.user_metadata?.avatar_url || '')
+
+  // Redirect to the home page
   router.push('/home')
+  loading.value = false
 }
 
 const handleSignup = async () => {
@@ -156,18 +207,35 @@ const handleSignup = async () => {
   }
 
   loading.value = true
-  const { data, error } = await supabase.auth.signUp({
+
+  const { data, error: signUpError } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
+    options: {
+      data: {
+        name: name.value, // ✅ use lowercase keys
+        phone: contactNumber.value,
+      },
+    },
   })
+
   loading.value = false
 
-  if (error) {
-    alert(error.message)
-  } else {
-    alert('A confirmation email has been sent. Please check your inbox.')
-    router.push('/home')
+  if (signUpError) {
+    console.error('Signup error:', signUpError.message)
+    alert(signUpError.message)
+    return
   }
+
+  const userStore = useUserStore()
+  userStore.setUserData({
+    email: email.value,
+    fullname: name.value,
+    mobile: contactNumber.value,
+  })
+
+  alert('Signup successful! Please check your email to confirm your account.')
+  router.push('/home')
 }
 
 const togglePasswordVisibility = () => {
