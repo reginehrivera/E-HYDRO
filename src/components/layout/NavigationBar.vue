@@ -104,33 +104,35 @@
         </ul>
       </transition>-->
     </nav>
-     <v-layout class="overflow-visible custom-layout" v-show="mobile"><!--style="height: 56px;"-->
+  </header>
+  <slot name="content">
+  </slot>
+  <!--Bottom Navigation Mobile UI-->
+  <v-layout class="overflow-visible custom-layout" v-show="mobile"><!--style="height: 56px;"-->
       <v-bottom-navigation
         v-model="value"
         color="teal"
         grow
-        class="bottom-navigation-mobile custom-nav"
+        class="custom-nav"
       >
         <v-btn class="nav-btn" :to="{ name: 'home' }">
-          <v-icon>mdi-home</v-icon>Home
-        </v-btn>
-        <v-btn class="nav-btn" :to="{ name: 'station' }">
-          <v-icon>mdi-water</v-icon>Station
+          <v-icon>mdi-home-outline</v-icon><span>Home</span>
         </v-btn>
         <v-btn class="nav-btn" :to="{ name: 'order' }">
-          <v-icon class="cart-icon">mdi-cart</v-icon>Order
+          <v-icon>mdi-format-list-checkbox</v-icon><span>Deliveries</span>
+        </v-btn>
+        <v-btn class="nav-btn" :to="{ name: 'station' }">
+          <v-icon class="cart-icon">mdi-cart-outline</v-icon><span>Order</span>
         </v-btn>
         <v-btn class="nav-btn" >
-          <v-icon class="bell-icon">mdi-bell</v-icon>Notification
+          <v-icon class="bell-icon">mdi-bell-outline</v-icon><span>Notifications</span>
         </v-btn>
         <v-btn class="nav-btn">
-          <v-icon>mdi-account</v-icon>Profile
+          <v-icon>mdi-account-outline</v-icon><span>Profile</span>
         </v-btn>
       </v-bottom-navigation>
     </v-layout>
-  </header>
-  <slot name="content">
-  </slot>
+
 </template>
 
 <script setup>
@@ -438,107 +440,43 @@ li {
   padding-top: 5px;
 }
 
-/**search bar sidebar style here */
-/*.search-bar {
-  display: flex;
-  align-items: center;
-  margin-top: 0;
-  margin-bottom: -.50rem;
-  transition: all 0.4s ease;
-  gap: 0.15rem;
-}
+/**---------For Bottom Navigation when UI is mobile----------*/
 
-.search-bar .search-input {
-  width: 0;
-  opacity: 0;
-  border: none;
-  border-radius: 20px;
-  background: transparent !important;
-  font-size: 15px;
-  color: #04448d;
-  transition: all 0.4s ease;
-  pointer-events: none;
-}
-
-.search-bar.expanded .search-input {
-  width: 200px;  adjust the expanded width
-  opacity: 1;
-  padding: 8px;
-  border: 1px solid #04448d;
-  background: #fff;
-  pointer-events: auto;
-}
-
-.search-style-btn {
-  padding: 6px;
-  border-radius: 50%;
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+::v-deep(.custom-nav) {
+  background-color: #a9d4e48a !important;
+  padding: .3rem !important;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.137);
+  background: linear-gradient(120deg, #0557b6, #051f3d, #0557b6);
   background-size: 200% auto;
   background-position: left center;
+  text-transform: none;
   transition: background-position 0.5s ease;
-  font-size: 16px;
 }
 
-.search-style-btn:hover {
-  background-position: right center;
-}
-
- //Suggestions List
-.suggestion-list {
-  list-style: none;
-  position: absolute;
-  background-color: #dee8ef;
-  color: #000;
-  width: 61%;
-  max-height: 250px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  overflow-y: auto;
-  z-index: 2;
-  margin-top: 2px;
-  padding-bottom: 4px;
-}
-
-.suggestion-list li {
-  padding: 6px 0px;
-  cursor: pointer;
-}
-.suggestion-list li:hover {
-  background-color: #e3f2fd;
-}
-*/
-/**For Bottom Navigation when UI is mobile*/
-
-::v-deep(.bottom-navigation-mobile) {
-  background-color: #d6dbdd !important;
-  padding: 0.5rem !important;
-  border-radius: 25px 25px 0 0;
-  border: #000 1px solid;
-}
-
-::v-deep(.bottom-navigation-mobile .v-btn) {
-  margin: 0 3px !important;
-  flex-direction: column !important; /* Stack icon above label */
+::v-deep(.custom-nav .v-btn) {
   min-width: 56px;
-  padding: 4px 8px;
-  color: #04448d !important; /* Default color */
+  padding: 5px 8px;
+  color: #ffffffd7 !important; /* Default color */
+  font-size: 10px !important;
+  border-radius: 50px !important;
+  font-family: 'familjen grotesk', Courier, monospace !important;
+  font-weight: 400 !important;
 }
 
-/* Active Button Styling */
-::v-deep(.bottom-navigation-mobile .v-btn.v-btn--active) {
+::v-deep(.custom-nav .v-btn.v-btn--active) {
   color: #02adef !important;
+  font-size: 12px !important;
 }
 
-/* Optional: Change icon color inside active button */
-::v-deep(.bottom-navigation-mobile .v-btn.v-btn--active .v-icon) {
-  color: #fff !important;
+::v-deep(.custom-nav .v-btn.v-btn--active .v-icon) {
+  color: #02adef !important;
+  font-size: 27px;
 }
 
-::v-deep(.bottom-navigation-mobile .v-icon) {
+::v-deep(.custom-nav .v-icon) {
   margin-bottom: 2px;
-  font-size: 25px;
+  font-size: 24px;
 }
 @media(max-width: 450px){
   .first-word,
@@ -548,6 +486,6 @@ li {
     transition: 0.5s ease all;
     font-family: 'Antonio', sans-serif;
   }
-
 }
+
 </style>
