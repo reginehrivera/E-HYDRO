@@ -103,16 +103,22 @@
                       <v-card-title class="d-flex align-center pt-2">
                         <v-row>
                           <v-col cols="12" md="2" class="">
-                            <v-avatar size="40" class="pl-4">
-                              <img :src="review.profilePhoto" alt="Profile" />
+                            <v-avatar color="deep-purple lighten-3" size="50">
+                              <img
+                                v-if="avatarUrl"
+                                :src="avatarUrl"
+                                alt="Avatar"
+                                class="avatar-img"
+                              />
+                              <span v-else class="text-h5">{{ initials || '??' }}</span>
                             </v-avatar>
                           </v-col>
                           <v-col cols="12" md="10">
                             <div>
-                              <P class="profile-name-style">{{ review.username }}</P>
+                              <P class="profile-name-style">{{ userStore.fullname }}</P>
                             </div>
                             <div class="text-caption">
-                              <p class="profile-email-style">{{ review.email }}</p>
+                              <p class="profile-email-style">{{ userStore.email }}</p>
                             </div>
                           </v-col>
                         </v-row>
@@ -378,10 +384,13 @@ import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useOrderStore } from '@/stores/orders'
 import '@/assets/main.css'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const orderRefs = ref([])
 const orderStore = useOrderStore()
+// Create an instance of the user store
+const userStore = useUserStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
@@ -403,6 +412,24 @@ function submitReview() {
     newReview.value.comment = ''
   }
 }
+
+const initials = computed(() => {
+  if (!userStore.fullname) return ''
+  const names = userStore.fullname.trim().split(' ')
+  return names
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+})
+
+const avatarUrl = ref('')
+
+// Update avatarUrl when user data is available
+onMounted(() => {
+  if (userStore.profilePhoto) {
+    avatarUrl.value = userStore.profilePhoto
+  }
+})
 
 // Address items
 const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
@@ -627,7 +654,7 @@ async function submitActualReview(orderId) {
   // Fetch additional user details from Supabase if needed (for example, profile photo, username, etc.)
   const { data: userData, error: userError } = await supabase
     .from('users') // Assuming you have a 'users' table to store user info
-    .select('username, email, profilePhoto') // Fields you need
+    .select('fullname, email, profilePhoto') // Fields you need
     .eq('id', user.id) // Get the user by their ID (from auth)
     .single() // Fetch a single record
 

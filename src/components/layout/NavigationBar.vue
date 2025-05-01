@@ -48,12 +48,14 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
-              <template v-if="avatarUrl">
-                <img :src="avatarUrl" alt="User Image" class="profile-img" />
-              </template>
-              <template v-else>
-                <div class="profile-initials">{{ initials }}</div>
-              </template>
+              <v-avatar size="70" color="deep-purple lighten-3">
+                <template v-if="avatarUrl">
+                  <img :src="avatarUrl" alt="User Image" class="profile-img" />
+                </template>
+                <template v-else>
+                  <span class="text-h5 white--text">{{ initials || '??' }}</span>
+                </template>
+              </v-avatar>
               <p class="username">{{ fullname }}</p>
 
               <p class="email">{{ userStore.email }}</p>
@@ -133,7 +135,10 @@ import { supabase } from '@/supabase' // adjust path if needed
 const userStore = useUserStore()
 
 // You can access the avatarUrl here to display it
-const avatarUrl = computed(() => userStore.avatarUrl)
+const avatarUrl = computed(() => {
+  return userStore.avatarUrl || authUser.value?.user_metadata?.avatar_url || ''
+})
+
 // --- Refs ---
 const scrollPosition = ref(null)
 const mobile = ref(null)
@@ -145,8 +150,9 @@ const showProfileDropdown = ref(false)
 // --- Auth User Data ---
 const authUser = ref(null)
 const initials = computed(() => {
-  if (authUser.value?.user_metadata?.full_name) {
-    return authUser.value.user_metadata.full_name
+  const name = userStore.fullname || authUser.value?.user_metadata?.full_name
+  if (name) {
+    return name
       .split(' ')
       .map((n) => n[0])
       .join('')
