@@ -31,7 +31,7 @@
           >
         </li>
       </ul>
-      <v-icon
+      <!-- <v-icon
         class="icon-style"
         @click="toggleMobileNav"
         v-show="mobile"
@@ -59,7 +59,7 @@
                     :class="{ visible: isExpanded }"
                   />
 
-                  <!-- Suggestions Dropdown -->
+                  < Suggestions Dropdown
                   <ul v-if="isExpanded && searchInput && filteredSuggestions.length" class="suggestion-list">
                     <li
                       v-for="(suggestion, index) in filteredSuggestions"
@@ -71,7 +71,6 @@
                   </ul>
                 </div>
               </form>
-
               <span class="search-style-btn" @click="toggleSearch">
                 <v-icon>mdi-magnify</v-icon>
               </span>
@@ -89,7 +88,7 @@
           </li>
           <li>
             <router-link class="link" :to="{ name: 'order' }"
-              ><v-icon>mdi-cart</v-icon>My Order</router-link
+              ><v-icon>mdi-cart</v-icon>Order</router-link
             >
           </li>
           <li>
@@ -103,10 +102,35 @@
             >
           </li>
         </ul>
-      </transition>
+      </transition>-->
     </nav>
+     <v-layout class="overflow-visible custom-layout" v-show="mobile"><!--style="height: 56px;"-->
+      <v-bottom-navigation
+        v-model="value"
+        color="teal"
+        grow
+        class="bottom-navigation-mobile custom-nav"
+      >
+        <v-btn class="nav-btn" :to="{ name: 'home' }">
+          <v-icon>mdi-home</v-icon>Home
+        </v-btn>
+        <v-btn class="nav-btn" :to="{ name: 'station' }">
+          <v-icon>mdi-water</v-icon>Station
+        </v-btn>
+        <v-btn class="nav-btn" :to="{ name: 'order' }">
+          <v-icon class="cart-icon">mdi-cart</v-icon>Order
+        </v-btn>
+        <v-btn class="nav-btn" >
+          <v-icon class="bell-icon">mdi-bell</v-icon>Notification
+        </v-btn>
+        <v-btn class="nav-btn">
+          <v-icon>mdi-account</v-icon>Profile
+        </v-btn>
+      </v-bottom-navigation>
+    </v-layout>
   </header>
-  <slot name="content"></slot>
+  <slot name="content">
+  </slot>
 </template>
 
 <script setup>
@@ -118,9 +142,9 @@ const mobileNav = ref(null)
 const windowWidth = ref(window.innerWidth)
 const showNotifications = ref(false)
 
-const toggleMobileNav = () => {
+/*const toggleMobileNav = () => {
   mobileNav.value = !mobileNav.value
-}
+}*/
 
 const checkScreen = () => {
   windowWidth.value = window.innerWidth
@@ -144,8 +168,9 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreen)
 })
+
 //search bar area
-import { computed } from 'vue'
+/*import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const isExpanded = ref(false)
@@ -189,7 +214,9 @@ const selectSuggestion = (station) => {
     alert('Station not found.')
   }
 }
-
+//for mobile view: bottom navigation
+const value = ref(1)
+*/
 </script>
 
 <style scoped>
@@ -199,6 +226,14 @@ header {
   position: fixed;
   transition: 0.5s ease all;
   color: #04448d;
+}
+@media (max-width: 750px){
+  header{
+    z-index: none;
+    width: none;
+    position: none;
+    transition: none;
+  }
 }
 nav {
   display: flex;
@@ -402,13 +437,15 @@ li {
   cursor: pointer;
   padding-top: 5px;
 }
+
 /**search bar sidebar style here */
-.search-bar {
+/*.search-bar {
   display: flex;
   align-items: center;
   margin-top: 0;
+  margin-bottom: -.50rem;
   transition: all 0.4s ease;
-  gap: 0.25rem;
+  gap: 0.15rem;
 }
 
 .search-bar .search-input {
@@ -417,23 +454,23 @@ li {
   border: none;
   border-radius: 20px;
   background: transparent !important;
-  font-size: 13px;
+  font-size: 15px;
   color: #04448d;
   transition: all 0.4s ease;
   pointer-events: none;
 }
 
 .search-bar.expanded .search-input {
-  width: 190px; /* adjust the expanded width */
+  width: 200px;  adjust the expanded width
   opacity: 1;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #04448d;
   background: #fff;
   pointer-events: auto;
 }
 
 .search-style-btn {
-  padding: 8px;
+  padding: 6px;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
@@ -441,21 +478,23 @@ li {
   background-size: 200% auto;
   background-position: left center;
   transition: background-position 0.5s ease;
+  font-size: 16px;
 }
 
 .search-style-btn:hover {
   background-position: right center;
 }
-/* Suggestions List */
+
+ //Suggestions List
 .suggestion-list {
   list-style: none;
   position: absolute;
   background-color: #dee8ef;
   color: #000;
-  width: 58%;
+  width: 61%;
   max-height: 250px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
+  border-radius: 15px;
   overflow-y: auto;
   z-index: 2;
   margin-top: 2px;
@@ -468,5 +507,47 @@ li {
 }
 .suggestion-list li:hover {
   background-color: #e3f2fd;
+}
+*/
+/**For Bottom Navigation when UI is mobile*/
+
+::v-deep(.bottom-navigation-mobile) {
+  background-color: #d6dbdd !important;
+  padding: 0.5rem !important;
+  border-radius: 25px 25px 0 0;
+  border: #000 1px solid;
+}
+
+::v-deep(.bottom-navigation-mobile .v-btn) {
+  margin: 0 3px !important;
+  flex-direction: column !important; /* Stack icon above label */
+  min-width: 56px;
+  padding: 4px 8px;
+  color: #04448d !important; /* Default color */
+}
+
+/* Active Button Styling */
+::v-deep(.bottom-navigation-mobile .v-btn.v-btn--active) {
+  color: #02adef !important;
+}
+
+/* Optional: Change icon color inside active button */
+::v-deep(.bottom-navigation-mobile .v-btn.v-btn--active .v-icon) {
+  color: #fff !important;
+}
+
+::v-deep(.bottom-navigation-mobile .v-icon) {
+  margin-bottom: 2px;
+  font-size: 25px;
+}
+@media(max-width: 450px){
+  .first-word,
+  .second-word {
+    font-weight: 500;
+    font-size: 37px !important;
+    transition: 0.5s ease all;
+    font-family: 'Antonio', sans-serif;
+  }
+
 }
 </style>

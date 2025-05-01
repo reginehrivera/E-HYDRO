@@ -5,7 +5,7 @@
           <!--first row-->
           <v-container max-width="85%" class="pt-10"> <!--added-->
             <v-row>
-              <v-col xl="12" lg="6" md="6" sm="12" xs="12">
+              <v-col xl="12" lg="6" md="6" sm="5" xs="12">
                 <div class="title-phrase">
                   <h4 class="first-phrase">
                     Stay hydrated<v-icon class="icon-style">mdi-water</v-icon>
@@ -14,7 +14,7 @@
                 </div>
               </v-col>
               <!--Search Barr Area-->
-              <v-col cols="12" md="6" class="search-bar" v-show="!mobile">
+              <v-col cols="12" md="6" sm="7" class="search-bar" v-show="!mobile">
                 <v-form class="search-form" role="search" @submit="handleSearch">
                   <v-row no-gutters>
                     <v-col cols="9" class="search-input">
@@ -102,6 +102,7 @@
               <!--End of station card-->
             </v-col>
           </v-row>
+
           <!--end second row-->
         </v-container>
       </template>
@@ -110,12 +111,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import '@/assets/main.css'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import WaterDrops from '@/assets/img/waterdrops-shop.png'
 import AquaSis from '@/assets/img/Aquasis-shop.jpg'
 import Aquabon from '@/assets/img/Aquabon-shop.png'
 import ColdPoint from '@/assets/img/coldpoint-shop.jpg'
-import '@/assets/main.css'
+
 
 // Model for v-model binding
 const model = ref(0)
@@ -218,155 +220,3 @@ const selectSuggestion = (station) => {
 
 </script>
 
-<style scoped>
-.bg-image {
-  background-image: url('@/assets/img/bg-home-no-gallon.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-}
-
-.title-phrase {
-  font-family: 'familjen-grotesk', sans-serif;
-  font-size: 23px !important;
-  color: #04448d;
-  font-style: italic;
-  padding-top: 5% !important;
-  padding-left: 0%;
-  margin-left: 0%;
-}
-
-@keyframes water-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.icon-style {
-  font-size: 35px;
-  color: #02adef;
-  animation: water-bob 2s infinite ease-in-out;
-}
-
-.first-phrase {
-  font-weight: 700;
-  font-family: 'Faustina', serif;
-  padding-left: 0%;
-  margin-left: 0%;
-}
-.first-phrase {
-  margin-bottom: -0.6rem;
-}
-.second-phrase {
-  color: #02adef;
-  font-family: 'Inter', sans-serif;
-  font-style: italic;
-  font-weight: 500;
-}
-@keyframes cart-run {
-  0% {
-    transform: translateX(0) rotate(0deg);
-  }
-  25% {
-    transform: translateX(5px) rotate(-2deg);
-  }
-  50% {
-    transform: translateX(10px) rotate(2deg);
-  }
-  75% {
-    transform: translateX(5px) rotate(-1deg);
-  }
-  100% {
-    transform: translateX(0) rotate(0deg);
-  }
-}
-
-.cart-run {
-  display: inline-block;
-  animation: cart-run 1s infinite ease-in-out;
-  font-size: 35px;
-  color: #02adef; /* You can change this to fit your theme */
-}
-/*-------Station Cards---------*/
-.no-underline {
-  text-decoration: none;
-  color: inherit;
-}
-.station-card {
-  background-color: #bee1ed7e;
-}
-.text-h5 {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700;
-  color: #04448d;
-}
-.slide-group-style {
-  background-color: #bee1ed00;
-}
-.image-card {
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
-  background-size: 200% auto;
-  background-position: left center;
-  text-transform: none;
-  transition: background-position 0.5s ease;
-}
-.image-card:hover {
-  background-position: right center;
-}
-.order-now-text {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 18px !important;
-}
-.text-title,
-.text-description,
-.text-price,
-.text-available {
-  font-family: 'Inter', sans-serif !important;
-}
-.text-title {
-  font-weight: 700;
-  color: #04448d;
-  font-size: 20px !important;
-}
-.text-description {
-  margin-top: -0.5rem;
-  font-weight: 500 !important;
-  color: #04448d;
-}
-.text-price {
-  margin-top: -1.5rem;
-  color: #fff !important;
-  font-size: 20px !important;
-  font-weight: 600 !important;
-}
-.text-available {
-  color: #0557b6 !important;
-  font-size: 13px !important;
-  background-color: #bee1ed00;
-  margin-top: -1.7rem;
-}
-/**Media Responsive style this part */
-@media (max-width: 900px) {
-  .search-bar {
-    margin-top: 0%;
-    margin-bottom: 1rem;
-  }
-}
-
-  @media (max-width: 750px) {
-  .search-bar {
-  }
-}
-@media (max-width: 600px) {
-  .search-bar {
-    margin-top: 10%;
-  }
-}
-
-</style>

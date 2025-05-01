@@ -1,17 +1,18 @@
 <template>
   <NavigationBar>
     <template #content>
-      <v-container fluid class="bg-image">
+      <v-container fluid class="bg-image" v-show="!mobile" >
         <v-row>
           <v-col cols="12" md="5" class="pt-16">
             <h1></h1>
             <p></p>
           </v-col>
-          <v-col cols="12" md="7">
+          <v-col cols="12" md="7" class="home-h2">
             <h2>
-              We provide clean, safe, and <br />worry-free water delivered right <br />
-              to your doorstep.
-            </h2>
+                    We provide clean, safe, and <br />
+                    worry-free water delivered right <br />
+                    to your doorstep.
+                  </h2>
             <router-link to="/station"
               ><v-btn class="home-btn"><span>Order Now!</span></v-btn>
             </router-link>
@@ -34,34 +35,206 @@
           </v-col>
         </v-row>
       </v-container>
+       <!--first-view in mobile view-->
+       <v-container class="mobile-view-container bg-image-mobile " v-show="mobile">
+            <v-card class="mobile-view-card">
+              <v-card class="text-card">
+                  <h2>
+                    Stay hydrated,<br />Place your order now!
+                  </h2>
+              </v-card>
+            </v-card>
+            <!--Search Area-->
+            <div class="search-bar-mobile expanded">
+              <form @submit.prevent="handleSearch" class="search-form">
+                <div class="search-input-wrapper">
+                  <input
+                    type="search"
+                    v-model="searchInput"
+                    placeholder="Search nearby station..."
+                    class="search-input-mobile visible"
+                  />
+
+                  <!--Suggestions Dropdown-->
+                  <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                    <li
+                      v-for="(suggestion, index) in filteredSuggestions"
+                      :key="index"
+                      @click="selectSuggestion(suggestion)"
+                    >
+                    
+                      {{ suggestion }}
+                    </li>
+                  </ul>
+                </div>
+              </form>
+              <span class="search-style-btn">
+                <v-icon>mdi-magnify</v-icon>
+              </span>
+            </div>
+            <!---->
+
+                <v-card-title class="text-center station-card-mobile">
+                  <h2 class="text-h5">Available Water Refilling Stations</h2>
+                  <h4 class="second-phrase">
+                    Place your order here<v-icon class="cart-run">mdi-cart-variant</v-icon>
+                  </h4>
+                  <v-slide-group v-model="model" show-arrows class="v-slide-group-mobile">
+                    <v-slide-group-item
+                      v-for="(img, index) in images"
+                      :key="index"
+                      v-slot="{ toggle, selectedClass }"
+                    >
+                      <router-link :to="img.route" class="no-underline">
+                        <v-card
+                          :class="['ma-1', selectedClass]"
+                          height="265"
+                          width="230"
+                          @click="toggle"
+                          class="slide-group-style v-slide-group-mobile"
+                        >
+                          <v-card elevation="0" class="image-card">
+                            <v-img :src="img.src" class="mb-1 images"></v-img>
+                            <h4 class="pb-1 text-white order-now-text">Order Now</h4>
+                          </v-card>
+                        </v-card>
+                      </router-link>
+                    </v-slide-group-item>
+                  </v-slide-group>
+                </v-card-title>
+          </v-container>
+          <!---->
     </template>
   </NavigationBar>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-
 import firstIcon from '@/assets/img/first-icon.png'
 import secondIcon from '@/assets/img/second-icon.png'
 import thirdIcon from '@/assets/img/third-icon.png'
 import fourthIcon from '@/assets/img/fourth-icon.png'
+import WaterDrops from '@/assets/img/waterdrops-shop.png'
+import AquaSis from '@/assets/img/Aquasis-shop.jpg'
+import Aquabon from '@/assets/img/Aquabon-shop.png'
+import ColdPoint from '@/assets/img/coldpoint-shop.jpg'
+import '@/assets/main.css'
 
-/*export default {
-  name: 'HomeView',
-  components: {},
+// Model for v-model binding
+const model = ref(0)
+
+// Reactive array of image objects
+const images = ref([
+  {
+    src: AquaSis,
+    title: 'Aquasis Water Station',
+    description: 'Brgy JP Rizal, Butuan City',
+    price: '₱25.00 per gallon',
+    route: '/aquasis',
+  },
+  {
+    src: Aquabon,
+    title: 'Aquabon Water Station',
+    description: 'Villa Kananga, Butuan City',
+    price: '₱20.00 per gallon',
+    route: '/aquabon',
+  },
+  {
+    src: ColdPoint,
+    title: 'Cold Point',
+    description: 'Baladad Libertad, Butuan City',
+    price: '₱25.00 per gallon',
+    route: '/coldpoint',
+  },
+  {
+    src: WaterDrops,
+    title: 'Water Drops',
+    description: 'Purok 1-B Ampayon, Butuan City',
+    price: '₱20.00 per gallon',
+    route: '/waterdrops',
+  },
+])
+// Hides search bar when not mobile
+import { onMounted, onUnmounted } from 'vue'
+const mobile = ref(null)
+const mobileNav = ref(null)
+const windowWidth = ref(window.innerWidth)
+
+const checkScreen = () => {
+  windowWidth.value = window.innerWidth
+  if (windowWidth.value <= 750) {
+    mobile.value = true
+  } else {
+    mobile.value = false
+    mobileNav.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', checkScreen)
+  checkScreen()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
+//Search Area
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+/*const isExpanded = ref(true)
+const toggleSearch = () => {
+  isExpanded.value = !isExpanded.value
 }*/
+ //suggestion search list
+const searchInput = ref('')
+const router = useRouter()
+
+const stations = {
+  aquasis: '/aquasis',
+  aquabon: '/aquabon',
+  'cold point': '/coldpoint',
+  'water drops': '/waterdrops',
+}
+
+const filteredSuggestions = computed(() => {
+  const input = searchInput.value.toLowerCase()
+  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+})
+
+const handleSearch = (e) => {
+  e.preventDefault()
+  const input = searchInput.value.trim().toLowerCase()
+  if (stations[input]) {
+    router.push(stations[input])
+    searchInput.value = ''
+  } else {
+    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+  }
+}
+
+const selectSuggestion = (station) => {
+  searchInput.value = station
+  const lowerStation = station.toLowerCase()
+  if (stations[lowerStation]) {
+    router.push(stations[lowerStation])
+    searchInput.value = '' // clear after clicking suggestion (optional)
+  } else {
+    alert('Station not found.')
+  }
+}
 </script>
 
 <style scoped>
 .bg-image {
   background-image: url('@/assets/img/bg-home.png');
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
   min-height: 100vh;
 }
-
-h2 {
+.home-h2 h2 {
   font-family: 'familjen-grotesk', sans-serif;
   font-size: 19px;
   color: #0557b6;
@@ -95,13 +268,14 @@ h2 {
 }
 
 /*Footer-icon*/
+
 .footer-icons {
   margin-left: 10%;
   margin-top: 26%;
   display: flex;
   gap: 30px;
   /*justify-content: center;*/
-  flex-wrap: wrap; /* ensures it wraps on smaller screens */
+  flex-wrap: wrap;  /*ensures it wraps on smaller screens */
   padding: 0;
   list-style: none;
 }
@@ -140,4 +314,139 @@ h2 {
   border: 1px solid #04448d;
   border-radius: 50%;
 }
+
+/**-----------For mobile UI style--------- */
+.bg-image-mobile {
+  background-image: url('@/assets/img/bg-home-no-gallon.png');
+  background-color: #0558b64d;
+  background-size: cover;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  min-height: 100vh;
+  padding: 0%;
+  margin: 0%;
+}
+.station-card-mobile{
+  padding-top: 5%;
+  padding-bottom: 5%;
+  background-color: #7682869a;
+  border-radius: 20px;
+  border:#000 1px solid;
+}
+
+@media (max-width: 750px){
+  h2 {
+  font-family: 'familjen-grotesk', sans-serif;
+  font-size: 16px !important;
+  color: #0557b6;
+  font-style: normal;
+  font-weight: 600;
+}
+.home-btn {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+  font-family: 'inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700 !important;
+  padding: 9px 25px !important;
+  border-radius: 20px 0;
+  margin-left: 0% !important;
+  margin-top: 6% !important;
+  text-transform: none;
+  transition: background-position 0.5s ease;
+}
+.home-btn span {
+  font-weight: 600;
+}
+.second-phrase {
+  font-size: 16px;
+}
+.cart-run{
+  font-size: 21px;
+}
+.home-btn:hover {
+  background-position: right center;
+}
+
+/*Footer-icon*/
+
+.footer-icons {
+  margin-left: 10%;
+  margin-top: 26%;
+  display: flex;
+  gap: 30px;
+  /*justify-content: center;*/
+  flex-wrap: wrap;  /*ensures it wraps on smaller screens */
+  padding: 0;
+  list-style: none;
+}
+
+.footer-icons li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 160px;
+  font-size: 11px;
+  font-family: 'familjen-grotesk', sans-serif;
+  font-weight: 600;
+  color: #04448d;
+  line-height: 1.4;
+  animation: floatUpDown 3s ease-in-out infinite;
+}
+
+/* Floating animation like water */
+@keyframes floatUpDown {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.footer-icons img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+  border: 1px solid #04448d;
+  border-radius: 50%;
+}
+}
+.v-slide-group-mobile{
+}
+.mobile-view-card{
+  background-image: url('@/assets/img/mobile-bg-three.png');
+  background-size: cover;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  border-radius: 0 0 25px 25px;
+  padding: 0%;
+  border-bottom: #0d0e0f 1px solid;
+}
+.text-card {
+  background: #d6dbdd88;
+  color: white;
+  font-family: 'familjen-grotesk', sans-serif;
+  font-size: 20px;
+  margin-top: 25%;
+  width: 55%;
+  padding: 4%;
+  border-radius: 0 20px 20px 0 !important;
+  margin-bottom: 10%;
+  border-bottom: #0557b6 5px solid;
+}
+.text-card h2{
+  font-family: 'faustina', sans-serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 19px !important;
+  color: #0557b6;
+}
+
 </style>
