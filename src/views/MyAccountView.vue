@@ -7,36 +7,32 @@
 
       <v-row class="flex-row-reverse">
         <v-col md="3">
-          <v-card max-width="20rem" max-height="20rem" hover :style="{ background: '#D9D9D9' }">
+          <v-card class="card-custom-size" hover :style="{ background: '#D9D9D9' }">
             <v-card-item>
               <div class="d-flex mt-5 mb-2">
                 <!-- Avatar on the left -->
                 <v-avatar color="surface-variant" size="90">
-                  <span class="text-h5">CJ</span>
+                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                  <span v-else class="text-h5">CJ</span>
                 </v-avatar>
 
                 <!-- Right section: name, email, and button -->
                 <div class="ms-4 d-flex flex-column justify-start">
-                  <span>John Doe</span>
-                  <span>John@gmail.com</span>
-                  <v-btn
-                    size="small"
-                    :style="{ background: '#07ACAF', color: 'white' }"
-                    class="mt-2 align-self-start"
-                  >
-                    Edit Profile
-                  </v-btn>
+                  <span>{{ fullname }}</span>
+                  <!-- Displaying full name -->
+                  <span>{{ email }}</span>
+                  <!-- Displaying email -->
                 </div>
               </div>
             </v-card-item>
             <v-card-text>
               <div style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px">
                 <router-link
-                  :to="{ name: 'order' }"
+                  :to="{ name: 'Myaccount' }"
                   class="link"
-                  :class="{ 'v-btn--active': $route.name === 'order' }"
+                  :class="{ 'v-btn--active': $route.name === 'Myaccount' }"
                 >
-                  My Orders
+                  Edit Profile
                 </router-link>
               </div>
               <div style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px">
@@ -50,11 +46,11 @@
               </div>
               <div style="border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 8px">
                 <router-link
-                  :to="{ name: 'Myaccount' }"
+                  :to="{ name: 'order' }"
                   class="link"
-                  :class="{ 'v-btn--active': $route.name === 'Myaccount' }"
+                  :class="{ 'v-btn--active': $route.name === 'order' }"
                 >
-                  Profile Settings
+                  My Orders
                 </router-link>
               </div>
             </v-card-text>
@@ -75,14 +71,25 @@
                 Profile Settings
               </span>
 
-              <div class="d-flex justify-center">
-                <v-avatar color="red" size="80">
-                  <span class="text-h5">CJ</span>
+              <!-- Profile Picture with Upload -->
+              <div class="d-flex flex-column align-center">
+                <v-avatar size="80">
+                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                  <span v-else class="text-h5">CJ</span>
                 </v-avatar>
-              </div>
 
-              <div class="d-flex justify-center">John Doe</div>
-              <div class="d-flex justify-center">JohnDoe@gmail.com</div>
+                <!-- Pencil icon triggers file input -->
+                <v-icon @click="triggerFileUpload" style="cursor: pointer"> mdi-pencil </v-icon>
+
+                <!-- Hidden file input -->
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handleFileUpload"
+                  style="display: none"
+                />
+              </div>
 
               <v-form v-model="valid">
                 <v-container fluid>
@@ -95,7 +102,6 @@
                         variant="solo"
                         density="compact"
                         class="pa-0 ma-1"
-                        :rules="nameRules"
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -106,7 +112,6 @@
                         variant="solo"
                         density="compact"
                         class="pa-0 ma-1"
-                        :rules="lastNameRules"
                       />
                     </v-col>
                   </v-row>
@@ -120,7 +125,6 @@
                         variant="solo"
                         density="compact"
                         class="pa-0 ma-1"
-                        :rules="emailRules"
                       />
                     </v-col>
                     <v-col>
@@ -131,7 +135,6 @@
                         variant="solo"
                         density="compact"
                         class="pa-0 ma-1"
-                        :rules="phoneRules"
                       />
                     </v-col>
                   </v-row>
@@ -146,7 +149,6 @@
                         density="compact"
                         type="password"
                         class="pa-0 ma-1"
-                        :rules="passwordRules"
                       />
                     </v-col>
                     <v-col>
@@ -158,7 +160,6 @@
                         density="compact"
                         type="password"
                         class="pa-0 ma-1"
-                        :rules="confirmPasswordRules"
                       />
                     </v-col>
                   </v-row>
@@ -170,6 +171,7 @@
                         rounded="lg"
                         block
                         class="transition-all"
+                        @click="saveProfile"
                       >
                         Save Changes
                       </v-btn>
@@ -335,179 +337,192 @@
       </v-row>
     </main>
   </div>
-</template>
-<script setup>
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import NavigationBar from '@/components/layout/NavigationBar.vue'
-const SelectedPage = computed(() => route.name === 'addresses')
-const route = useRoute()
 
-// Form fields
-const valid = ref(false)
+  <!-- Success Message Dialog -->
+  <v-dialog v-model="dialogVisible" persistent max-width="400px">
+    <v-card>
+      <v-card-title class="headline">Profile Updated</v-card-title>
+      <v-card-text>Your profile has been updated successfully!</v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" @click="goToProfilePage">OK</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router' // Make sure to import useRouter
+import NavigationBar from '@/components/layout/NavigationBar.vue'
+import { useUserStore } from '@/stores/user'
+
+// Create an instance of the user store
+const userStore = useUserStore()
+
+// Access the fullname and email from the store
+const fullname = userStore.fullname
+const email = userStore.email
 const firstname = ref('')
 const lastname = ref('')
-const email = ref('')
+
 const phone = ref('')
+
 const newPassword = ref('')
 const confirmPassword = ref('')
+const avatarUrl = ref(null) // Default: no avatar
+const valid = ref(false)
 
-// Validation Rules
-const nameRules = [
-  (v) => !!v || 'Name is required.',
-  (v) => v.length <= 10 || 'Name must be less than 10 characters.',
-]
+// Handle file upload (for avatar)
+const fileInput = ref(null)
+function triggerFileUpload() {
+  fileInput.value.click()
+}
+function handleFileUpload(event) {
+  const file = event.target.files[0]
+  if (file) {
+    avatarUrl.value = URL.createObjectURL(file)
+  }
+}
 
-const lastNameRules = [
-  (v) => !!v || 'Last name is required.',
-  (v) => v.length <= 10 || 'Last name must be less than 10 characters.',
-]
-
-const emailRules = [
-  (v) => !!v || 'E-mail is required.',
-  (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid.',
-]
-
-const phoneRules = [
-  (v) => !!v || 'Phone number is required.',
-  (v) => /^\d{10,15}$/.test(v) || 'Phone number must be valid (10–15 digits).',
-]
-
-const passwordRules = [
-  (v) => !!v || 'New password is required.',
-  (v) => v.length >= 6 || 'Password must be at least 6 characters.',
-]
-
-const confirmPasswordRules = computed(() => [
-  (v) => !!v || 'Confirmation password is required.',
-  (v) => v === newPassword.value || 'Passwords do not match.',
-])
-// Route-based check
+// Determine which page section to show based on current route
+const route = useRoute()
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
-//overlay
+const SelectedPage = computed(() => route.name === 'addresses')
 
-const overlay = ref(false)
+// Ref for dialog visibility
+const dialogVisible = ref(false)
 
-watch(overlay, (val) => {
-  if (val) {
-    setTimeout(() => {
-      overlay.value = true
-    })
+// Initialize the router
+const router = useRouter()
+
+// Function to redirect after clicking the OK button in the dialog
+const goToProfilePage = () => {
+  dialogVisible.value = false // Close the dialog
+  router.push('/profile') // Redirect to the profile page
+}
+
+// Save profile logic
+function saveProfile() {
+  // Combine first and last name
+  const updatedFullName = `${firstname.value} ${lastname.value}`
+
+  // Update the fullname, email, and phone number in the Pinia store
+  userStore.fullname = updatedFullName
+  userStore.mobile = phone.value
+
+  // Optionally, save the avatar URL here if needed
+  if (avatarUrl.value) {
+    userStore.avatarUrl = avatarUrl.value
+  }
+
+  // Save the updated profile data in localStorage
+  localStorage.setItem(
+    'userProfile',
+    JSON.stringify({
+      fullname: updatedFullName,
+      mobile: phone.value,
+      avatarUrl: avatarUrl.value,
+    }),
+  )
+
+  // Optionally log or perform other actions
+  console.log('Profile saved with name:', updatedFullName, 'phone:', phone.value)
+
+  // Open the dialog to show success message
+  dialogVisible.value = true
+}
+
+import { onMounted } from 'vue'
+
+// When the page loads, retrieve the user data from localStorage
+onMounted(() => {
+  const storedProfile = localStorage.getItem('userProfile')
+  if (storedProfile) {
+    const parsedProfile = JSON.parse(storedProfile)
+    firstname.value = parsedProfile.fullname.split(' ')[0]
+    lastname.value = parsedProfile.fullname.split(' ')[1]
+    phone.value = parsedProfile.mobile
+    avatarUrl.value = parsedProfile.avatarUrl || null
   }
 })
-
-const countries = ['Philippines']
-// Form values
+// --- Address form logic ---
+const overlay = ref(false)
 const name = ref('')
 const address = ref('')
 const city = ref('')
 const state = ref('')
 const zip = ref('')
-const country = ref('')
+const country = ref(null)
+const countries = ref(['Philippines', 'United States', 'Canada', 'Australia'])
 
-// Error messages for each field
-const nameErrorMessages = ref('')
-const addressErrorMessages = ref('')
-const cityErrorMessages = ref('')
-const stateErrorMessages = ref('')
-const zipErrorMessages = ref('')
-const countryErrorMessages = ref('')
+const nameErrorMessages = ref([])
+const addressErrorMessages = ref([])
+const cityErrorMessages = ref([])
+const stateErrorMessages = ref([])
+const zipErrorMessages = ref([])
+const countryErrorMessages = ref([])
+const formWarning = ref('')
 
-// Form refs for validation
-const nameRef = ref()
-const addressRef = ref()
-const cityRef = ref()
-const stateRef = ref()
-const zipRef = ref()
-const countryRef = ref()
-
-const formRefs = {
-  name: nameRef,
-  address: addressRef,
-  city: cityRef,
-  state: stateRef,
-  zip: zipRef,
-  country: countryRef,
-}
-
-const formHasErrors = ref(false)
-const formWarning = ref('') // New warning for empty fields
-
-// Store all submissions
 const submissions = ref([])
 
+// Validate and submit address form
 function submit() {
-  formHasErrors.value = false
-  formWarning.value = '' // Reset warning
+  clearErrors()
 
-  // Check for empty fields and add warning if necessary
+  if (!name.value) nameErrorMessages.value.push('Full name is required')
+  if (!address.value) addressErrorMessages.value.push('Address is required')
+  if (!city.value) cityErrorMessages.value.push('City is required')
+  if (!state.value) stateErrorMessages.value.push('State is required')
+  if (!zip.value) zipErrorMessages.value.push('ZIP code is required')
+  if (!country.value) countryErrorMessages.value.push('Country is required')
+
   if (
-    !name.value.trim() ||
-    !address.value.trim() ||
-    !city.value.trim() ||
-    !state.value.trim() ||
-    !zip.value.trim() ||
-    !country.value.trim()
+    nameErrorMessages.value.length ||
+    addressErrorMessages.value.length ||
+    cityErrorMessages.value.length ||
+    stateErrorMessages.value.length ||
+    zipErrorMessages.value.length ||
+    countryErrorMessages.value.length
   ) {
-    formWarning.value = 'Please fill in all the fields.'
-    formHasErrors.value = true
-    setTimeout(() => {
-      formWarning.value = ''
-    }, 1000)
+    formWarning.value = 'Please complete all required fields.'
     return
   }
 
-  // Validate each field
-  Object.values(formRefs).forEach((refInput) => {
-    if (refInput.value?.validate) {
-      const result = refInput.value.validate(true)
-      if (!result) formHasErrors.value = true
-    }
+  submissions.value.push({
+    name: name.value,
+    address: address.value,
+    city: city.value,
+    state: state.value,
+    zip: zip.value,
+    country: country.value,
   })
 
-  // If no errors, save the submission
-  if (!formHasErrors.value) {
-    submissions.value.push({
-      name: name.value,
-      address: address.value,
-      city: city.value,
-      state: state.value,
-      zip: zip.value,
-      country: country.value,
-    })
-
-    // Reset the form after submission
-    resetForm()
-  }
-}
-
-function resetForm() {
-  Object.values(formRefs).forEach((refInput) => {
-    if (refInput.value?.reset) {
-      refInput.value.reset()
-    }
-  })
-
-  name.value = ''
-  address.value = ''
-  city.value = ''
-  state.value = ''
-  zip.value = ''
-  country.value = ''
+  overlay.value = false
+  clearForm()
 }
 
 function deleteSubmission(index) {
   submissions.value.splice(index, 1)
 }
-// address
-// function formatText() {
-//   const code = 'P-3'
-//   const barangay = 'Liboon'
-//   const area = 'Ampayon'
-//   const house = 'Rigene Boarding house'
 
-//   return `${code} ${barangay} ${area},${area},${barangay} ${house}`
-// }
+function clearErrors() {
+  formWarning.value = ''
+  nameErrorMessages.value = []
+  addressErrorMessages.value = []
+  cityErrorMessages.value = []
+  stateErrorMessages.value = []
+  zipErrorMessages.value = []
+  countryErrorMessages.value = []
+}
+
+function clearForm() {
+  name.value = ''
+  address.value = ''
+  city.value = ''
+  state.value = ''
+  zip.value = ''
+  country.value = null
+}
 </script>
 
 <style scoped>
@@ -591,6 +606,17 @@ function deleteSubmission(index) {
 }
 .size-card {
   max-width: 200px;
+}
+
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+/* In your style section */
+.card-custom-size {
+  width: 35rem;
 }
 /* address card  */
 </style>

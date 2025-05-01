@@ -13,6 +13,7 @@ import MyAccountView from '@/views/MyAccountView.vue'
 import AddressesView from '@/views/system/AddressesView.vue'
 import CalendarOrderView from '@/views/system/CalendarOrderView.vue'
 import LandingPageView from '@/views/LandingPageView.vue'
+import ProfileInfoPage from '@/views/system/ProfileInfoPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -88,6 +89,11 @@ const router = createRouter({
       path: '/calendarorder',
       name: 'calendarorder',
       component: CalendarOrderView,
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileInfoPage,
     },
   ],
 })

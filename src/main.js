@@ -34,3 +34,5 @@ app.use(router)
 app.use(vuetify)
 
 app.mount('#app')
+
+pinia.use(piniaPersist)
