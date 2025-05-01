@@ -73,6 +73,49 @@
         </li>
       </ul>
       <!-- Mobile Nav Icon and Mobile Dropdown -->
+      <v-icon
+        class="icon-style"
+        @click="toggleMobileNav"
+        v-show="mobile"
+        :class="{ 'icon-active': mobileNav }"
+        >mdi-menu</v-icon
+      >
+
+      <transition name="mobile-nav">
+        <ul v-show="mobile && mobileNav" class="dropdown-nav">
+          <li>
+            <div class="branding">
+              <span class="first-word">E</span>
+              <span class="second-word">-HYDRO</span>
+            </div>
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'home' }"
+              ><v-icon>mdi-home</v-icon>Home</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'station' }"
+              ><v-icon>mdi-water</v-icon>Station</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'order' }"
+              ><v-icon>mdi-cart</v-icon>My Order</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'notification' }"
+              ><v-icon>mdi-bell</v-icon> Notification</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: '' }"
+              ><v-icon>mdi-account</v-icon> Profile</router-link
+            >
+          </li>
+        </ul>
+      </transition>
     </nav>
   </header>
   <slot name="content"></slot>

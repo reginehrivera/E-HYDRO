@@ -133,6 +133,7 @@ const handleSearch = (e) => {
   const input = searchInput.value.trim().toLowerCase()
   if (stations[input]) {
     router.push(stations[input])
+    searchInput.value = ''
   } else {
     alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
   }
@@ -140,6 +141,13 @@ const handleSearch = (e) => {
 
 const selectSuggestion = (station) => {
   searchInput.value = station
+  const lowerStation = station.toLowerCase()
+  if (stations[lowerStation]) {
+    router.push(stations[lowerStation])
+    searchInput.value = '' 
+  } else {
+    alert('Station not found.')
+  }
 }
 
 const images = ref([

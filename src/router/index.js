@@ -10,15 +10,20 @@ import WaterdropsView from '@/views/system/WaterdropsView.vue'
 import OrderPage from '@/views/OrderPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 import MyAccountView from '@/views/MyAccountView.vue'
-import CalendarView from '@/views/CalendarView.vue'
 import AddressesView from '@/views/system/AddressesView.vue'
-import OrderSummary from '@/views/system/OrderSummary.vue'
+import CalendarOrderView from '@/views/system/CalendarOrderView.vue'
+import LandingPageView from '@/views/LandingPageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: LandingPageView,
+    },
+    {
+      path: '/login',
       name: 'login',
       component: LoginPage,
     },
@@ -72,25 +77,17 @@ const router = createRouter({
       name: 'Myaccount',
       component: MyAccountView,
     },
-    {
-      path: '/calendar',
-      name: 'calendar',
-      component: CalendarView,
-    },
+
     {
       path: '/addresses',
       name: 'addresses',
       component: AddressesView,
     },
+
     {
-      path: '/summary',
-      name: 'summary',
-      component: OrderSummary,
-    },
-    {
-      path: '/calendar',
-      name: 'calendar',
-      component: CalendarView,
+      path: '/calendarorder',
+      name: 'calendarorder',
+      component: CalendarOrderView,
     },
   ],
 })
