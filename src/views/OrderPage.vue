@@ -31,6 +31,14 @@
             </button>
           </div>
 
+          <div class="empty-state" v-if="filteredOrdersStore.length === 0">
+            <div class="empty-state-content">
+              <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
+              <h3>No Orders Found</h3>
+              <p>You haven't placed any orders yet.</p>
+              <router-link to="/aquabon" class="btn-primary no-underline"> Order Now </router-link>
+            </div>
+          </div>
           <!-- Order Cards -->
           <transition-group name="fade" tag="div">
             <div class="order-card" v-for="(order, index) in filteredOrdersStore" :key="order.id">
@@ -211,20 +219,16 @@ import { useOrderStore } from '@/stores/orders'
 import { useReviewStore } from '@/stores/reviewStore'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-const orders = ref([
-  {
-    id: 12347,
-    date: 'April 15, 2025',
-    station: 'Waterdrops',
-    quantity: 5,
-    total: 300,
-    orderType: 'Single Purchase',
-    status: 'Cancelled',
-    deliveryAddress: '789 Pine Ln, Villagetown',
-    deliveryDate: 'April 18, 2025',
-    router: '/waterdrops',
-  },
-])
+const orders = ref([])
+
+// Also fix the computed property to properly handle empty states
+const filteredOrdersStore = computed(() => {
+  // Use orderStore.orders if available, otherwise fallback to empty orders array
+  const list = orderStore.orders.length > 0 ? orderStore.orders : []
+
+  if (selectedFilter.value === 'All') return list
+  return list.filter((o) => o.status === selectedFilter.value)
+})
 
 const router = useRouter()
 const orderStore = useOrderStore()
@@ -259,12 +263,6 @@ const currentUser = reactive({
 // Access the review store
 const reviewStore = useReviewStore()
 
-const filteredOrdersStore = computed(() => {
-  const list = orderStore.orders.length ? orderStore.orders : orders.value
-  if (selectedFilter.value === 'All') return list
-  return list.filter((o) => o.status === selectedFilter.value)
-})
-
 const filterOrders = (status) => {
   selectedFilter.value = status
   filteredOrders.value =
@@ -277,10 +275,24 @@ function promptCancel(idx) {
 }
 
 async function cancelOrder() {
-  const o = filteredOrdersStore.value[cancelIndex.value]
-  if (!o) return
-  o.status = 'Cancelled'
-  await supabase.from('orders').update({ status: 'Cancelled' }).eq('id', o.id)
+  const targetOrder = filteredOrdersStore.value[cancelIndex.value]
+  if (!targetOrder) return
+
+  // Update order in the store directly
+  const storeOrder = orderStore.orders.find((o) => o.id === targetOrder.id)
+  if (storeOrder) storeOrder.status = 'Cancelled'
+
+  // Update in Supabase
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: 'Cancelled' })
+    .eq('id', targetOrder.id)
+
+  if (error) {
+    console.error('Error updating Supabase:', error)
+    alert('Failed to cancel the order.')
+  }
+
   showCancelModal.value = false
 }
 
@@ -663,5 +675,38 @@ table th {
   color: #0557b6;
   border: #02adef 1px solid;
   background-color: #02adef;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+  background-color: #d3eaff;
+  border-radius: 10px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.empty-state-content {
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin-top: 20px;
+  font-size: 22px;
+  color: #0557b6;
+}
+
+.empty-state p {
+  margin: 10px 0 20px;
+  color: #666;
+}
+
+.empty-state .btn-primary {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 16px;
+  text-decoration: none;
 }
 </style>

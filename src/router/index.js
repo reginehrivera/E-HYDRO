@@ -8,7 +8,6 @@ import AquabonView from '@/views/system/AquabonView.vue'
 import ColdpointView from '@/views/system/ColdpointView.vue'
 import WaterdropsView from '@/views/system/WaterdropsView.vue'
 import OrderPage from '@/views/OrderPage.vue'
-import SettingsPage from '@/views/SettingsPage.vue'
 import MyAccountView from '@/views/MyAccountView.vue'
 import AddressesView from '@/views/system/AddressesView.vue'
 import CalendarOrderView from '@/views/system/CalendarOrderView.vue'
@@ -68,11 +67,7 @@ const router = createRouter({
       name: 'order',
       component: OrderPage,
     },
-    {
-      path: '/settings',
-      name: 'settings',
-      component: SettingsPage,
-    },
+
     {
       path: '/MyAccount',
       name: 'Myaccount',

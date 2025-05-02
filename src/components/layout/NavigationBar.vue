@@ -64,8 +64,14 @@
 
             <ul>
               <li>
-                <router-link class="link" to="/settings">
-                  <v-icon class="settings-icon small-icon">mdi-cogs</v-icon> Settings
+                <router-link class="link" to="/MyAccount">
+                  <v-icon class="edit-icon small-icon">mdi-account</v-icon>
+                  Edit Profile
+                </router-link>
+              </li>
+              <li>
+                <router-link class="link" to="/addresses">
+                  <v-icon class="address-icon small-icon">mdi-map-marker</v-icon> Delivery Address
                 </router-link>
               </li>
 
@@ -128,15 +134,16 @@
 </template>
 
 <script setup>
+// Fix for the navigation bar component
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase' // adjust path if needed
 
 const userStore = useUserStore()
 
-// You can access the avatarUrl here to display it
+// Fix: Use avatar_url (to match your store) instead of avatarUrl
 const avatarUrl = computed(() => {
-  return userStore.avatarUrl || authUser.value?.user_metadata?.avatar_url || ''
+  return userStore.avatar_url || authUser.value?.user_metadata?.avatar_url || ''
 })
 
 // --- Refs ---
@@ -174,6 +181,11 @@ onMounted(async () => {
   if (data?.user) {
     authUser.value = data.user
     console.log('Auth User:', data.user)
+
+    // Try to fetch user profile if not already loaded
+    if (!userStore.fullname || !userStore.avatar_url) {
+      userStore.fetchUserProfile()
+    }
   } else {
     console.error('Auth error:', error)
   }
@@ -208,17 +220,7 @@ function toggleProfileDropdown() {
 
 const handleLogout = () => {
   // Clear user data from Pinia and localStorage
-  userStore.setUserData({
-    email: '',
-    fullname: '',
-    mobile: '',
-    avatar_url: '',
-  })
-  localStorage.removeItem('email')
-  localStorage.removeItem('fullname')
-  localStorage.removeItem('mobile')
-  localStorage.removeItem('avatar_url')
-
+  userStore.clearUserData()
   // Redirect to login page
   router.push('/login')
 }
@@ -517,11 +519,9 @@ li {
 }
 
 .profile-img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 8px;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
 }
 
 .username {

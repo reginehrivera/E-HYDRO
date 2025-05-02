@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue' // Make sure to import computed
+// Profile Page Script
+import { computed, ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
@@ -10,7 +11,9 @@ const formAction = ref({ formProcess: false })
 const isLoadingUser = ref(false)
 const router = useRouter()
 
-const avatarUrl = computed(() => userStore.avatarUrl)
+// Fix: Use avatar_url instead of avatarUrl to match your store
+const avatarUrl = computed(() => userStore.avatar_url)
+
 const initials = computed(() => {
   const name = userStore.fullname || ''
   const parts = name.split(' ')
@@ -26,73 +29,84 @@ const initials = computed(() => {
 const goToMyAccount = () => {
   router.push('/MyAccount')
 }
+
+// Make sure user data is loaded
+onMounted(async () => {
+  if (!userStore.fullname) {
+    isLoadingUser.value = true
+    await userStore.fetchUserProfile()
+    isLoadingUser.value = false
+  }
+})
 </script>
 
 <template>
   <NavigationBar>
     <template #content>
-      <v-row>
-        <v-col cols="12">
-          <div class="profile-section d-flex flex-column align-center justify-center pa-6">
-            <div class="profile-wrapper">
-              <v-card class="pa-6 profile-card" flat>
-                <!-- Avatar centered -->
-                <div class="d-flex justify-center mb-6">
-                  <v-avatar color="deep-purple lighten-3" size="150">
-                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                    <span v-else class="text-h5">{{ initials || '??' }}</span>
-                  </v-avatar>
-                </div>
+      <v-container fluid class="bg-image">
+        <v-row>
+          <v-col cols="12">
+            <div class="profile-section d-flex flex-column align-center justify-center pa-6">
+              <div class="profile-wrapper">
+                <v-card class="pa-6 profile-card" flat>
+                  <!-- Avatar centered -->
+                  <div class="d-flex justify-center mb-6">
+                    <v-avatar color="deep-purple lighten-3" size="150">
+                      <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                      <span v-else class="text-h5">{{ initials || '??' }}</span>
+                    </v-avatar>
+                  </div>
 
-                <!-- Profile Info below avatar -->
-                <v-row>
-                  <v-col cols="12">
-                    <v-row>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Full Name</div>
-                        <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Mobile Number</div>
-                        <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Email</div>
-                        <div class="field-value">{{ userStore.email || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Address</div>
-                        <div class="field-value">{{ userStore.address || 'N/A' }}</div>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
+                  <!-- Profile Info below avatar -->
+                  <v-row>
+                    <v-col cols="12">
+                      <v-row>
+                        <v-col cols="12" sm="6">
+                          <div class="field-label">Full Name</div>
+                          <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <div class="field-label">Mobile Number</div>
+                          <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <div class="field-label">Email</div>
+                          <div class="field-value">{{ userStore.email || 'N/A' }}</div>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                          <div class="field-label">Address</div>
+                          <div class="field-value">{{ userStore.address || 'N/A' }}</div>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
 
-                <!-- Edit Profile Button centered -->
-                <div class="d-flex justify-center mt-4">
-                  <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
-                    Edit Profile
-                  </v-btn>
-                </div>
-              </v-card>
+                  <!-- Edit Profile Button centered -->
+                  <div class="d-flex justify-center mt-4">
+                    <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
+                      Edit Profile
+                    </v-btn>
+                  </div>
+                </v-card>
+              </div>
             </div>
-          </div>
 
-          <!-- Loading overlay -->
-          <v-overlay
-            :model-value="formAction.formProcess || isLoadingUser"
-            class="align-center justify-center"
-          >
-            <v-progress-circular indeterminate size="64" />
-          </v-overlay>
-        </v-col>
-      </v-row>
+            <!-- Loading overlay -->
+            <v-overlay
+              :model-value="formAction.formProcess || isLoadingUser"
+              class="align-center justify-center"
+            >
+              <v-progress-circular indeterminate size="64" />
+            </v-overlay>
+          </v-col>
+        </v-row>
+      </v-container>
     </template>
   </NavigationBar>
 </template>
 
 <style scoped>
-.profile-section {
+.bg-image {
   background-image: url('@/assets/img/bg-home-no-gallon.png');
   background-size: cover;
   background-position: center;
