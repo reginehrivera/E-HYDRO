@@ -413,68 +413,6 @@ const selectSuggestion = (station) => {
     padding-top: 3px;
   }
 }
-/*-------Search Bar Mobile---------*/
 
-.search-bar-mobile {
-  display: flex;
-  align-items: center;
-  margin-top: 1rem;
-  margin-bottom: -.50rem;
-}
-
-/* Always expanded input */
-.search-bar-mobile .search-input-mobile {
-  width: 280px; /* expanded width */
-  padding: 5px;
-  border: 1px solid #04448d;
-  border-radius: 20px 0 0 20px;
-  font-size: 15px;
-  color: #04448d;
-}
-.search-style-btn {
-  padding-top: 8px;
-  padding-bottom: 7px;
-  padding-left: 12px;
-  padding-right: 15px;
-  border-radius: 0 20px 20px 0;
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
-  background-size: 200% auto;
-  background-position: left center;
-  transition: background-position 0.5s ease;
-  font-size: 13px;
-}
-.search-style-btn:hover {
-  background-position: right center;
-}
-.search-bar-mobile{
-  padding-top: 4%;
-  padding-bottom: 5%;
-  justify-content: center;
-}
-
-.search-input-wrapper {
-  position: relative;
-}
-
-.suggestion-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #ffffffee;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
-}
-.suggestion-list li {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: 'familjen grotesk', Courier, monospace;
-  font-size: 14px;
-  color: #04448d;
-}
 </style>
+  

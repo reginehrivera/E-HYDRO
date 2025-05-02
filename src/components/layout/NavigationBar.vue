@@ -22,7 +22,7 @@
             </ul>
             <div class="notification-footer">
               <router-link class="view-all" :to="{ name: 'notification' }">View All</router-link>
-            </div>
+            </div>  
           </div>
         </li>
         <li>

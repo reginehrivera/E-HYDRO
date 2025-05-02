@@ -1,9 +1,9 @@
   <template>
     <NavigationBar>
       <template #content>
-        <v-container fluid class="bg-image">
+        <v-container fluid class="bg-image" v-show="!mobile">
           <!--first row-->
-          <v-container max-width="85%" class="pt-10"> <!--added-->
+          <v-container max-width="85%" class="pt-10">
             <v-row>
               <v-col xl="12" lg="6" md="6" sm="5" xs="12">
                 <div class="title-phrase">
@@ -53,7 +53,8 @@
           <!--end first row-->
 
           <!--second row-->
-          <v-row>
+            <!--second row-->
+            <v-row>
             <v-col class="d-flex justify-center" cols="12">
               <!--Station Card-->
               <v-card class="mx-auto station-card" max-width="85%" elevation="24">
@@ -104,7 +105,131 @@
           </v-row>
 
           <!--end second row-->
+
+          <!--end second row-->
         </v-container>
+
+        <!--MOBILE UI HERE-->
+        <v-container v-show="mobile" class="bg-image-mobile">
+          <div class="d-flex align-center justify-space-between px-5 pt-16">
+            <div>
+              <h4>Order Now!</h4>
+            </div>
+            <div>
+              <router-link to="/home" class="text-decoration-none">
+                <v-icon class="close">mdi-window-close</v-icon>
+              </router-link>
+            </div>
+          </div>
+                  <!--Search Area-->
+          <div class="search-bar-mobile">
+            <form @submit.prevent="handleSearch" class="search-form">
+              <div class="search-input-wrapper">
+                <input
+                  type="search"
+                  v-model="searchInput"
+                  placeholder="Search nearby station..."
+                  class="search-input-mobile visible"
+                />
+
+                <!--Suggestions Dropdown-->
+                <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                  <li
+                    v-for="(suggestion, index) in filteredSuggestions"
+                    :key="index"
+                    @click="selectSuggestion(suggestion)"
+                  >
+                    {{ suggestion }}
+                  </li>
+                </ul>
+              </div>
+            </form>
+            <span class="search-style-btn">
+              <v-icon>mdi-magnify</v-icon>
+            </span>
+          </div>
+        <!---->
+          <div class="scroll-container">
+            <div class="mobile-card" @click="addStationById(1)">
+              <img :src="AquaSis" alt="Aquasis Water Station" />
+              <button class="btn">View More Details</button>
+            </div>
+            <div class="mobile-card" @click="addStationById(2)">
+              <img :src="Aquabon" alt="Aquabon Water Station" />
+              <button class="btn">View More Details</button>
+            </div>
+            <div class="mobile-card" @click="addStationById(3)">
+              <img :src="ColdPoint" alt="Cold Point" />
+              <button class="btn">View More Details</button>
+            </div>
+            <div class="mobile-card" @click="addStationById(4)">
+              <img :src="WaterDrops" alt="Water Drops" />
+              <button class="btn">View More Details</button>
+            </div>
+          </div>
+          <v-container class="station-container-mobile mb-10">
+            <div v-for="(station, index) in selectableStations" :key="station.id" class="pa-2">
+              <v-card flat class="d-flex align-center ">
+                <!-- Checkbox and Image -->
+                <v-row no-gutters align="center" class="w-100">
+                  <v-col md="2" sm="3" xs="3" class="d-flex align-center justify-center">
+                    <v-checkbox
+                      v-model="station.selected"
+                      density="compact"
+                      hide-details
+                      @click.stop.prevent
+                      class="ma-0 pa-0"
+                    ></v-checkbox>
+                     <v-card class="text-center card-img ml-2" width="75">
+                      <v-img
+                        :src="station.image"
+                        height="70"
+                        width="40"
+                        cover
+                        style="border: 1px solid #ccc; border-radius: 4px;"
+                      />
+                    </v-card>
+                  </v-col>
+
+                  <!-- Right column: Station info and quantity controls -->
+                  <v-col md="10" sm="9" xs="9">
+                    <!-- Station name and location -->
+                    <div>
+                      <h5 class="blue-color mb-1">{{ station.name }}</h5>
+                      <h6 class="text-caption mb-2">{{ station.location }}</h6>
+                    </div>
+
+                    <!-- Price and Quantity Controls -->
+                    <v-row>
+                      <v-col cols="12" md="6" sm="6">
+                        <p>₱{{ station.price }} per gallon</p>
+                      </v-col>
+                      <v-col cols="12" md="6" sm="6" class="d-flex align-center">
+                        <v-btn icon size="small" @click.stop="decreaseQty(index)">
+                          <v-icon>mdi-minus</v-icon>
+                        </v-btn>
+                        <span class="mx-2 font-weight-medium">{{ station.qty }}</span>
+                        <v-btn icon size="small" @click.stop="increaseQty(index)">
+                          <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+
+                  <!-- Optional divider -->
+                  <v-col cols="12">
+                    <v-divider class="my-2"></v-divider>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </div>
+            <div class="text-right">
+              <p>Total: ₱{{ totalPrice }}</p>
+              <v-btn @click="checkout">Checkout</v-btn>
+            </div>
+          </v-container>
+        </v-container>
+
       </template>
     </NavigationBar>
   </template>
@@ -217,6 +342,142 @@ const selectSuggestion = (station) => {
     alert('Station not found.')
   }
 }
+//station checkout in MOBILE UI
+const allStations = [
+  {
+    id: 1,
+    name: 'Aquasis Water Station',
+    location: 'Brgy JP Rizal, Butuan City',
+    price: 25,
+    image: '@/assets/img/1.png',
+  },
+  {
+    id: 2,
+    name: 'Aquabon Water Station',
+    location: 'Villa Kananga, Butuan City',
+    price: 20,
+    image: Aquabon,
+  },
+  {
+    id: 3,
+    name: 'Cold Point',
+    location: 'Baladad Libertad, Butuan City',
+    price: 25,
+    image: ColdPoint,
+  },
+  {
+    id: 4,
+    name: 'Water Drops',
+    location: 'Purok 1-B Ampayon, Butuan City',
+    price: 20,
+    image: WaterDrops,
+  },
+]
+
+const selectableStations = ref([])
+
+function addStationById(id) {
+  const station = allStations.find((s) => s.id === id)
+  if (station) {
+    // Replace all previous stations with the newly selected one
+    selectableStations.value = [
+      {
+        ...station,
+        selected: true,
+        qty: 1,
+      },
+    ]
+  }
+}
+
+const totalPrice = computed(() =>
+  selectableStations.value.reduce(
+    (sum, station) => (station.selected ? sum + station.qty * station.price : sum),
+    0
+  )
+)
+
+
+
+function increaseQty(index) {
+  selectableStations.value[index].qty++
+}
+
+function decreaseQty(index) {
+  if (selectableStations.value[index].qty > 0) {
+    selectableStations.value[index].qty--
+  }
+}
+
+function checkout() {
+  alert('Total: ₱' + totalPrice.value)
+}
 
 </script>
 
+<style scoped>
+.search-bar-mobile{
+  margin-top: 0%;
+}
+/* Close Button */
+.station-container .close {
+  cursor: pointer;
+  color: #04448d;
+  transition: opacity 0.3s ease-in-out, transform 0.2s;
+}
+
+.station-container .close:hover {
+  opacity: 0.5;
+  transform: rotate(180deg);
+}
+
+.scroll-container {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .mobile-card {
+      position: relative;
+      width: 200px;
+      height: 150px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .mobile-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .btn {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Optional: Hide scrollbar */
+    .scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    .station-container-mobile{
+      padding: 0%;
+    }
+</style>
