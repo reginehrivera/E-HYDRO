@@ -5,13 +5,29 @@
     <main class="content">
       <!--  card  -->
 
-      <v-row class="flex-row-reverse">
+      <v-row class="flex-row-reverse justify-space-between" no-gutters style="gap: 5rem">
         <v-col md="3">
-          <v-card hover :style="{ background: '#D9D9D9' }" class="animated-card">
-            <v-card-item>
-              <div class="d-flex mt-5 mb-2 profile-content">
-                <!-- Avatar with animation -->
-                <v-avatar color="deep-purple lighten-3" size="90" class="avatar-animate">
+          <v-card
+            hover
+            :style="{
+              background: 'linear-gradient(145deg, #f0f0f0, #D9D9D9)',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            }"
+            class="animated-card profile-card"
+          >
+            <v-card-item class="pa-4">
+              <div class="d-flex mt-3 mb-2 profile-content">
+                <!-- Avatar with animation and border glow -->
+                <v-avatar
+                  color="deep-purple lighten-3"
+                  size="90"
+                  class="avatar-animate"
+                  :style="{
+                    border: '3px solid #7E57C2',
+                    boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                  }"
+                >
                   <img
                     v-if="avatarUrl"
                     :src="avatarUrl"
@@ -19,34 +35,53 @@
                     class="avatar-img"
                     @load="handleImageLoad"
                   />
-                  <span v-else class="text-h5 initials-animate">{{ initials || '??' }}</span>
+                  <span v-else class="text-h5 initials-animate white--text">{{
+                    initials || '??'
+                  }}</span>
                 </v-avatar>
 
-                <!-- Right section with staggered animation -->
+                <!-- Profile info with better typography -->
                 <div class="ms-4 d-flex flex-column justify-start profile-info">
-                  <span class="profile-name">{{ fullname }}</span>
-                  <span class="profile-email">{{ email }}</span>
+                  <span class="profile-name text-h6 font-weight-bold text--primary">
+                    {{ fullname }}
+                  </span>
+                  <span class="profile-email text-caption text--secondary mt-1">
+                    <v-icon small class="mr-1">mdi-email</v-icon>
+                    {{ email }}
+                  </span>
+                  <v-chip
+                    small
+                    color="green lighten-5"
+                    text-color="green darken-3"
+                    class="mt-2 align-self-start"
+                  >
+                    <v-icon small left>mdi-check-circle</v-icon>
+                    Verified
+                  </v-chip>
                 </div>
               </div>
             </v-card-item>
-            <v-card-text>
+
+            <!-- Links with improved styling -->
+            <v-card-text class="pt-0 pb-4">
+              <v-divider class="mb-3"></v-divider>
               <div
                 v-for="(link, index) in profileLinks"
                 :key="link.route"
                 class="link-item"
                 :style="{
-                  borderBottom: '1px solid black',
-                  paddingBottom: '4px',
-                  marginBottom: '8px',
-                  'animation-delay': `${0.2 + index * 0.1}s`,
+                  animationDelay: `${0.2 + index * 0.1}s`,
                 }"
               >
                 <router-link
                   :to="{ name: link.route }"
-                  class="link"
-                  :class="{ 'v-btn--active': $route.name === link.route }"
+                  class="link d-flex align-center"
+                  :class="{ 'active-link': $route.name === link.route }"
                 >
-                  {{ link.text }}
+                  <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
+                  <span>{{ link.text }}</span>
+                  <v-spacer />
+                  <v-icon small>mdi-chevron-right</v-icon>
                 </router-link>
               </div>
             </v-card-text>
@@ -258,7 +293,7 @@
                     :error-messages="cityErrorMessages"
                     :rules="[() => !!city || 'This field is required']"
                     label="City"
-                    placeholder="El Paso"
+                    placeholder="Butuan"
                     required
                     variant="outlined"
                     prepend-inner-icon="mdi-city"
@@ -651,6 +686,14 @@ onMounted(() => {
     submissions.value = JSON.parse(savedAddresses)
   }
 })
+const getLinkIcon = (route) => {
+  const icons = {
+    Myaccount: 'mdi-account-cog',
+    addresses: 'mdi-map-marker',
+    order: 'mdi-package-variant',
+  }
+  return icons[route] || 'mdi-link'
+}
 
 // Expose methods to parent components if needed
 defineExpose({
@@ -760,6 +803,7 @@ defineExpose({
   transform: translateY(20px);
   opacity: 0;
   animation: fadeInUp 0.5s ease forwards;
+  right: 3rem;
 }
 
 .profile-content {
@@ -1464,6 +1508,90 @@ scrollable-content {
   }
   100% {
     box-shadow: 0 0 0 0 rgba(103, 58, 183, 0);
+  }
+}
+
+/* Card styling */
+.profile-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Avatar animation */
+.avatar-animate {
+  transition: all 0.4s ease;
+}
+
+.profile-card:hover .avatar-animate {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(126, 87, 194, 0.7);
+}
+
+/* Link styling */
+.link {
+  text-decoration: none;
+  color: #424242;
+  padding: 10px 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin: 2px 0;
+}
+
+.link:hover {
+  background: rgba(126, 87, 194, 0.08);
+  transform: translateX(4px);
+}
+
+.active-link {
+  background: rgba(126, 87, 194, 0.1) !important;
+  color: #673ab7 !important;
+  font-weight: 500;
+}
+
+.active-link .v-icon {
+  color: #673ab7 !important;
+}
+
+/* Profile name animation */
+.profile-name {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-name::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #7e57c2;
+  transition: width 0.3s ease;
+}
+
+.profile-card:hover .profile-name::after {
+  width: 100%;
+}
+
+/* Link items animation */
+.link-item {
+  opacity: 0;
+  animation: fadeInUp 0.5s forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

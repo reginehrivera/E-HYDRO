@@ -1,114 +1,190 @@
 <template>
-  <div v-if="loading" class="loading-overlay">
-    <div class="spinner"></div>
-  </div>
-
-  <div class="page-container">
-    <div class="wrapper">
-      <div class="logo">
-        <img :src="logonImage" alt="Logo" />
-      </div>
-
-      <div class="form-container">
-        <div class="slide-controls">
-          <input
-            type="radio"
-            name="slide"
-            id="login"
-            v-model="currentForm"
-            value="login"
-            @change="switchToLogin"
-          />
-          <input
-            type="radio"
-            name="slide"
-            id="signup"
-            v-model="currentForm"
-            value="signup"
-            @change="switchToSignup"
-          />
-
-          <label for="login" class="slide login">Login</label>
-          <label for="signup" class="slide signup">Signup</label>
-          <div class="slider-tab" :class="{ right: currentForm === 'signup' }"></div>
-        </div>
-
-        <div class="form-inner" :class="{ move: currentForm === 'signup' }">
-          <form @submit.prevent="handleLogin" class="login">
-            <div class="field">
-              <input type="text" v-model="email" placeholder="Email Address" required />
-            </div>
-            <div class="field">
-              <input :type="passwordType" v-model="password" placeholder="Password" required />
-              <span
-                class="eye-icon"
-                :class="{ show: passwordType === 'password' }"
-                @click="togglePasswordVisibility"
-              ></span>
-            </div>
-
-            <div class="form-options">
-              <div class="remember-me">
-                <input type="checkbox" id="remember" />
-                <label for="remember"> Remember me</label>
-              </div>
-              <div class="pass-link">
-                <a href="#">Forgot password?</a>
-              </div>
-            </div>
-
-            <div class="field btn">
-              <div class="btn-layer"></div>
-              <input type="submit" value="Login" />
-            </div>
-            <div class="signup-link">
-              Don't have an account? <a href="#" @click.prevent="switchToSignup">Signup</a>
-            </div>
-          </form>
-
-          <form @submit.prevent="handleSignup" class="signup">
-            <div class="field">
-              <input type="text" v-model="name" placeholder="Full Name" required />
-            </div>
-            <div class="field">
-              <input type="text" v-model="contactNumber" placeholder="Contact Number" required />
-            </div>
-            <div class="field">
-              <input type="text" v-model="email" placeholder="Email Address" required />
-            </div>
-            <div class="field">
-              <input :type="passwordType" v-model="password" placeholder="Password" required />
-              <span
-                class="eye-icon"
-                :class="{ show: passwordType === 'password' }"
-                @click="togglePasswordVisibility"
-              ></span>
-            </div>
-            <div class="field">
-              <input
-                :type="confirmPasswordType"
-                v-model="confirmPassword"
-                placeholder="Confirm Password"
-                required
-              />
-              <span
-                class="eye-icon"
-                :class="{ show: confirmPasswordType === 'password' }"
-                @click="toggleConfirmPasswordVisibility"
-              ></span>
-            </div>
-            <div class="field btn">
-              <div class="btn-layer"></div>
-              <input type="submit" value="Signup" />
-            </div>
-            <div class="login-link">
-              Already have an account? <a href="#" @click.prevent="switchToLogin">Login</a>
-            </div>
-          </form>
-        </div>
-      </div>
+  <v-container class="pa-0 fill-height" fluid>
+    <div v-if="loading" class="loading-overlay">
+      <v-progress-circular indeterminate color="#00c6ff" size="50"></v-progress-circular>
     </div>
-  </div>
+
+    <div class="page-container">
+      <v-card class="wrapper" elevation="10">
+        <div class="logo">
+          <v-img :src="logonImage" alt="Logo" max-width="190" class="mx-auto"></v-img>
+        </div>
+
+        <div class="form-container">
+          <div class="slide-controls">
+            <input
+              type="radio"
+              name="slide"
+              id="login"
+              v-model="currentForm"
+              value="login"
+              @change="switchToLogin"
+            />
+            <input
+              type="radio"
+              name="slide"
+              id="signup"
+              v-model="currentForm"
+              value="signup"
+              @change="switchToSignup"
+            />
+
+            <label for="login" class="slide login">Login</label>
+            <label for="signup" class="slide signup">Signup</label>
+            <div class="slider-tab" :class="{ right: currentForm === 'signup' }"></div>
+          </div>
+
+          <div class="form-inner" :class="{ move: currentForm === 'signup' }">
+            <form @submit.prevent="handleLogin" class="login">
+              <div class="field">
+                <v-text-field
+                  v-model="email"
+                  placeholder="Email Address"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                ></v-text-field>
+              </div>
+
+              <div class="field">
+                <v-text-field
+                  v-model="password"
+                  :type="passwordType"
+                  placeholder="Password"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                  :append-inner-icon="passwordType === 'password' ? 'mdi-eye-off' : 'mdi-eye'"
+                  @click:append-inner="togglePasswordVisibility"
+                ></v-text-field>
+              </div>
+
+              <div class="form-options">
+                <div class="remember-me">
+                  <v-checkbox
+                    id="remember"
+                    label="Remember me"
+                    density="compact"
+                    hide-details
+                    color="#0044cc"
+                  ></v-checkbox>
+                </div>
+                <div class="pass-link">
+                  <a href="#">Forgot password?</a>
+                </div>
+              </div>
+
+              <div class="field btn mt-4">
+                <div class="btn-layer"></div>
+                <v-btn
+                  type="submit"
+                  block
+                  height="40"
+                  rounded="xl"
+                  class="custom-btn"
+                >Login</v-btn>
+              </div>
+
+              <div class="signup-link">
+                Don't have an account? <a href="#" @click.prevent="switchToSignup">Signup</a>
+              </div>
+            </form>
+
+            <form @submit.prevent="handleSignup" class="signup">
+              <div class="field">
+                <v-text-field
+                  v-model="name"
+                  placeholder="Full Name"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                ></v-text-field>
+              </div>
+
+              <div class="field">
+                <v-text-field
+                  v-model="contactNumber"
+                  placeholder="Contact Number"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                ></v-text-field>
+              </div>
+
+              <div class="field">
+                <v-text-field
+                  v-model="email"
+                  placeholder="Email Address"
+                  type="text"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                ></v-text-field>
+              </div>
+
+              <div class="field">
+                <v-text-field
+                  v-model="password"
+                  :type="passwordType"
+                  placeholder="Password"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                  :append-inner-icon="passwordType === 'password' ? 'mdi-eye-off' : 'mdi-eye'"
+                  @click:append-inner="togglePasswordVisibility"
+                ></v-text-field>
+              </div>
+
+              <div class="field">
+                <v-text-field
+                  v-model="confirmPassword"
+                  :type="confirmPasswordType"
+                  placeholder="Confirm Password"
+                  variant="outlined"
+                  density="compact"
+                  required
+                  hide-details
+                  single-line
+                  :append-inner-icon="confirmPasswordType === 'password' ? 'mdi-eye-off' : 'mdi-eye'"
+                  @click:append-inner="toggleConfirmPasswordVisibility"
+                ></v-text-field>
+              </div>
+
+              <div class="field btn mt-4">
+                <div class="btn-layer"></div>
+                <v-btn
+                  type="submit"
+                  block
+                  height="40"
+                  rounded="xl"
+                  class="custom-btn"
+                >Signup</v-btn>
+              </div>
+
+              <div class="login-link">
+                Already have an account? <a href="#" @click.prevent="switchToLogin">Login</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </v-card>
+    </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -157,7 +233,6 @@ const handleLogin = async () => {
     return
   }
 
-  // Get the authenticated user
   const user = authData.user
 
   if (!user) {
@@ -167,7 +242,6 @@ const handleLogin = async () => {
     return
   }
 
-  // Fetch user metadata
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
   if (userError || !userData?.user) {
@@ -177,10 +251,6 @@ const handleLogin = async () => {
     return
   }
 
-  // Log the fetched user data to check if name and phone exist
-  console.log('User Metadata:', userData)
-
-  // After successful login
   const userStore = useUserStore()
   userStore.setUserData({
     email: user.email,
@@ -189,13 +259,11 @@ const handleLogin = async () => {
     avatar_url: userData.user.user_metadata?.avatar_url || '',
   })
 
-  // Store data in localStorage
   localStorage.setItem('email', user.email)
   localStorage.setItem('fullname', userData.user.user_metadata?.name || user.email)
   localStorage.setItem('mobile', userData.user.user_metadata?.phone || '')
   localStorage.setItem('avatar_url', userData.user.user_metadata?.avatar_url || '')
 
-  // Redirect to the home page
   router.push('/home')
   loading.value = false
 }
@@ -213,7 +281,7 @@ const handleSignup = async () => {
     password: password.value,
     options: {
       data: {
-        name: name.value, // ✅ use lowercase keys
+        name: name.value,
         phone: contactNumber.value,
       },
     },
@@ -249,12 +317,6 @@ const toggleConfirmPasswordVisibility = () => {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 .page-container {
   min-height: 100vh;
@@ -267,14 +329,6 @@ body {
   background-size: cover;
 }
 
-.slider-tab {
-  transition: all 0.6s ease-in-out;
-}
-
-.slider-tab.right {
-  left: 50%;
-}
-
 .wrapper {
   overflow: hidden;
   max-width: 390px;
@@ -282,7 +336,7 @@ body {
   background: #fff;
   padding: 30px;
   border-radius: 5px;
-  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .wrapper .slide-controls {
@@ -296,6 +350,7 @@ body {
   border: 1px solid lightgrey;
   border-radius: 30px;
 }
+
 .slide-controls .slide {
   height: 100%;
   width: 100%;
@@ -308,9 +363,11 @@ body {
   z-index: 1;
   transition: all 0.6s ease;
 }
+
 .slide-controls label.signup {
   color: #000;
 }
+
 .slider-tab {
   position: absolute;
   height: 100%;
@@ -335,20 +392,25 @@ body {
   cursor: default;
   user-select: none;
 }
+
 #signup:checked ~ label.login {
   color: #000;
 }
+
 #login:checked ~ label.signup {
   color: #000;
 }
+
 #login:checked ~ label.login {
   cursor: default;
   user-select: none;
 }
+
 .wrapper .form-container {
   width: 100%;
   overflow: hidden;
 }
+
 .form-container .form-inner {
   display: flex;
   width: 100%;
@@ -363,93 +425,18 @@ body {
 .form-container .form-inner form {
   min-width: 100%;
 }
-.form-inner form .field {
-  height: 40px;
-  width: 100%;
+
+.field {
   margin-top: 15px;
-}
-.form-inner form .field input {
-  height: 100%;
-  width: 100%;
-  outline: none;
-  padding-left: 15px;
-  border-radius: 5px;
-  border: 1px solid lightgrey;
-  border-bottom-width: 2px;
-  font-size: 17px;
-  transition: all 0.3s ease;
-}
-.form-inner form .field input:focus {
-  border-color: #00c6ff;
-}
-.form-inner form .field input::placeholder {
-  color: #999;
-  transition: all 0.3s ease;
-}
-form .field input:focus::placeholder {
-  color: #b3b3b3;
-}
-.form-inner form .pass-link {
-  margin-top: 5px;
-}
-.form-inner form .signup-link,
-.form-inner form .login-link {
-  text-align: center;
-  margin-top: 30px;
-}
-.form-inner form .pass-link a,
-.form-inner form .signup-link a,
-.form-inner form .login-link a {
-  color: #09a7d3;
-  text-decoration: none;
-}
-.form-inner form .pass-link a:hover,
-.form-inner form .signup-link a:hover,
-.form-inner form .login-link a:hover {
-  text-decoration: underline;
-}
-form .btn {
-  height: 50px;
-  width: 100%;
-  border-radius: 30px;
   position: relative;
-  overflow: hidden;
 }
-form .btn .btn-layer {
-  height: 100%;
-  width: 200%;
-  position: absolute;
-  left: -100%;
-  background: -webkit-linear-gradient(right, #00c6ff, #0044cc, #00c6ff, #0044cc);
-  border-radius: 5px;
-  transition: all 0.4s ease;
-}
-form .btn:hover .btn-layer {
-  left: 0;
-}
-form .btn input[type='submit'] {
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-  position: relative;
-  background: none;
-  border: none;
-  color: #fff;
-  padding-left: 0;
-  border-radius: 5px;
-  font-size: 20px;
-  font-weight: 500;
-  cursor: pointer;
-}
+
 .logo {
   text-align: center;
   margin-top: -30px;
   margin-bottom: -50px;
 }
-.logo img {
-  max-width: 190px;
-  height: auto;
-}
+
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -467,37 +454,56 @@ form .btn input[type='submit'] {
   color: #333;
 }
 
-.remember-me input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  accent-color: #0044cc;
-  cursor: pointer;
-}
-.eye-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
+.pass-link a,
+.signup-link a,
+.login-link a {
+  color: #09a7d3;
+  text-decoration: none;
 }
 
-.form-container .form-inner {
-  display: flex;
+.pass-link a:hover,
+.signup-link a:hover,
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+.btn {
+  height: 40px;
   width: 100%;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transform: translateX(0%);
-}
-
-.form-container .form-inner.move {
-  transform: translateX(-100%);
-}
-
-.field {
+  border-radius: 30px;
   position: relative;
+  overflow: hidden;
 }
 
-input[type='password'] {
-  padding-right: 5px;
+.btn .btn-layer {
+  height: 100%;
+  width: 200%;
+  position: absolute;
+  left: -100%;
+  background: -webkit-linear-gradient(right, #00c6ff, #0044cc, #00c6ff, #0044cc);
+  border-radius: 5px;
+  transition: all 0.4s ease;
+}
+
+.btn:hover .btn-layer {
+  left: 0;
+}
+
+.custom-btn {
+  font-size: 30px !important;
+  font-weight: 100 !important;
+  letter-spacing: normal !important;
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+  color: white !important;
+  text-transform: none !important;
+}
+
+.signup-link,
+.login-link {
+  text-align: center;
+  margin-top: 30px;
 }
 
 .loading-overlay {
@@ -506,29 +512,36 @@ input[type='password'] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgb(0, 0, 0);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
 }
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #00c6ff;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 2s linear infinite;
+/* Adjust Vuetify text field styles to match the plain version */
+:deep(.v-text-field .v-field) {
+  font-size: 17px;
+  border-radius: 5px;
+  border: 1px solid lightgrey;
+  border-bottom-width: 2px;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+:deep(.v-text-field .v-field__input) {
+  padding: 0 15px;
+  min-height: 40px;
+}
+
+:deep(.v-text-field .v-field__outline) {
+  display: none;
+}
+
+:deep(.v-text-field .v-field--variant-outlined) {
+  background: transparent;
+}
+
+:deep(.v-text-field .v-field--focused) {
+  border-color: #00c6ff !important;
 }
 
 @media (max-width: 768px) {
@@ -539,10 +552,6 @@ input[type='password'] {
 
   .wrapper {
     padding: 20px;
-  }
-
-  .logo img {
-    width: 60%;
   }
 }
 
@@ -556,27 +565,14 @@ input[type='password'] {
     line-height: 35px;
   }
 
-  .logo img {
-    width: 70%;
-  }
-
   .form-options {
     font-size: 10px;
-  }
-
-  .form-inner form .field input {
-    font-size: 15px;
   }
 
   .remember-me {
     font-size: 10px;
     gap: 4px;
     margin-top: 4px;
-  }
-
-  .remember-me input[type='checkbox'] {
-    width: 16px;
-    height: 16px;
   }
 }
 </style>
