@@ -1,16 +1,20 @@
 <template>
   <v-container class="pa-0 fill-height" fluid>
+    <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
       <v-progress-circular indeterminate color="#00c6ff" size="50"></v-progress-circular>
     </div>
 
     <div class="page-container">
       <v-card class="wrapper" elevation="10">
+        <!-- Logo Section -->
         <div class="logo">
           <v-img :src="logonImage" alt="Logo" max-width="190" class="mx-auto"></v-img>
         </div>
 
+        <!-- Form Container -->
         <div class="form-container">
+          <!-- Tab Controls -->
           <div class="slide-controls">
             <input
               type="radio"
@@ -28,13 +32,14 @@
               value="signup"
               @change="switchToSignup"
             />
-
             <label for="login" class="slide login">Login</label>
             <label for="signup" class="slide signup">Signup</label>
             <div class="slider-tab" :class="{ right: currentForm === 'signup' }"></div>
           </div>
 
+          <!-- Forms -->
           <div class="form-inner" :class="{ move: currentForm === 'signup' }">
+            <!-- Login Form -->
             <form @submit.prevent="handleLogin" class="login">
               <div class="field">
                 <v-text-field
@@ -95,6 +100,7 @@
               </div>
             </form>
 
+            <!-- Signup Form -->
             <form @submit.prevent="handleSignup" class="signup">
               <div class="field">
                 <v-text-field
@@ -194,6 +200,7 @@ import logonImage from '@/assets/img/logon.png'
 import { supabase } from '@/supabase'
 import { useUserStore } from '@/stores/user'
 
+// Reactive state
 const loading = ref(false)
 const router = useRouter()
 const currentForm = ref<'login' | 'signup'>('login')
@@ -206,6 +213,7 @@ const name = ref('')
 const contactNumber = ref('')
 const error = ref('')
 
+// Form switching
 const switchToSignup = () => {
   currentForm.value = 'signup'
   password.value = ''
@@ -217,55 +225,48 @@ const switchToLogin = () => {
   password.value = ''
 }
 
+// Auth handlers
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
 
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  })
+  try {
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    })
 
-  if (authError) {
-    console.error('Authentication error:', authError.message)
-    error.value = 'Incorrect email or password.'
+    if (authError) throw authError
+
+    const user = authData.user
+    if (!user) throw new Error('Failed to fetch user info.')
+
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+    if (userError || !userData?.user) throw userError || new Error('Failed to fetch full user info.')
+
+    // Store user data
+    const userStore = useUserStore()
+    const userMetadata = {
+      email: user.email,
+      fullname: userData.user.user_metadata?.name || user.email,
+      mobile: userData.user.user_metadata?.phone || '',
+      avatar_url: userData.user.user_metadata?.avatar_url || '',
+    }
+
+    userStore.setUserData(userMetadata)
+
+    // Persist to localStorage
+    Object.entries(userMetadata).forEach(([key, value]) => {
+      localStorage.setItem(key, value)
+    })
+
+    router.push('/home')
+  } catch (err) {
+    console.error('Authentication error:', err)
+    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+  } finally {
     loading.value = false
-    return
   }
-
-  const user = authData.user
-
-  if (!user) {
-    console.error('Failed to fetch user info.')
-    error.value = 'Failed to retrieve user info.'
-    loading.value = false
-    return
-  }
-
-  const { data: userData, error: userError } = await supabase.auth.getUser()
-
-  if (userError || !userData?.user) {
-    console.error('Failed to fetch full user info:', userError?.message)
-    error.value = 'Failed to retrieve user info.'
-    loading.value = false
-    return
-  }
-
-  const userStore = useUserStore()
-  userStore.setUserData({
-    email: user.email,
-    fullname: userData.user.user_metadata?.name || user.email,
-    mobile: userData.user.user_metadata?.phone || '',
-    avatar_url: userData.user.user_metadata?.avatar_url || '',
-  })
-
-  localStorage.setItem('email', user.email)
-  localStorage.setItem('fullname', userData.user.user_metadata?.name || user.email)
-  localStorage.setItem('mobile', userData.user.user_metadata?.phone || '')
-  localStorage.setItem('avatar_url', userData.user.user_metadata?.avatar_url || '')
-
-  router.push('/home')
-  loading.value = false
 }
 
 const handleSignup = async () => {
@@ -276,36 +277,39 @@ const handleSignup = async () => {
 
   loading.value = true
 
-  const { data, error: signUpError } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-    options: {
-      data: {
-        name: name.value,
-        phone: contactNumber.value,
+  try {
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: email.value,
+      password: password.value,
+      options: {
+        data: {
+          name: name.value,
+          phone: contactNumber.value,
+        },
       },
-    },
-  })
+    })
 
-  loading.value = false
+    if (signUpError) throw signUpError
 
-  if (signUpError) {
-    console.error('Signup error:', signUpError.message)
-    alert(signUpError.message)
-    return
+    // Store user data
+    const userStore = useUserStore()
+    userStore.setUserData({
+      email: email.value,
+      fullname: name.value,
+      mobile: contactNumber.value,
+    })
+
+    alert('Signup successful! Please check your email to confirm your account.')
+    router.push('/home')
+  } catch (err) {
+    console.error('Signup error:', err)
+    alert(err instanceof Error ? err.message : 'Signup failed')
+  } finally {
+    loading.value = false
   }
-
-  const userStore = useUserStore()
-  userStore.setUserData({
-    email: email.value,
-    fullname: name.value,
-    mobile: contactNumber.value,
-  })
-
-  alert('Signup successful! Please check your email to confirm your account.')
-  router.push('/home')
 }
 
+// UI helpers
 const togglePasswordVisibility = () => {
   passwordType.value = passwordType.value === 'password' ? 'text' : 'password'
 }
@@ -318,6 +322,7 @@ const toggleConfirmPasswordVisibility = () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
+/* Layout */
 .page-container {
   min-height: 100vh;
   width: 100%;
@@ -339,7 +344,15 @@ const toggleConfirmPasswordVisibility = () => {
   box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
-.wrapper .slide-controls {
+/* Logo */
+.logo {
+  text-align: center;
+  margin-top: -30px;
+  margin-bottom: -50px;
+}
+
+/* Tab Controls */
+.slide-controls {
   position: relative;
   display: flex;
   height: 40px;
@@ -406,35 +419,31 @@ const toggleConfirmPasswordVisibility = () => {
   user-select: none;
 }
 
-.wrapper .form-container {
+/* Form Container */
+.form-container {
   width: 100%;
   overflow: hidden;
 }
 
-.form-container .form-inner {
+.form-inner {
   display: flex;
   width: 100%;
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   transform: translateX(0%);
 }
 
-.form-container .form-inner.move {
+.form-inner.move {
   transform: translateX(-100%);
 }
 
-.form-container .form-inner form {
+.form-inner form {
   min-width: 100%;
 }
 
+/* Form Elements */
 .field {
   margin-top: 15px;
   position: relative;
-}
-
-.logo {
-  text-align: center;
-  margin-top: -30px;
-  margin-bottom: -50px;
 }
 
 .form-options {
@@ -467,6 +476,7 @@ const toggleConfirmPasswordVisibility = () => {
   text-decoration: underline;
 }
 
+/* Buttons */
 .btn {
   height: 40px;
   width: 100%;
@@ -506,6 +516,7 @@ const toggleConfirmPasswordVisibility = () => {
   margin-top: 30px;
 }
 
+/* Loading Overlay */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -519,7 +530,7 @@ const toggleConfirmPasswordVisibility = () => {
   z-index: 10;
 }
 
-/* Adjust Vuetify text field styles to match the plain version */
+/* Vuetify Field Overrides */
 :deep(.v-text-field .v-field) {
   font-size: 17px;
   border-radius: 5px;
@@ -544,6 +555,7 @@ const toggleConfirmPasswordVisibility = () => {
   border-color: #00c6ff !important;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
   .page-container {
     padding: 5px;
