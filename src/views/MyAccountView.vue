@@ -7,7 +7,7 @@
 
       <v-row class="flex-row-reverse">
         <v-col md="3">
-          <v-card class="card-custom-size" hover :style="{ background: '#D9D9D9' }">
+          <v-card hover :style="{ background: '#D9D9D9' }">
             <v-card-item>
               <div class="d-flex mt-5 mb-2">
                 <!-- Avatar on the left -->
@@ -222,22 +222,14 @@
                       <v-card-text style="min-width: 360px">
                         <!-- Warning message -->
                         <v-alert v-if="formWarning" type="error">{{ formWarning }}</v-alert>
-                        <v-text-field
-                          ref="nameRef"
-                          v-model="name"
-                          :error-messages="nameErrorMessages"
-                          :rules="[() => !!name || 'This field is required']"
-                          label="Full Name"
-                          placeholder="John Doe"
-                          required
-                        />
+
                         <v-text-field
                           ref="addressRef"
                           v-model="address"
                           :error-messages="addressErrorMessages"
                           :rules="[() => !!address || 'This field is required']"
                           label="Address Line"
-                          placeholder="Snowy Rock Pl"
+                          placeholder="liboon"
                           required
                         />
                         <v-text-field
@@ -249,24 +241,8 @@
                           placeholder="El Paso"
                           required
                         />
-                        <v-text-field
-                          ref="stateRef"
-                          v-model="state"
-                          :error-messages="stateErrorMessages"
-                          :rules="[() => !!state || 'This field is required']"
-                          label="State/Province/Region"
-                          placeholder="TX"
-                          required
-                        />
-                        <v-text-field
-                          ref="zipRef"
-                          v-model="zip"
-                          :error-messages="zipErrorMessages"
-                          :rules="[() => !!zip || 'This field is required']"
-                          label="ZIP / Postal Code"
-                          placeholder="79938"
-                          required
-                        />
+
+
                         <v-autocomplete
                           ref="countryRef"
                           v-model="country"
@@ -327,15 +303,9 @@
 
                       <!-- Info section: responsive and wrapped properly -->
                       <div class="text-body-2">
-                        <span class="mb-1"><strong>Full Name:</strong> {{ submission.name }}</span>
-                        <br />
                         <span class="mb-1"><strong>Address:</strong> {{ submission.address }}</span
                         ><br />
                         <span class="mb-1"><strong>City:</strong> {{ submission.city }}</span
-                        ><br />
-                        <span class="mb-1"><strong>State:</strong> {{ submission.state }}</span
-                        ><br />
-                        <span class="mb-1"><strong>ZIP Code:</strong> {{ submission.zip }}</span
                         ><br />
                         <span><strong>Country:</strong> {{ submission.country }}</span>
                       </div>
@@ -504,19 +474,14 @@ const submissions = ref([])
 function submit() {
   clearErrors()
 
-  if (!name.value) nameErrorMessages.value.push('Full name is required')
   if (!address.value) addressErrorMessages.value.push('Address is required')
   if (!city.value) cityErrorMessages.value.push('City is required')
-  if (!state.value) stateErrorMessages.value.push('State is required')
-  if (!zip.value) zipErrorMessages.value.push('ZIP code is required')
   if (!country.value) countryErrorMessages.value.push('Country is required')
 
   if (
-    nameErrorMessages.value.length ||
+
     addressErrorMessages.value.length ||
     cityErrorMessages.value.length ||
-    stateErrorMessages.value.length ||
-    zipErrorMessages.value.length ||
     countryErrorMessages.value.length
   ) {
     formWarning.value = 'Please complete all required fields.'
@@ -524,11 +489,9 @@ function submit() {
   }
 
   submissions.value.push({
-    name: name.value,
+
     address: address.value,
     city: city.value,
-    state: state.value,
-    zip: zip.value,
     country: country.value,
   })
 
@@ -542,20 +505,14 @@ function deleteSubmission(index) {
 
 function clearErrors() {
   formWarning.value = ''
-  nameErrorMessages.value = []
   addressErrorMessages.value = []
   cityErrorMessages.value = []
-  stateErrorMessages.value = []
-  zipErrorMessages.value = []
   countryErrorMessages.value = []
 }
 
 function clearForm() {
-  name.value = ''
   address.value = ''
   city.value = ''
-  state.value = ''
-  zip.value = ''
   country.value = null
 }
 </script>
