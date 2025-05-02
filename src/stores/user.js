@@ -1,6 +1,5 @@
-// Pinia store: user.js
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
   const email = ref(localStorage.getItem('email') || '')
@@ -13,12 +12,13 @@ export const useUserStore = defineStore('user', () => {
     fullname.value = userData.fullname
     mobile.value = userData.mobile
     avatar_url.value = userData.avatar_url || ''
-    // Save to localStorage
-    localStorage.setItem('email', email.value)
-    localStorage.setItem('fullname', fullname.value)
-    localStorage.setItem('mobile', mobile.value)
-    localStorage.setItem('avatar_url', avatar_url.value)
   }
+
+  // Watch and persist changes
+  watch(email, (newVal) => localStorage.setItem('email', newVal))
+  watch(fullname, (newVal) => localStorage.setItem('fullname', newVal))
+  watch(mobile, (newVal) => localStorage.setItem('mobile', newVal))
+  watch(avatar_url, (newVal) => localStorage.setItem('avatar_url', newVal))
 
   return {
     email,

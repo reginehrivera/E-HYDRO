@@ -9,19 +9,15 @@ const userStore = useUserStore()
 const formAction = ref({ formProcess: false })
 const isLoadingUser = ref(false)
 const router = useRouter()
-
-const avatarUrl = computed(() => userStore.avatarUrl)
+const avatarUrl = computed(() => userStore.avatar_url)
 const initials = computed(() => {
-  const name = userStore.fullname || ''
-  const parts = name.split(' ')
-  if (parts.length > 1) {
-    return parts[0][0] + parts[1][0]
-  } else if (parts.length === 1) {
-    return parts[0][0]
-  }
-  return ''
+  if (!userStore.fullname) return ''
+  const names = userStore.fullname.trim().split(' ')
+  return names
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
 })
-
 // Function to navigate to MyAccount page
 const goToMyAccount = () => {
   router.push('/MyAccount')
@@ -29,66 +25,70 @@ const goToMyAccount = () => {
 </script>
 
 <template>
-  <NavigationBar>
-    <template #content>
-      <v-row>
-        <v-col cols="12">
-          <div class="profile-section d-flex flex-column align-center justify-center pa-6">
-            <div class="profile-wrapper">
-              <v-card class="pa-6 profile-card" flat>
-                <!-- Avatar centered -->
-                <div class="d-flex justify-center mb-6">
-                  <v-avatar color="deep-purple lighten-3" size="150">
-                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                    <span v-else class="text-h5">{{ initials || '??' }}</span>
-                  </v-avatar>
-                </div>
+  <NavigationBar />
 
-                <!-- Profile Info below avatar -->
+  <v-row>
+    <v-col cols="12">
+      <div class="profile-section d-flex flex-column align-center justify-center pa-6">
+        <div class="profile-wrapper">
+          <v-card class="pa-6 profile-card" flat>
+            <!-- Avatar centered -->
+            <div class="d-flex justify-center mb-6">
+              <v-avatar color="deep-purple lighten-3" size="150">
+                <img
+                  v-if="avatarUrl"
+                  :src="avatarUrl"
+                  alt="Avatar"
+                  class="avatar-img"
+                  @error="handleAvatarError"
+                />
+                <span v-else class="text-h5">{{ initials }}</span>
+              </v-avatar>
+            </div>
+
+            <!-- Profile Info below avatar -->
+            <v-row>
+              <v-col cols="12">
                 <v-row>
-                  <v-col cols="12">
-                    <v-row>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Full Name</div>
-                        <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Mobile Number</div>
-                        <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Email</div>
-                        <div class="field-value">{{ userStore.email || 'N/A' }}</div>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <div class="field-label">Address</div>
-                        <div class="field-value">{{ userStore.address || 'N/A' }}</div>
-                      </v-col>
-                    </v-row>
+                  <v-col cols="12" sm="6">
+                    <div class="field-label">Full Name</div>
+                    <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <div class="field-label">Mobile Number</div>
+                    <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <div class="field-label">Email</div>
+                    <div class="field-value">{{ userStore.email || 'N/A' }}</div>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <div class="field-label">Address</div>
+                    <div class="field-value">{{ userStore.address || 'N/A' }}</div>
                   </v-col>
                 </v-row>
+              </v-col>
+            </v-row>
 
-                <!-- Edit Profile Button centered -->
-                <div class="d-flex justify-center mt-4">
-                  <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
-                    Edit Profile
-                  </v-btn>
-                </div>
-              </v-card>
+            <!-- Edit Profile Button centered -->
+            <div class="d-flex justify-center mt-4">
+              <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
+                Edit Profile
+              </v-btn>
             </div>
-          </div>
+          </v-card>
+        </div>
+      </div>
 
-          <!-- Loading overlay -->
-          <v-overlay
-            :model-value="formAction.formProcess || isLoadingUser"
-            class="align-center justify-center"
-          >
-            <v-progress-circular indeterminate size="64" />
-          </v-overlay>
-        </v-col>
-      </v-row>
-    </template>
-  </NavigationBar>
+      <!-- Loading overlay -->
+      <v-overlay
+        :model-value="formAction.formProcess || isLoadingUser"
+        class="align-center justify-center"
+      >
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>
