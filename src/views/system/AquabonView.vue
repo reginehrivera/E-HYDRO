@@ -384,8 +384,6 @@
 </template>
 
 <script setup>
-// Modified script setup section with fixes for orders handling
-
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
@@ -573,7 +571,6 @@ async function placeOrder() {
 
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
-    id: randomId, // Include random ID
     address: order.address,
     quantity: order.quantity,
     total_price: getSubtotal(order),
