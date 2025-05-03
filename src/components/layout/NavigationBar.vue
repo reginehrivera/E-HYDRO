@@ -48,18 +48,30 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
-              <img
-                :src="user.image || require('@/assets/img/profile.png')"
-                alt="User Image"
-                class="profile-img"
-              />
-              <p class="username">{{ user.name || 'Guest' }}</p>
-              <router-link class="edit-btn" to="/MyAccount">Edit Profile</router-link>
+              <v-avatar size="70" color="deep-purple lighten-3" class="profile-initials">
+                <template v-if="avatarUrl">
+                  <img :src="avatarUrl" alt="User Image" class="profile-img" />
+                </template>
+                <template v-else>
+                  <span class="text-h5 white--text">{{ initials || '??' }}</span>
+                </template>
+              </v-avatar>
+              <p class="username">{{ fullname }}</p>
+
+              <p class="email">{{ userStore.email }}</p>
+              <router-link class="edit-btn" to="/profile">Profile Info</router-link>
             </div>
+
             <ul>
               <li>
-                <router-link class="link" to="/settings">
-                  <v-icon class="settings-icon small-icon">mdi-cogs</v-icon> Settings
+                <router-link class="link" to="/MyAccount">
+                  <v-icon class="edit-icon small-icon">mdi-account</v-icon>
+                  Edit Profile
+                </router-link>
+              </li>
+              <li>
+                <router-link class="link" to="/addresses">
+                  <v-icon class="address-icon small-icon">mdi-map-marker</v-icon> Delivery Address
                 </router-link>
               </li>
 
@@ -73,56 +85,144 @@
         </li>
       </ul>
       <!-- Mobile Nav Icon and Mobile Dropdown -->
+      <v-icon
+        class="icon-style"
+        @click="toggleMobileNav"
+        v-show="mobile"
+        :class="{ 'icon-active': mobileNav }"
+        >mdi-menu</v-icon
+      >
+
+      <transition name="mobile-nav">
+        <ul v-show="mobile && mobileNav" class="dropdown-nav">
+          <li>
+            <div class="branding">
+              <span class="first-word">E</span>
+              <span class="second-word">-HYDRO</span>
+            </div>
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'home' }"
+              ><v-icon>mdi-home</v-icon>Home</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'station' }"
+              ><v-icon>mdi-water</v-icon>Station</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'order' }"
+              ><v-icon>mdi-cart</v-icon>My Order</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: 'notification' }"
+              ><v-icon>mdi-bell</v-icon> Notification</router-link
+            >
+          </li>
+          <li>
+            <router-link class="link" :to="{ name: '' }"
+              ><v-icon>mdi-account</v-icon> Profile</router-link
+            >
+          </li>
+        </ul>
+      </transition>
     </nav>
   </header>
   <slot name="content"></slot>
 </template>
 
-<script>
+<script setup>
+// Fix for the navigation bar component
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { supabase } from '@/supabase' // adjust path if needed
 
-export default {
-  name: 'NavigationBar',
-  data() {
-    return {
-      scrollPosition: null,
-      mobile: null,
-      mobileNav: null,
-      windowWidth: window.innerWidth,
-      showNotifications: false,
-      showProfileDropdown: false,
+const userStore = useUserStore()
+
+// Fix: Use avatar_url (to match your store) instead of avatarUrl
+const avatarUrl = computed(() => {
+  return userStore.avatar_url || authUser.value?.user_metadata?.avatar_url || ''
+})
+
+// --- Refs ---
+const scrollPosition = ref(null)
+const mobile = ref(null)
+const mobileNav = ref(null)
+const windowWidth = ref(window.innerWidth)
+const showNotifications = ref(false)
+const showProfileDropdown = ref(false)
+
+// --- Auth User Data ---
+const authUser = ref(null)
+const initials = computed(() => {
+  const name = userStore.fullname || authUser.value?.user_metadata?.full_name
+  if (name) {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+  }
+  return 'U'
+})
+
+const fullname = computed(() => {
+  return userStore.fullname || authUser.value?.user_metadata?.full_name || 'User'
+})
+
+// Fetch authenticated user on mount
+onMounted(async () => {
+  window.addEventListener('resize', checkScreen)
+  checkScreen()
+
+  const { data, error } = await supabase.auth.getUser()
+  if (data?.user) {
+    authUser.value = data.user
+    console.log('Auth User:', data.user)
+
+    // Try to fetch user profile if not already loaded
+    if (!userStore.fullname || !userStore.avatar_url) {
+      userStore.fetchUserProfile()
     }
-  },
-  computed: {
-    // Retrieve the current user from the store
-    user() {
-      const store = useUserStore()
-      console.log('Current user:', store.user) // Log to check the user data
-      return store.user // Returns the user object (name and image)
-    },
-  },
-  created() {
-    window.addEventListener('resize', this.checkScreen)
-    this.checkScreen()
-  },
-  methods: {
-    toggleMobileNav() {
-      this.mobileNav = !this.mobileNav
-    },
-    checkScreen() {
-      this.windowWidth = window.innerWidth
-      this.mobile = this.windowWidth <= 750
-      if (!this.mobile) this.mobileNav = false
-    },
-    toggleNotifications() {
-      this.showNotifications = !this.showNotifications
-      this.showProfileDropdown = false
-    },
-    toggleProfileDropdown() {
-      this.showProfileDropdown = !this.showProfileDropdown
-      this.showNotifications = false
-    },
-  },
+  } else {
+    console.error('Auth error:', error)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+})
+
+// --- Methods ---
+function checkScreen() {
+  windowWidth.value = window.innerWidth
+  mobile.value = windowWidth.value <= 750
+  if (!mobile.value) {
+    mobileNav.value = false
+  }
+}
+
+function toggleMobileNav() {
+  mobileNav.value = !mobileNav.value
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  showProfileDropdown.value = false
+}
+
+function toggleProfileDropdown() {
+  showProfileDropdown.value = !showProfileDropdown.value
+  showNotifications.value = false
+}
+
+const handleLogout = () => {
+  // Clear user data from Pinia and localStorage
+  userStore.clearUserData()
+  // Redirect to login page
+  router.push('/login')
 }
 </script>
 
@@ -375,7 +475,7 @@ li {
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   padding: 15px;
-  width: 220px;
+  width: 290px;
   z-index: 999;
 }
 
@@ -419,17 +519,15 @@ li {
 }
 
 .profile-img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 8px;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
 }
 
 .username {
   font-weight: bold;
   color: #04448d;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .edit-btn {
@@ -460,5 +558,20 @@ li {
 
 .link .v-icon {
   margin-right: 5px;
+}
+
+.profile-initials {
+  width: 60px;
+  height: 60px;
+  background-color: #4a90e2;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border: 3px solid #7e57c2;
+  margin-bottom: 10px;
 }
 </style>

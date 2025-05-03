@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">e-hydro</string>
+    <string name="title_activity_main">e-hydro</string>
+    <string name="package_name">e.hydro</string>
+    <string name="custom_url_scheme">e.hydro</string>
+</resources>

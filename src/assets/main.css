@@ -156,7 +156,7 @@
   background-color: #d5dfe6;
   border: #000000 1px solid;
   margin: 0;
-  width: 85%;
+  width: 100%;
 }
 
 .btn-group p {
@@ -184,16 +184,13 @@
   font-weight: 700;
 }
 .cancel-order-btns {
-  padding: 0 40px;
+  padding: 0 10px;
 }
-.order-btn {
-  margin-left: auto;
-  display: block;
-}
+
 .cancel-order-btns h4 {
   margin-left: 50%;
 }
-.order-btn {
+.cancel-btn {
   text-transform: none;
   font-family: 'Inter' sans-serif;
   background: #0557b6;
@@ -203,19 +200,9 @@
   border-radius: 15px 0;
   text-transform: none;
   transition: background-position 0.5s ease;
-  width: 55%;
-}
-.cancel-btn {
   width: 50%;
-  text-transform: none;
-  font-family: 'Inter', sans-serif;
-  border: 2px solid #0557b6;
-  border-radius: 15px 0;
-  color: #04448d;
 }
-.order-btn:hover {
-  background-position: right center;
-}
+
 /*set-sched-btn */
 .set-sched-btn {
   border-radius: 15px 0 0 0;
