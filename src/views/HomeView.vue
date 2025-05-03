@@ -26,8 +26,7 @@
                   <img :src="secondIcon" alt="" />Affordable and <br />Quality Water
                 </li>
                 <li>
-                  <img :src="thirdIcon" alt="" />Deliver quickly<br />
-                  to your <br />doorstep
+                  <img :src="thirdIcon" alt="" />Fast Water <br> Delivery
                 </li>
                 <li>
                   <img :src="fourthIcon" alt="" />Clean &<br />
@@ -60,7 +59,7 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/bg-bg.png');
+  background-image: url('@/assets/img/bg-bg-bg-bg-bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -96,7 +95,7 @@ h2 {
   margin-top: 15px;
   text-transform: none;
   transition: background-position 0.5s ease;
-  border-bottom: #02acef46 4px solid;
+  border-bottom: #02acefe3 3px solid;
   border-right: #02dfefa6 1px solid;
 }
 
@@ -109,7 +108,7 @@ h2 {
 .footer-icons {
   margin-left: 10%;
   display: flex;
-  gap: 30px;
+  gap: 90px;
   /*justify-content: center;*/
   flex-wrap: wrap; /* ensures it wraps on smaller screens */
   padding: 0;
@@ -126,8 +125,13 @@ h2 {
   font-family: 'Inter', Courier, monospace;
   font-weight: 600;
   color: #04448d;
-  line-height: 1.4;
+  line-height: 1.3;
   animation: floatUpDown 3s ease-in-out infinite;
+}
+.footer-icons li:hover{
+  animation: floatUpDown 3s ease-in-out infinite;
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
 }
 
 /* Floating animation like water
@@ -144,13 +148,12 @@ h2 {
 }*/
 
 .footer-icons img {
-  width: 45px;
-  height: 45px;
-  border-bottom: #02adef 4px solid;
+  width: 50px;
+  height: 50px;
+  border-bottom: #02adef 5px solid;
   border-radius: 50%;
 }
 .footer-style {
-  background-color: #7195a1a8 !important;
   justify-content: center;
 }
 .page-container {
@@ -161,9 +164,9 @@ h2 {
 
 .footer-style {
   margin-top: auto; /* push footer to bottom */
-  background-color: #f8f8f8; /* example background */
+  background-color: #f8f8f8 !important; /* example background */
   padding: 20px;
-  height: 17%;
+  height: 16%;
   border-radius: 40px 40px 0 0;
 }
 
@@ -184,8 +187,7 @@ h2 {
 .footer-style {
   position: relative;
   background-color: rgba(255, 255, 255, 0.05);
-  border: 3px solid #02acef4d;
-  color: #fff;
+  border-top: 4px solid #02acef34 !important;
   overflow: hidden;
   z-index: 1;
 }
@@ -200,7 +202,7 @@ h2 {
   bottom: -2px;
   z-index: -1;
   border-radius: 12px;
-  background: linear-gradient(270deg, #90caf956, #42a4f585, #89c4ddd7, #408db33d, #90caf94b);
+  background: linear-gradient(270deg, #90caf9b4, #42a4f5d0, #89c4ddd7, #408db3ad, #90caf998);
   background-size: 400% 400%;
   animation: gradient-run 6s ease infinite;
   opacity: 1; /* Always visible */
