@@ -31,7 +31,16 @@
             </button>
           </div>
 
-          <div class="empty-state" v-if="filteredOrdersStore.length === 0">
+          <!-- Loading Indicator -->
+          <div class="loading-state" v-if="isLoading">
+            <div class="loading-content">
+              <v-progress-circular indeterminate color="#02adef" size="50"></v-progress-circular>
+              <h3 class="mt-4">Loading your orders...</h3>
+            </div>
+          </div>
+
+          <!-- Empty State Message - Only show when not loading and no orders -->
+          <div class="empty-state" v-else-if="filteredOrdersStore.length === 0">
             <div class="empty-state-content">
               <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
               <h3>No Orders Found</h3>
@@ -39,8 +48,9 @@
               <router-link to="/aquabon" class="btn-primary no-underline"> Order Now </router-link>
             </div>
           </div>
-          <!-- Order Cards -->
-          <transition-group name="fade" tag="div">
+
+          <!-- Order Cards - Show when not loading and has orders -->
+          <transition-group name="fade" tag="div" v-else>
             <div class="order-card" v-for="(order, index) in filteredOrdersStore" :key="order.id">
               <div class="order-info">
                 <div class="order-top">
@@ -65,7 +75,6 @@
                   >
                   <button class="btn-primary" @click="openRateModal(order)">Rate</button>
                 </div>
-
                 <div class="action-buttons" v-if="order.status === 'Cancelled'">
                   <button class="btn-primary" @click="viewDetails(order)">View Details</button>
                 </div>
@@ -76,7 +85,9 @@
           <!-- Cancel Modal -->
           <div class="modal" v-if="showCancelModal">
             <div class="modal-content">
-              <p>Are you sure you want to cancel Order #{{ orders[cancelIndex].id }}?</p>
+              <p>
+                Are you sure you want to cancel Order #{{ filteredOrdersStore[cancelIndex]?.id }}?
+              </p>
               <div class="modal-buttons">
                 <button class="btn-primary" @click="cancelOrder">Yes</button>
                 <button class="btn-border" @click="showCancelModal = false">No</button>
@@ -190,6 +201,7 @@
               </v-card-text>
             </div>
           </div>
+
           <!-- Submission Success Modal -->
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
@@ -219,33 +231,31 @@ import { useOrderStore } from '@/stores/orders'
 import { useReviewStore } from '@/stores/reviewStore'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 
-const orders = ref([])
+// Get router and stores
+const router = useRouter()
+const orderStore = useOrderStore()
+const reviewStore = useReviewStore()
 
-// Also fix the computed property to properly handle empty states
+// State management
+const selectedFilter = ref('All')
+const showCancelModal = ref(false)
+const cancelIndex = ref(null)
+const showDetailsModal = ref(false)
+const selectedOrder = ref(null)
+const showRateModal = ref(false)
+const showSuccessModal = ref(false)
+const isLoading = ref(true) // Add loading state flag
+
+// Compute filtered orders based on selected filter
 const filteredOrdersStore = computed(() => {
-  // Use orderStore.orders if available, otherwise fallback to empty orders array
+  // Use orderStore.orders if available, otherwise fallback to empty array
   const list = orderStore.orders.length > 0 ? orderStore.orders : []
 
   if (selectedFilter.value === 'All') return list
   return list.filter((o) => o.status === selectedFilter.value)
 })
 
-const router = useRouter()
-const orderStore = useOrderStore()
-
-const selectedFilter = ref('All')
-const showCancelModal = ref(false)
-const cancelIndex = ref(null)
-const showDetailsModal = ref(false)
-const selectedOrder = ref(null)
-
-// State for modal visibility
-const showRateModal = ref(false)
-const showSuccessModal = ref(false)
-
-const rating = ref(0)
-const recommend = ref('')
-
+// Feedback form data
 const feedbacks = reactive({
   rating: 0,
   comment: '',
@@ -253,61 +263,91 @@ const feedbacks = reactive({
 
 const stationId = 'station-123'
 
-// State to hold the actual user data fetched from Supabase
+// User data
 const currentUser = reactive({
   username: '',
   email: '',
   profilePhoto: '',
 })
 
-// Access the review store
-const reviewStore = useReviewStore()
-
+// Filter orders by status
 const filterOrders = (status) => {
   selectedFilter.value = status
-  filteredOrders.value =
-    status === 'All' ? [...orders.value] : orders.value.filter((order) => order.status === status)
 }
 
+// Prompt user to confirm cancellation
 function promptCancel(idx) {
   cancelIndex.value = idx
   showCancelModal.value = true
 }
 
+// Cancel order function
 async function cancelOrder() {
-  const targetOrder = filteredOrdersStore.value[cancelIndex.value]
-  if (!targetOrder) return
+  try {
+    // Get the order to cancel from the filtered list
+    const targetOrder = filteredOrdersStore.value[cancelIndex.value]
+    if (!targetOrder) {
+      console.error('Order not found in the filtered list')
+      alert('Failed to cancel the order: Order not found')
+      showCancelModal.value = false
+      return
+    }
 
-  // Update order in the store directly
-  const storeOrder = orderStore.orders.find((o) => o.id === targetOrder.id)
-  if (storeOrder) storeOrder.status = 'Cancelled'
+    // Find the order in the main store
+    const index = orderStore.orders.findIndex((o) => o.id === targetOrder.id)
+    if (index === -1) {
+      console.error('Order not found in the store')
+      alert('Failed to cancel the order: Order not found in store')
+      showCancelModal.value = false
+      return
+    }
 
-  // Update in Supabase
-  const { error } = await supabase
-    .from('orders')
-    .update({ status: 'Cancelled' })
-    .eq('id', targetOrder.id)
+    // Update order status in Supabase first
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status: 'Cancelled' })
+      .eq('id', targetOrder.id)
 
-  if (error) {
-    console.error('Error updating Supabase:', error)
-    alert('Failed to cancel the order.')
+    if (error) {
+      console.error('Error updating order in database:', error)
+      alert('Failed to cancel the order: Database error')
+      showCancelModal.value = false
+      return
+    }
+
+    // If database update successful, update local state
+    orderStore.orders[index] = {
+      ...orderStore.orders[index],
+      status: 'Cancelled',
+    }
+
+    console.log('Order successfully cancelled:', targetOrder.id)
+    showCancelModal.value = false
+
+    // Force switch to the Cancelled tab to show the user their cancelled order
+    selectedFilter.value = 'Cancelled'
+  } catch (err) {
+    console.error('Unexpected error in cancelOrder:', err)
+    alert('An unexpected error occurred while cancelling your order')
+    showCancelModal.value = false
   }
-
-  showCancelModal.value = false
 }
 
+// Show order details modal
 function viewDetails(order) {
   selectedOrder.value = order
   showDetailsModal.value = true
 }
 
+// Open rating modal
 const openRateModal = (order) => {
   selectedOrder.value = order
-  rating.value = 0
-  recommend.value = ''
+  feedbacks.rating = 0
+  feedbacks.comment = ''
   showRateModal.value = true
 }
 
+// Submit review function
 const submitReview = async () => {
   if (feedbacks.rating === 0 || feedbacks.comment.trim() === '') {
     alert('Please provide a rating and a comment before submitting.')
@@ -387,68 +427,88 @@ const submitReview = async () => {
   showSuccessModal.value = true
 }
 
-// Function to close the success modal
+// Close success modal
 const closeSuccessModal = () => {
   showSuccessModal.value = false
 }
 
+// Load orders on component mount
 onMounted(async () => {
-  const { data: userData } = await supabase.auth.getUser()
-  const userId = userData.user?.id
-  if (!userId) {
-    router.push('/login')
-    return
+  // Set loading state to true at the beginning
+  isLoading.value = true
+
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+    const userId = userData.user?.id
+    if (!userId) {
+      router.push('/login')
+      return
+    }
+
+    const { data: rows, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('could not load orders', error)
+      return
+    }
+
+    const mapped = rows.map((r) => ({
+      id: r.id,
+      date: new Date(r.created_at).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+      station: r.station || 'Aquabon',
+      quantity: r.quantity,
+      total: r.total_price,
+      orderType: r.order_type || 'Refill Only',
+      status: r.status,
+      deliveryAddress: r.address || '—',
+      deliveryDate: new Date(r.calendar).toLocaleDateString(),
+      router: '/aquabon',
+    }))
+
+    orderStore.setOrders(mapped)
+  } catch (error) {
+    console.error('Error loading orders:', error)
+  } finally {
+    // Turn off loading state when done (whether success or error)
+    // Add a small delay to ensure the loading animation is visible
+    setTimeout(() => {
+      isLoading.value = false
+    }, 500)
   }
-
-  const { data: rows, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('could not load orders', error)
-    return
-  }
-
-  const mapped = rows.map((r) => ({
-    id: r.id,
-    date: new Date(r.created_at).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-    station: r.station || 'Aquabon',
-    quantity: r.quantity,
-    total: r.total_price,
-    orderType: r.order_type || 'Refill Only',
-    status: r.status,
-    deliveryAddress: r.address || '—',
-    deliveryDate: new Date(r.calendar).toLocaleDateString(),
-    router: '/aquabon',
-  }))
-
-  orderStore.setOrders([...mapped, ...orders.value])
 })
-
-const updateOrderStatus = async () => {
-  const { data, error } = await supabase
-    .from('orders')
-    .update({ status: 'Completed' }) // Update status to 'Completed'
-    .eq('id', '595275') // Match by order ID
-
-  if (error) {
-    console.error('Error updating order status:', error.message)
-    alert('Error updating order status.')
-    return
-  }
-
-  console.log('Order status updated successfully:', data)
-  alert('Order status updated to Completed!')
-}
 </script>
 
 <style scoped>
+/* Loading state styling */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.loading-content h3 {
+  margin-top: 16px;
+  color: #000000;
+  font-weight: 800;
+}
+
 .order-bg {
   background-image: url('@/assets/img/bg-home-no-gallon.png');
   background-size: cover;

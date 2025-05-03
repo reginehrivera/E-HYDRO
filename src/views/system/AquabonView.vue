@@ -161,12 +161,15 @@
                   </template>
                 </v-date-picker>
 
+                <!-- Updated template section with fixes for order card stability -->
+                <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
                   <div class="scrollable-content">
                     <v-container
                       v-for="(order, index) in orders"
                       :key="index"
-                      :ref="`order-${index}`"
+                      :data-order-index="index"
+                      class="order-card"
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
@@ -196,11 +199,56 @@
                         </v-col>
                         <v-col cols="6">
                           <h4 class="blue-color mb-3">Delivery Address Option</h4>
-                          <v-select
-                            v-model="order.address"
-                            :items="items"
-                            label="Select Address..."
-                          />
+                          <div v-if="isLoadingAddresses">
+                            <v-progress-circular
+                              indeterminate
+                              color="primary"
+                              size="24"
+                              class="mr-2"
+                            ></v-progress-circular>
+                            <span>Loading addresses...</span>
+                          </div>
+                          <div v-else-if="userAddresses.length > 0">
+                            <v-select
+                              v-model="order.address"
+                              :items="userAddresses"
+                              label="Select Address..."
+                              item-title="title"
+                              item-value="value"
+                              variant="outlined"
+                              density="comfortable"
+                              :error-messages="order.address ? [] : ['Please select an address']"
+                            >
+                              <template v-slot:append-item>
+                                <v-divider class="mb-2"></v-divider>
+                                <v-list-item
+                                  @click="goToAddressPage"
+                                  class="text-primary"
+                                  title="Manage Addresses"
+                                  prepend-icon="mdi-plus-circle"
+                                ></v-list-item>
+                              </template>
+                            </v-select>
+                          </div>
+                          <div v-else class="address-empty-state pa-4 rounded">
+                            <div class="text-center mb-3">
+                              <v-icon color="grey" size="36">mdi-map-marker-off</v-icon>
+                              <p class="text-body-1 mt-2">No addresses found</p>
+                              <p class="text-caption text-grey">
+                                Please add a delivery address to continue
+                              </p>
+                            </div>
+                            <v-btn
+                              color="primary"
+                              variant="outlined"
+                              block
+                              @click="goToAddressPage"
+                              class="mt-2"
+                            >
+                              <v-icon left class="mr-1">mdi-plus</v-icon>
+                              Add New Address
+                            </v-btn>
+                          </div>
                         </v-col>
                       </v-row>
 
@@ -256,15 +304,6 @@
 
                       <v-divider></v-divider>
 
-                      <div class="text-center">
-                        <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
-                          <v-icon class="pr-3 text-center text-primary" size="large">
-                            mdi-plus-circle-outline
-                          </v-icon>
-                          <span class="text-dark">Place a new order for another location</span>
-                        </v-btn>
-                      </div>
-
                       <div class="total-right mb-3">
                         <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                         <p v-if="order.quantity >= 12" class="discount-text">
@@ -281,6 +320,16 @@
                         <v-divider class="my-4"></v-divider>
                       </v-row>
                     </v-container>
+
+                    <!-- "Add new order" button moved outside the order loop -->
+                    <div class="text-center">
+                      <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
+                        <v-icon class="pr-3 text-center text-primary" size="large">
+                          mdi-plus-circle-outline
+                        </v-icon>
+                        <span class="text-dark">Place a new order for another location</span>
+                      </v-btn>
+                    </div>
                   </div>
 
                   <div class="text-end">
@@ -314,7 +363,8 @@
                   </div>
                 </v-container>
 
-                <v-container v-for="(order, index) in orders" :key="index" ref="orderRefs">
+                <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
+                <v-container class="fixed-bottom-buttons">
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" class="set-sched-btn">
                       <v-btn variant="none" class="full-btn" @click="showCalendar = !showCalendar">
@@ -379,28 +429,113 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '@/supabase' // ✅ import Supabase
+import { supabase } from '@/supabase'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useOrderStore } from '@/stores/orders'
 import '@/assets/main.css'
 import { useUserStore } from '@/stores/user'
+import { useReviewStore } from '@/stores/reviewStore'
 
 const router = useRouter()
-const orderRefs = ref([])
 const orderStore = useOrderStore()
-// Create an instance of the user store
 const userStore = useUserStore()
+const reviewStore = useReviewStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
 const selectedDate = ref(null)
+const ordersContainer = ref(null)
+const orderRefs = ref([])
 
-const newReview = ref({
-  rating: 0,
-  comment: '',
+const userAddresses = ref([])
+const isLoadingAddresses = ref(false)
+const hasNoAddresses = ref(false)
+
+// Function to fetch user addresses from Supabase
+async function fetchUserAddresses() {
+  isLoadingAddresses.value = true
+  hasNoAddresses.value = false
+
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      console.error('No authenticated user found')
+      hasNoAddresses.value = true
+      return
+    }
+
+    // Fetch all addresses for this user from addresses table
+    // (we'll use the existing submissions data that's already stored in your system)
+    const { data: addressesData, error: addressesError } = await supabase
+      .from('addresses')
+      .select('id, street_address, barangay, city, formatted_address')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false })
+
+    if (addressesError) {
+      console.error('Error fetching addresses:', addressesError)
+      hasNoAddresses.value = true
+      return
+    }
+
+    console.log('Fetched addresses data:', addressesData) // Debug log
+
+    if (addressesData && addressesData.length > 0) {
+      // Map the addresses to format needed for v-select
+      userAddresses.value = addressesData.map((addr) => ({
+        value: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        title: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        id: addr.id,
+      }))
+    } else {
+      // Fallback to check if we have submissions in local state already
+      if (submissions.value && submissions.value.length > 0) {
+        userAddresses.value = submissions.value.map((addr) => ({
+          value: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          title: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          id: addr.id,
+        }))
+      } else {
+        // No addresses found for this user
+        userAddresses.value = []
+        hasNoAddresses.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchUserAddresses:', error)
+    hasNoAddresses.value = true
+  } finally {
+    isLoadingAddresses.value = false
+  }
+}
+
+// Function to go to address management page
+function goToAddressPage() {
+  router.push('/addresses') // Adjust to match your route for the address management page
+}
+
+// Call fetchUserAddresses when component mounts
+onMounted(() => {
+  fetchUserAddresses()
+})
+
+// Orders and Totals
+const orders = ref([{ selected: [], address: '', quantity: 0 }])
+const totalDiscount = ref(0)
+const totalNewGallon = ref(0)
+const finalTotal = ref(0)
+const showSuccessDialog = ref(false)
+const successMessage = ref('Your order has been placed successfully!')
+const showIncompleteOrderDialog = ref(false)
+const incompleteOrderMessage = ref('Please complete your order before placing it.')
+const paymentMethod = ref('Cash on Delivery')
+
+const station = ref({
+  name: 'Aquabon Water Refilling Station',
 })
 
 function confirmDateSelection() {
@@ -423,25 +558,7 @@ onMounted(() => {
   if (userStore.profilePhoto) {
     avatarUrl.value = userStore.profilePhoto
   }
-})
-
-// Address items
-const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
-
-// Orders and Totals
-const orders = ref([{ selected: [], address: '', quantity: 0 }])
-const ordersContainer = ref(null)
-const totalDiscount = ref(0)
-const totalNewGallon = ref(0)
-const finalTotal = ref(0)
-const showSuccessDialog = ref(false)
-const successMessage = ref('Your order has been placed successfully!')
-const showIncompleteOrderDialog = ref(false)
-const incompleteOrderMessage = ref('Please complete your order before placing it.')
-const paymentMethod = ref('Cash on Delivery')
-
-const station = ref({
-  name: 'Aquabon Water Refilling Station',
+  fetchReviews()
 })
 
 function getSubtotal(order) {
@@ -486,15 +603,26 @@ function decreaseGallon(index) {
   }
 }
 
-import { nextTick } from 'vue'
-
+// Fixed addNewOrder function to prevent card movement
 function addNewOrder() {
+  // First capture the current scroll position
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
+  // Add the new order
   orders.value.push({ selected: [], address: '', quantity: 0 })
+
+  // Wait for the DOM to update
   nextTick(() => {
+    // Restore the scroll position to maintain stability
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+
+    // Then smoothly scroll to the new order
     const lastIndex = orders.value.length - 1
-    const lastOrderEl = orderRefs.value[lastIndex]
-    if (lastOrderEl?.$el) {
-      lastOrderEl.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const lastOrderEl = document.querySelector(`[data-order-index="${lastIndex}"]`)
+    if (lastOrderEl) {
+      lastOrderEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   })
 }
@@ -510,11 +638,19 @@ function handleOptionChange() {
   updateTotals()
 }
 
-updateTotals()
-
 function cancelOrder(index) {
+  // Capture scroll position before removing
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
   orders.value.splice(index, 1)
   updateTotals()
+
+  // Restore scroll position after DOM updates
+  nextTick(() => {
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+  })
 }
 
 async function getUserId() {
@@ -550,7 +686,6 @@ async function placeOrder() {
 
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
-    id: randomId, // Include random ID
     address: order.address,
     quantity: order.quantity,
     total_price: getSubtotal(order),
@@ -560,6 +695,7 @@ async function placeOrder() {
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
     payment_method: paymentMethod.value,
     station_name: station.value.name,
+    options: order.selected.join(', '),
   }))
 
   const { data, error } = await supabase.from('orders').insert(orderToSave)
@@ -592,18 +728,13 @@ function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
 
-import { computed, onMounted } from 'vue'
-import { useReviewStore } from '@/stores/reviewStore'
-
-const reviewStore = useReviewStore()
-
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
 const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 const averageRating = computed(() => {
-  if (reviews.value.length === 0) return 0
-  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0)
-  return (total / reviews.value.length).toFixed(1)
+  if (actualReviews.value.length === 0) return 0
+  const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
+  return (total / actualReviews.value.length).toFixed(1)
 })
 
 const actualReviews = ref([])
@@ -655,26 +786,12 @@ async function fetchReviews() {
     // Update the actual reviews ref for display
     actualReviews.value = reviewsWithProfiles
 
-    // Calculate average rating
-    if (actualReviews.value.length > 0) {
-      const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
-      const avg = total / actualReviews.value.length
-      averageRating.value = avg.toFixed(1)
-    }
-
     // Also update the reviews in the store if needed
     reviewStore.setReviews(reviewsWithProfiles)
-
-    console.log('Fetched reviews:', reviewsWithProfiles)
   } catch (e) {
     console.error('Error in fetchReviews:', e)
   }
 }
-
-// Fetch reviews on page load
-onMounted(() => {
-  fetchReviews()
-})
 </script>
 
 <style scoped>
@@ -719,7 +836,7 @@ onMounted(() => {
 }
 
 .scrollable-content {
-  max-height: 470px;
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 8px;
 }
@@ -787,5 +904,38 @@ onMounted(() => {
   object-fit: contain;
   width: 100%;
   height: 100%;
+}
+
+.address-empty-state {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.5);
+}
+
+.v-select :deep(.v-field__append-inner) {
+  padding-top: 8px;
+}
+
+.v-select :deep(.v-select__selection) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animation for empty state */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.v-progress-circular {
+  animation: pulse 2s infinite ease-in-out;
 }
 </style>
