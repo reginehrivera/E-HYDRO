@@ -51,7 +51,14 @@ onMounted(async () => {
                 <v-card class="pa-6 profile-card" flat>
                   <!-- Avatar centered -->
                   <div class="d-flex justify-center mb-6">
-                    <v-avatar color="deep-purple lighten-3" size="150">
+                    <v-avatar
+                      color="deep-purple lighten-3"
+                      size="150"
+                      :style="{
+                        border: '3px solid #7E57C2',
+                        boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                      }"
+                    >
                       <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
                       <span v-else class="text-h5">{{ initials || '??' }}</span>
                     </v-avatar>

@@ -288,7 +288,7 @@
                     v-model="address"
                     :error-messages="addressErrorMessages"
                     :rules="[() => !!address || 'This field is required']"
-                    label="Address Line"
+                    label="Street Name, Building, House No."
                     placeholder="1234 Main Street"
                     required
                     variant="outlined"
@@ -301,25 +301,24 @@
                     v-model="city"
                     :error-messages="cityErrorMessages"
                     :rules="[() => !!city || 'This field is required']"
-                    label="City"
-                    placeholder="Butuan"
+                    label="Barangay"
+                    placeholder="Ampayon"
                     required
                     variant="outlined"
-                    prepend-inner-icon="mdi-city"
+                    prepend-inner-icon="mdi-home"
                     class="form-field"
                   />
 
-                  <v-autocomplete
-                    ref="countryRef"
-                    v-model="country"
-                    :items="countries"
-                    :error-messages="countryErrorMessages"
-                    :rules="[() => !!country || 'This field is required']"
-                    label="Country"
-                    placeholder="Select..."
+                  <v-text-field
+                    ref="cityRef"
+                    v-model="city"
+                    :error-messages="cityErrorMessages"
+                    :rules="[() => !!city || 'This field is required']"
+                    label="City"
+                    placeholder="Butuan City"
                     required
                     variant="outlined"
-                    prepend-inner-icon="mdi-earth"
+                    prepend-inner-icon="mdi-city"
                     class="form-field"
                   />
                 </v-card-text>
@@ -397,15 +396,15 @@
                       <div class="text-body-2 address-content">
                         <div class="d-flex mb-1 address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
-                          <span><strong>Address:</strong> {{ submission.address }}</span>
+                          <span><strong>Street Name:</strong> {{ submission.address }}</span>
                         </div>
                         <div class="d-flex mb-1 address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
-                          <span><strong>City:</strong> {{ submission.city }}</span>
+                          <span><strong>Barangay:</strong> {{ submission.city }}</span>
                         </div>
                         <div class="d-flex address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
-                          <span><strong>Country:</strong> {{ submission.country }}</span>
+                          <span><strong>City:</strong> {{ submission.country }}</span>
                         </div>
                       </div>
                     </v-card-text>
@@ -448,6 +447,7 @@
 </template>
 
 <script setup>
+// Modified script with improved address fetching and persistence
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
@@ -472,6 +472,7 @@ const profileLinks = [
   { route: 'order', text: 'My Orders' },
 ]
 
+const route = useRoute()
 const SelectedPage = computed(() => route.name === 'addresses')
 
 // User profile data
@@ -530,6 +531,9 @@ onMounted(() => {
   if (userStore.avatar_url) {
     avatarUrl.value = userStore.avatar_url
   }
+
+  // Fetch addresses
+  fetchAddresses()
 })
 
 // Restrict input to numbers only (on keydown event)
@@ -641,7 +645,6 @@ async function handleFileUpload(event) {
 }
 
 // Determine which page section to show based on current route
-const route = useRoute()
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
 
 // Initialize the router
@@ -652,6 +655,7 @@ const goToProfilePage = () => {
   dialogVisible.value = false // Close the dialog
   router.push('/profile') // Redirect to the profile page
 }
+
 // saveProfile function - updated to work with RLS policies
 const saveProfile = async () => {
   console.log('Save Profile button clicked')
@@ -667,6 +671,7 @@ const saveProfile = async () => {
   const updatedFullName = `${firstname.value} ${lastname.value}`
   const updatedEmail = email.value
   const updatedPhone = phone.value
+  const currentAddress = userStore.address || ''
 
   console.log('Updating profile with:', {
     fullName: updatedFullName,
@@ -721,6 +726,7 @@ const saveProfile = async () => {
           email: updatedEmail,
           contact_number: updatedPhone,
           avatar_url: avatarUrl.value || '',
+          address: currentAddress,
           updated_at: new Date(),
         })
         .eq('id', user.id)
@@ -732,6 +738,7 @@ const saveProfile = async () => {
         email: updatedEmail,
         contact_number: updatedPhone,
         avatar_url: avatarUrl.value || '',
+        address: currentAddress,
         created_at: new Date(),
         updated_at: new Date(),
       })
@@ -772,14 +779,14 @@ const saveProfile = async () => {
 // Address management
 const overlay = ref(false)
 const name = ref('')
-const address = ref('')
+const streetName = ref('')
 const city = ref('')
 const state = ref('')
 const zip = ref('')
-const country = ref(null)
-const countries = ref(['Philippines', 'United States', 'Canada', 'Australia'])
+const barangay = ref(null)
 const submissions = ref([])
 const newlyAddedIds = ref([])
+const isAddressLoading = ref(false)
 
 // Form validation
 const nameErrorMessages = ref([])
@@ -810,46 +817,234 @@ function clearForm() {
   country.value = null
 }
 
-function submit() {
-  clearErrors()
+// Modified fetchAddresses function to properly handle combined address format
+const fetchAddresses = async () => {
+  try {
+    isAddressLoading.value = true
 
-  if (!address.value) addressErrorMessages.value.push('Address is required')
-  if (!city.value) cityErrorMessages.value.push('City is required')
-  if (!country.value) countryErrorMessages.value.push('Country is required')
+    const { data: userData } = await supabase.auth.getUser()
 
-  if (
-    addressErrorMessages.value.length ||
-    cityErrorMessages.value.length ||
-    countryErrorMessages.value.length
-  ) {
-    formWarning.value = 'Please complete all required fields.'
+    if (!userData || !userData.user) {
+      console.error('No authenticated user found')
+      return
+    }
+
+    // Get user profile from profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, address')
+      .eq('id', userData.user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      return
+    }
+
+    // Process the address data
+    if (profileData && profileData.address) {
+      try {
+        // First try to parse as JSON if it's stored as a JSON array
+        if (profileData.address.startsWith('[') && profileData.address.endsWith(']')) {
+          submissions.value = JSON.parse(profileData.address)
+          console.log('Parsed addresses from JSON:', submissions.value)
+        }
+        // If it's a string with comma separators (legacy format)
+        else if (typeof profileData.address === 'string') {
+          const addressParts = profileData.address.split(',').map((part) => part.trim())
+
+          if (addressParts.length >= 3) {
+            // Create address object from parts
+            const addressObj = {
+              id: Date.now(),
+              address: addressParts[0],
+              city: addressParts[1],
+              country: addressParts[2],
+            }
+
+            submissions.value = [addressObj]
+            console.log('Parsed single address into:', addressObj)
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing address data:', err)
+
+        // Fallback: treat as a single string address
+        if (typeof profileData.address === 'string') {
+          const parts = profileData.address.split(',').map((part) => part.trim())
+
+          // Try to extract components from the string
+          if (parts.length >= 3) {
+            const fallbackAddress = {
+              id: Date.now(),
+              address: parts[0],
+              city: parts[1],
+              country: parts[2],
+            }
+
+            submissions.value = [fallbackAddress]
+            console.log('Fallback address parsing:', fallbackAddress)
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchAddresses:', error)
+  } finally {
+    isAddressLoading.value = false
+  }
+}
+
+// Modified submit function to properly save combined address format
+const submit = async () => {
+  // Validate required fields
+  if (!address.value || !city.value || !country.value) {
+    formWarning.value = 'Please fill out all fields'
     return
   }
 
-  // Create new submission with unique ID
-  const newSubmission = {
-    id: Date.now() + Math.random().toString(36).substring(2, 9),
-    address: address.value,
-    city: city.value,
-    country: country.value,
+  isSubmitting.value = true
+
+  try {
+    // Get current user
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !userData || !userData.user) {
+      console.error('No authenticated user found:', userError?.message)
+      formWarning.value = 'You must be logged in to save addresses'
+      return
+    }
+
+    // Create new address object
+    const newAddress = {
+      id: Date.now(),
+      address: address.value,
+      city: city.value,
+      country: country.value,
+    }
+
+    // Add to local submissions array first
+    addSubmission(newAddress)
+
+    // Create a combined string format for the legacy address column
+    const combinedAddress = `${address.value}, ${city.value}, ${country.value}`
+
+    // Update the profile with both formats:
+    // 1. The combined string in the 'address' field
+    // 2. The full array in addresses field if you're using that too
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        address: combinedAddress, // Single string format for legacy compatibility
+        updated_at: new Date(),
+      })
+      .eq('id', userData.user.id)
+
+    if (updateError) {
+      console.error('Error saving address:', updateError)
+      formWarning.value = updateError.message
+      return
+    }
+
+    // Update user store
+    userStore.setUserData({
+      ...userStore,
+      address: combinedAddress,
+    })
+
+    // Clear form and close overlay
+    clearForm()
+    overlay.value = false
+
+    console.log('Address saved successfully:', newAddress)
+  } catch (error) {
+    console.error('Error in submit:', error)
+    formWarning.value = 'Failed to save address. Please try again.'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Helper function to sanitize address data when multiple addresses are stored
+const parseAddressData = (addressData) => {
+  // If it's already an array
+  if (Array.isArray(addressData)) {
+    return addressData
   }
 
-  // Use the enhanced addSubmission method
-  addSubmission(newSubmission)
+  // If it's a JSON string
+  if (typeof addressData === 'string' && addressData.startsWith('[') && addressData.endsWith(']')) {
+    try {
+      return JSON.parse(addressData)
+    } catch (e) {
+      console.error('Failed to parse JSON address data:', e)
+    }
+  }
 
-  overlay.value = false
-  clearForm()
+  // If it's a comma-separated string
+  if (typeof addressData === 'string' && addressData.includes(',')) {
+    const parts = addressData.split(',').map((part) => part.trim())
+
+    if (parts.length >= 3) {
+      return [
+        {
+          id: Date.now(),
+          address: parts[0],
+          city: parts[1],
+          country: parts[2],
+        },
+      ]
+    }
+  }
+
+  // Default empty array if nothing else works
+  return []
+}
+
+// Additional helper for address display (you can use this in your template)
+const formatAddress = (addressObj) => {
+  if (!addressObj) return ''
+  return `${addressObj.address}, ${addressObj.city}, ${addressObj.country}`
 }
 
 // Enhanced animation methods
-const deleteSubmission = (index) => {
-  // Add exit animation class
-  submissions.value[index].isDeleting = true
+const deleteSubmission = async (index) => {
+  try {
+    // Add exit animation class
+    submissions.value[index].isDeleting = true
 
-  // Use setTimeout to allow animation to complete
-  setTimeout(() => {
-    submissions.value.splice(index, 1)
-  }, 300)
+    // Get the address to delete
+    const addressToDelete = submissions.value[index]
+
+    // Use setTimeout to allow animation to complete
+    setTimeout(async () => {
+      // Remove from local array
+      submissions.value.splice(index, 1)
+
+      // Get current user
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData || !userData.user) {
+        console.error('No authenticated user found')
+        return
+      }
+
+      // Update database
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          address: submissions.value,
+          updated_at: new Date(),
+        })
+        .eq('id', userData.user.id)
+
+      if (updateError) {
+        console.error('Error deleting address:', updateError)
+      }
+    }, 300)
+  } catch (error) {
+    console.error('Error in deleteSubmission:', error)
+  }
 }
 
 const addSubmission = (submission) => {
@@ -875,29 +1070,6 @@ const isNewlyAdded = (submission) => {
   return submission.id && newlyAddedIds.value.includes(submission.id)
 }
 
-// Lifecycle hooks
-onMounted(() => {
-  // Initialize data from userStore
-  if (userStore.fullname) {
-    const names = userStore.fullname.split(' ')
-    firstname.value = names[0] || ''
-    lastname.value = names.slice(1).join(' ') || ''
-  }
-
-  if (userStore.mobile) {
-    phone.value = userStore.mobile
-  }
-
-  if (userStore.profilePhoto) {
-    avatarUrl.value = userStore.profilePhoto
-  }
-
-  // Load saved addresses if available
-  const savedAddresses = localStorage.getItem('userAddresses')
-  if (savedAddresses) {
-    submissions.value = JSON.parse(savedAddresses)
-  }
-})
 const getLinkIcon = (route) => {
   const icons = {
     Myaccount: 'mdi-account-cog',
@@ -913,8 +1085,10 @@ defineExpose({
   deleteSubmission,
   saveProfile,
   submit,
+  fetchAddresses,
 })
 </script>
+
 <style scoped>
 .content {
   background-image: url('/src/assets/img/bg-home-no-gallon.png');
