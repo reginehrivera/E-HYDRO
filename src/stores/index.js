@@ -1,3 +1,5 @@
+//stores/index.js
+
 import { supabase } from '@/supabase' // Ensure Supabase is properly initialized and imported
 
 export const state = () => ({

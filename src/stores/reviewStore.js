@@ -1,8 +1,14 @@
+// reviewStore.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useReviewStore = defineStore('reviewStore', () => {
   const reviews = ref([])
+  const averageRating = ref(0)
+
+  function setAverageRating(rating) {
+    averageRating.value = rating
+  }
 
   // Load reviews from localStorage if they exist
   function loadReviewsFromLocalStorage(stationId) {
@@ -34,12 +40,20 @@ export const useReviewStore = defineStore('reviewStore', () => {
     return reviews.value.filter((r) => r.stationId === stationId)
   }
 
-  // Expose methods for load/save
+  // Set reviews from Supabase
+  function setReviews(newReviews) {
+    reviews.value = newReviews
+  }
+
+  // Expose methods and state
   return {
     reviews,
+    averageRating,
     addReview,
     getReviewsByStation,
     loadReviewsFromLocalStorage,
     saveReviewsToLocalStorage,
+    setAverageRating,
+    setReviews,
   }
 })
