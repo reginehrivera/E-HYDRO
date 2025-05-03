@@ -48,7 +48,7 @@
           <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
-              <v-avatar size="70" color="deep-purple lighten-3">
+              <v-avatar size="70" color="deep-purple lighten-3" class="profile-initials">
                 <template v-if="avatarUrl">
                   <img :src="avatarUrl" alt="User Image" class="profile-img" />
                 </template>
@@ -527,7 +527,7 @@ li {
 .username {
   font-weight: bold;
   color: #04448d;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .edit-btn {
@@ -561,8 +561,8 @@ li {
 }
 
 .profile-initials {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   background-color: #4a90e2;
   border-radius: 50%;
   color: white;
@@ -571,5 +571,7 @@ li {
   justify-content: center;
   font-weight: bold;
   font-size: 1.2rem;
+  border: 3px solid #7e57c2;
+  margin-bottom: 10px;
 }
 </style>
