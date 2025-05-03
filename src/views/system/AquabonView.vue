@@ -600,11 +600,7 @@ const reviewStore = useReviewStore()
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
 const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
-const averageRating = computed(() => {
-  if (reviews.value.length === 0) return 0
-  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0)
-  return (total / reviews.value.length).toFixed(1)
-})
+const averageRating = ref(0)
 
 const actualReviews = ref([])
 
