@@ -128,7 +128,7 @@ import MyAccountView from '@/views/MyAccountView.vue'
 .overlay-layout {
   position: absolute;  /* Overlay on top of MyAccountView */
   top: 6rem;
-  left: 4rem;
+  left: 9rem;
   width:60%;
   height: 60%;
   z-index: 10;  /* Higher than MyAccountView (default: auto) */
