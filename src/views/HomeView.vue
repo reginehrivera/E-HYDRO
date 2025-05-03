@@ -16,10 +16,8 @@
             <router-link to="/station" class="home-btn-routerlink"
               ><v-btn class="home-btn">Order Now!</v-btn>
             </router-link>
-          </v-col>
-        </v-row>
-         <!--footer icons-->
-          <v-footer class="footer-style" app>
+              <!--footer icons-->
+              <div class="footer-style text-end">
               <ul class="footer-icons">
                 <li><img :src="firstIcon" alt="" />Convenient <br />Ordering</li>
                 <li>
@@ -33,8 +31,11 @@
                   Safe Water
                 </li>
               </ul>
-            </v-footer>
+            </div>
             <!--End footer icons-->
+          </v-col>
+        </v-row>
+
       </v-container>
     </v-app>
     </template>
@@ -59,7 +60,7 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/bg-bg-bg-bg-bg.png');
+  background-image: url('@/assets/img/gif/bg-gif-gif-home-home.gif');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -105,14 +106,20 @@ h2 {
 }
 
 /*Footer-icon*/
-.footer-icons {
-  margin-left: 10%;
+.footer-style {
   display: flex;
-  gap: 90px;
-  /*justify-content: center;*/
-  flex-wrap: wrap; /* ensures it wraps on smaller screens */
+  justify-content: end;
+  margin-top: 200px;
+  margin-right: 30px ;
+}
+
+.footer-icons {
+  display: flex;
+  gap: 40px; /* adjust this number to control the gap */
+  flex-wrap: wrap;
   padding: 0;
   list-style: none;
+  margin: 0;
 }
 
 .footer-icons li {
@@ -127,25 +134,12 @@ h2 {
   color: #04448d;
   line-height: 1.3;
   animation: floatUpDown 3s ease-in-out infinite;
-}
-.footer-icons li:hover{
-  animation: floatUpDown 3s ease-in-out infinite;
-  transform: scale(1.1);
   transition: transform 0.3s ease-in-out;
 }
 
-/* Floating animation like water
-@keyframes floatUpDown {
-  0% {
-    transform: translateY(0px);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}*/
+.footer-icons li:hover {
+  transform: scale(1.1);
+}
 
 .footer-icons img {
   width: 50px;
@@ -153,60 +147,8 @@ h2 {
   border-bottom: #02adef 5px solid;
   border-radius: 50%;
 }
-.footer-style {
-  justify-content: center;
-}
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* full height of viewport */
-}
 
-.footer-style {
-  margin-top: auto; /* push footer to bottom */
-  background-color: #f8f8f8 !important; /* example background */
-  padding: 20px;
-  height: 16%;
-  border-radius: 40px 40px 0 0;
-}
 
-.footer-icons {
-  list-style: none;
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-icons li {
-  text-align: center;
-}
-
-/* Animated gradient border */
-.footer-style {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-top: 4px solid #02acef34 !important;
-  overflow: hidden;
-  z-index: 1;
-}
-
-/* The running border using a ::before pseudo-element */
-.footer-style:before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  z-index: -1;
-  border-radius: 12px;
-  background: linear-gradient(270deg, #90caf9b4, #42a4f5d0, #89c4ddd7, #408db3ad, #90caf998);
-  background-size: 400% 400%;
-  animation: gradient-run 6s ease infinite;
-  opacity: 1; /* Always visible */
-}
 
 /* Animation keyframes */
 @keyframes gradient-run {
