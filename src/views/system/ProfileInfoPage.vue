@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue' // Make sure to import computed
+import { computed, ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
@@ -18,109 +18,72 @@ const initials = computed(() => {
     .join('')
     .toUpperCase()
 })
-// Function to navigate to MyAccount page
+
 const goToMyAccount = () => {
   router.push('/MyAccount')
 }
+
+const handleAvatarError = (e) => {
+  e.target.style.display = 'none'
+}
+import MyAccountView from '@/views/MyAccountView.vue'
 </script>
 
 <template>
   <NavigationBar />
-
-  <v-row>
-    <v-col cols="12">
-      <div class="profile-section d-flex flex-column align-center justify-center pa-6">
-        <div class="profile-wrapper">
-          <v-card class="pa-6 profile-card" flat>
-            <!-- Avatar centered -->
-            <div class="d-flex justify-center mb-6">
-              <v-avatar color="deep-purple lighten-3" size="150">
-                <img
-                  v-if="avatarUrl"
-                  :src="avatarUrl"
-                  alt="Avatar"
-                  class="avatar-img"
-                  @error="handleAvatarError"
-                />
-                <span v-else class="text-h5">{{ initials }}</span>
-              </v-avatar>
-            </div>
-
-            <!-- Profile Info below avatar -->
-            <v-row>
-              <v-col cols="12">
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <div class="field-label">Full Name</div>
-                    <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <div class="field-label">Mobile Number</div>
-                    <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <div class="field-label">Email</div>
-                    <div class="field-value">{{ userStore.email || 'N/A' }}</div>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <div class="field-label">Address</div>
-                    <div class="field-value">{{ userStore.address || 'N/A' }}</div>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-
-            <!-- Edit Profile Button centered -->
-            <div class="d-flex justify-center mt-4">
-              <v-btn color="#0c3b2e" variant="outlined" @click="goToMyAccount">
-                Edit Profile
-              </v-btn>
-            </div>
-          </v-card>
-        </div>
-      </div>
-
-      <!-- Loading overlay -->
-      <v-overlay
-        :model-value="formAction.formProcess || isLoadingUser"
-        class="align-center justify-center"
-      >
-        <v-progress-circular indeterminate size="64"></v-progress-circular>
-      </v-overlay>
-    </v-col>
-  </v-row>
+  <div class="account-container">
+    <MyAccountView />
+    <div class="overlay-layout">
+      <div>Test Overlay</div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.profile-section {
-  background-image: url('@/assets/img/bg-home-no-gallon.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  min-height: 100vh;
-  padding-top: 100px;
+.account-container {
+  position: relative;  /* Required for absolute children */
+  width: 100%;
+  min-height: 100vh;  /* Ensure container covers the viewport */
 }
 
+.overlay-layout {
+  position: absolute;  /* Overlay on top of MyAccountView */
+  top: 10rem;
+  left: 0;
+  width:60%;
+  height: 50%;
+  z-index: 10;  /* Higher than MyAccountView (default: auto) */
+  background: rgba(114, 17, 17, 0.3);
+}
 .profile-wrapper {
   width: 100%;
   max-width: 900px;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .profile-card {
-  background-color: #fffdf6;
+  background-color: rgba(255, 253, 246, 0.95);
   border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(12, 59, 46, 0.15);
   width: 100%;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(12, 59, 46, 0.1);
+  overflow: hidden;
+  right: 15rem;
 }
 
-.avatar {
-  display: block;
-  margin: 0 auto;
+.avatar-elevated {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border: 3px solid white;
+  transition: transform 0.3s ease;
+}
+
+.avatar-elevated:hover {
+  transform: scale(1.05);
 }
 
 .avatar-img {
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
   height: 100%;
 }
@@ -130,15 +93,73 @@ const goToMyAccount = () => {
   color: #0c3b2e;
   font-weight: 600;
   margin-bottom: 4px;
+  opacity: 0.8;
 }
 
 .field-value {
   font-size: 1rem;
   padding: 12px;
-  background-color: #f5f5f5;
+  background-color: rgba(245, 245, 245, 0.5);
   border-radius: 6px;
   min-height: 45px;
   display: flex;
   align-items: center;
+  color: #0c3b2e;
+}
+
+.info-card {
+  padding: 16px;
+  border-radius: 12px !important;
+  border-color: rgba(12, 59, 46, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(12, 59, 46, 0.1) !important;
+}
+
+.action-btn {
+  border-radius: 12px;
+  padding: 0 24px;
+  height: 48px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: #0c3b2e !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(12, 59, 46, 0.3);
+}
+
+.profile-info {
+  animation: slideUp 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 24px 16px;
+  }
 }
 </style>

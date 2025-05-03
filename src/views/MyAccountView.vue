@@ -1,10 +1,7 @@
-<!-- base layout for MyAccount -->
 <template>
   <div class="layout">
     <NavigationBar />
     <main class="content">
-      <!--  card  -->
-
       <v-row class="flex-row-reverse justify-space-between" no-gutters style="gap: 5rem">
         <v-col md="3">
           <v-card
@@ -18,7 +15,6 @@
           >
             <v-card-item class="pa-4">
               <div class="d-flex mt-3 mb-2 profile-content">
-                <!-- Avatar with animation and border glow -->
                 <v-avatar
                   color="deep-purple lighten-3"
                   size="90"
@@ -28,41 +24,24 @@
                     boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
                   }"
                 >
-                  <img
-                    v-if="avatarUrl"
-                    :src="avatarUrl"
-                    alt="Avatar"
-                    class="avatar-img"
-                    @load="handleImageLoad"
-                  />
+                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
                   <span v-else class="text-h5 initials-animate white--text">{{
                     initials || '??'
                   }}</span>
                 </v-avatar>
 
-                <!-- Profile info with better typography -->
                 <div class="ms-4 d-flex flex-column justify-start profile-info">
                   <span class="profile-name text-h6 font-weight-bold text--primary">
-                    {{ fullname }}
+                    {{ userStore.fullname }}
                   </span>
                   <span class="profile-email text-caption text--secondary mt-1">
                     <v-icon small class="mr-1">mdi-email</v-icon>
-                    {{ email }}
+                    {{ userStore.email }}
                   </span>
-                  <v-chip
-                    small
-                    color="green lighten-5"
-                    text-color="green darken-3"
-                    class="mt-2 align-self-start"
-                  >
-                    <v-icon small left>mdi-check-circle</v-icon>
-                    Verified
-                  </v-chip>
                 </div>
               </div>
             </v-card-item>
 
-            <!-- Links with improved styling -->
             <v-card-text class="pt-0 pb-4">
               <v-divider class="mb-3"></v-divider>
               <div
@@ -98,26 +77,23 @@
               elevation="6"
               :style="{ background: '#D9D9D9' }"
             >
-              <!-- Animated title -->
               <span class="text-h5 font-weight-medium d-flex justify-center my-4 profile-title">
                 Edit Profile
               </span>
 
-              <!-- Profile Picture with Upload Animation -->
               <div class="d-flex flex-column align-center avatar-section">
                 <div class="avatar-wrapper">
                   <v-avatar size="90" color="deep-purple lighten-3" class="profile-avatar">
-                    <img
-                      v-if="avatarUrl"
-                      :src="avatarUrl"
-                      alt="Avatar"
-                      class="avatar-img"
-                      @load="handleAvatarLoad"
-                    />
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
                     <span v-else class="text-h5 white--text initials">{{ initials || '??' }}</span>
                   </v-avatar>
 
-                  <v-icon @click="triggerFileUpload" class="edit-icon mt-12">
+                  <v-icon
+                    @click="triggerFileUpload"
+                    style="cursor: pointer"
+                    class="mt-15 icon-left"
+                    :disabled="isUploading"
+                  >
                     mdi-square-edit-outline
                   </v-icon>
                 </div>
@@ -128,12 +104,29 @@
                   @change="handleFileUpload"
                   style="display: none"
                 />
+
+                <v-progress-circular
+                  v-if="isUploading"
+                  indeterminate
+                  color="primary"
+                  size="24"
+                  class="mt-2"
+                ></v-progress-circular>
+
+                <v-alert
+                  v-if="uploadError"
+                  type="error"
+                  dense
+                  class="mt-2"
+                  dismissible
+                  @click:close="uploadError = ''"
+                >
+                  {{ uploadError }}
+                </v-alert>
               </div>
 
-              <!-- Form with staggered field animations -->
-              <v-form v-model="valid" class="profile-form">
+              <v-form @submit.prevent="saveProfile" v-model="valid" class="profile-form">
                 <v-container fluid>
-                  <!-- Name Fields -->
                   <v-row no-gutters>
                     <v-col class="form-field animate-field-1">
                       <span class="text-grey-darken-1 field-label">First Name</span>
@@ -157,7 +150,6 @@
                     </v-col>
                   </v-row>
 
-                  <!-- Contact Fields -->
                   <v-row no-gutters>
                     <v-col class="form-field animate-field-3">
                       <span class="text-grey-darken-1 field-label">Email</span>
@@ -178,13 +170,13 @@
                         density="compact"
                         class="pa-0 ma-1"
                         type="tel"
+                        required
                         @keydown="restrictNonNumericInput"
                         @input="sanitizePhoneNumber"
                       />
                     </v-col>
                   </v-row>
 
-                  <!-- Password Fields -->
                   <v-row no-gutters>
                     <v-col class="form-field animate-field-5">
                       <span class="text-grey-darken-1 field-label">New Password</span>
@@ -210,15 +202,17 @@
                     </v-col>
                   </v-row>
 
-                  <!-- Save Button with Animation -->
                   <v-row justify="center" no-gutters>
                     <v-col cols="12" sm="8" md="4" class="save-button-container">
                       <v-btn
                         :style="{ backgroundColor: '#022650', color: 'white' }"
                         rounded="lg"
                         block
-                        class="save-button"
+                        class="transition-all"
+                        type="submit"
                         @click="saveProfile"
+                        :loading="isSaving"
+                        :disabled="isSaving || isUploading"
                       >
                         Save Changes
                       </v-btn>
@@ -229,8 +223,8 @@
             </v-card>
           </v-slide-y-transition>
         </v-col>
-        <!-- Extension for addresses -->
 
+        <!-- Address Section -->
         <v-card
           class="v-cardv2"
           min-height="500"
@@ -240,7 +234,6 @@
           v-if="SelectedPage"
         >
           <div class="d-flex justify-end">
-            <!-- Animated Add button -->
             <v-btn
               class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg add-button"
               :style="{ backgroundColor: '#64B5F6' }"
@@ -251,7 +244,7 @@
               Add Address
             </v-btn>
 
-            <!-- Improved overlay animation -->
+            <!-- Fixed Address Overlay Dialog -->
             <v-dialog
               v-model="overlay"
               transition="dialog-bottom-transition"
@@ -261,13 +254,12 @@
               <v-card ref="form" class="pa-4 form-card">
                 <v-card-title class="text-h5 mb-2">
                   Add New Address
-                  <v-btn icon class="float-right" @click="overlay = false">
+                  <v-btn icon class="float-right" @click="closeOverlay">
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </v-card-title>
 
                 <v-card-text>
-                  <!-- Warning message with animation -->
                   <v-expand-transition>
                     <v-alert v-if="formWarning" type="error" variant="tonal" class="mb-4">
                       {{ formWarning }}
@@ -279,12 +271,25 @@
                     v-model="address"
                     :error-messages="addressErrorMessages"
                     :rules="[() => !!address || 'This field is required']"
-                    label="Address Line"
+                    label="Street Name, Building, House No."
                     placeholder="1234 Main Street"
                     required
                     variant="outlined"
                     prepend-inner-icon="mdi-map-marker"
-                    class="form-field"
+                    class="form-field mb-3"
+                  />
+
+                  <v-text-field
+                    ref="barangayRef"
+                    v-model="barangay"
+                    :error-messages="barangayErrorMessages"
+                    :rules="[() => !!barangay || 'This field is required']"
+                    label="Barangay"
+                    placeholder="Ampayon"
+                    required
+                    variant="outlined"
+                    prepend-inner-icon="mdi-home"
+                    class="form-field mb-3"
                   />
 
                   <v-text-field
@@ -293,34 +298,29 @@
                     :error-messages="cityErrorMessages"
                     :rules="[() => !!city || 'This field is required']"
                     label="City"
-                    placeholder="Butuan"
+                    placeholder="Butuan City"
                     required
                     variant="outlined"
                     prepend-inner-icon="mdi-city"
-                    class="form-field"
+                    class="form-field mb-3"
                   />
 
-                  <v-autocomplete
-                    ref="countryRef"
-                    v-model="country"
-                    :items="countries"
-                    :error-messages="countryErrorMessages"
-                    :rules="[() => !!country || 'This field is required']"
-                    label="Country"
-                    placeholder="Select..."
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-earth"
-                    class="form-field"
-                  />
+
+          
                 </v-card-text>
 
                 <v-divider class="my-3" />
 
                 <v-card-actions>
-                  <v-btn variant="text" @click="overlay = false" class="cancel-btn">Cancel</v-btn>
+                  <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
                   <v-spacer />
-                  <v-btn color="primary" @click="submit" class="submit-btn" :loading="isSubmitting">
+                  <v-btn
+                    color="primary"
+                    @click="submit"
+                    class="submit-btn"
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
+                  >
                     Submit
                   </v-btn>
                 </v-card-actions>
@@ -328,7 +328,6 @@
             </v-dialog>
           </div>
 
-          <!-- Address Section -->
           <container>
             <v-col>
               <div class="d-flex align-center section-header">
@@ -360,7 +359,6 @@
                     }"
                   >
                     <v-card-text class="card-content mt-14">
-                      <!-- Header with badge -->
                       <div class="card-header">
                         <div class="d-flex align-center">
                           <v-badge
@@ -384,19 +382,18 @@
                         </v-btn>
                       </div>
 
-                      <!-- Info section with icons -->
                       <div class="text-body-2 address-content">
                         <div class="d-flex mb-1 address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
-                          <span><strong>Address:</strong> {{ submission.address }}</span>
+                          <span><strong>Street Name:</strong> {{ submission.address }}</span>
                         </div>
                         <div class="d-flex mb-1 address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
-                          <span><strong>City:</strong> {{ submission.city }}</span>
+                          <span><strong>Barangay:</strong> {{ submission.barangay || submission.city }}</span>
                         </div>
                         <div class="d-flex address-line">
                           <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
-                          <span><strong>Country:</strong> {{ submission.country }}</span>
+                          <span><strong>City:</strong> {{ submission.city }}</span>
                         </div>
                       </div>
                     </v-card-text>
@@ -404,7 +401,6 @@
                 </v-col>
               </transition-group>
 
-              <!-- Empty state message -->
               <v-fade-transition>
                 <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
                   <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
@@ -426,7 +422,6 @@
     </main>
   </div>
 
-  <!-- Success Message Dialog -->
   <v-dialog v-model="dialogVisible" persistent max-width="400px">
     <v-card>
       <v-card-title class="headline">Profile Updated</v-card-title>
@@ -439,47 +434,42 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useUserStore } from '@/stores/user'
+import { supabase } from '@/supabase'
 
-// Mock for demonstration - use your actual state and methods
-const isSubmitting = ref(false)
-
-// Add a method to handle the button animation
-const triggerAddAddress = () => {
-  overlay.value = !overlay.value
-}
-
-// Initialize stores, router and route
+// User data
 const userStore = useUserStore()
-const router = useRouter()
 const route = useRoute()
+const router = useRouter()
 
-// Page navigation and routing
+// Profile links
 const profileLinks = [
   { route: 'Myaccount', text: 'Edit Profile' },
   { route: 'addresses', text: 'Delivery Address' },
   { route: 'order', text: 'My Orders' },
 ]
 
-const isMyAccountPage = computed(() => route.name === 'Myaccount')
-const SelectedPage = computed(() => route.name === 'addresses')
-
-// User profile data
+// Profile form data
+const email = ref(userStore.email || '')
 const firstname = ref('')
 const lastname = ref('')
-const phone = ref('')
-const email = computed(() => userStore.email)
-const avatarUrl = ref('')
-const fileInput = ref(null)
+const phone = ref(userStore.mobile || '')
+const valid = ref(true)
 const newPassword = ref('')
 const confirmPassword = ref('')
-const valid = ref(false)
 const dialogVisible = ref(false)
+const isSaving = ref(false)
 
-// Avatar and initials
+// Avatar upload
+const fileInput = ref(null)
+const avatarUrl = ref('')
+const isUploading = ref(false)
+const uploadError = ref('')
+
+// Computed
 const initials = computed(() => {
   if (!userStore.fullname) return ''
   const names = userStore.fullname.trim().split(' ')
@@ -489,36 +479,272 @@ const initials = computed(() => {
     .toUpperCase()
 })
 
+const isMyAccountPage = computed(() => route.name === 'Myaccount')
+const SelectedPage = computed(() => route.name === 'addresses')
+
 // Address management
 const overlay = ref(false)
-const name = ref('')
 const address = ref('')
+const barangay = ref('')
 const city = ref('')
-const state = ref('')
-const zip = ref('')
-const country = ref(null)
-const countries = ref(['Philippines', 'United States', 'Canada', 'Australia'])
 const submissions = ref([])
 const newlyAddedIds = ref([])
-
-// Form validation
-const nameErrorMessages = ref([])
-const addressErrorMessages = ref([])
-const cityErrorMessages = ref([])
-const stateErrorMessages = ref([])
-const zipErrorMessages = ref([])
-const countryErrorMessages = ref([])
+const isSubmitting = ref(false)
 const formWarning = ref('')
+const addressErrorMessages = ref([])
+const barangayErrorMessages = ref([])
+const cityErrorMessages = ref([])
 
-// ===== METHODS =====
-
-// Profile methods
-const handleImageLoad = () => {
-  // Optional: Add any image load handling
+// Methods
+const triggerAddAddress = () => {
+  overlay.value = true
 }
 
-const handleAvatarLoad = () => {
-  // Optional: Add any avatar load handling
+const closeOverlay = () => {
+  overlay.value = false
+  clearForm()
+  clearErrors()
+}
+
+const clearForm = () => {
+  address.value = ''
+  barangay.value = ''
+  city.value = ''
+}
+
+const clearErrors = () => {
+  formWarning.value = ''
+  addressErrorMessages.value = []
+  barangayErrorMessages.value = []
+  cityErrorMessages.value = []
+}
+
+const submit = async () => {
+  clearErrors()
+
+  let isValid = true
+
+  if (!address.value) {
+    addressErrorMessages.value = ['Street address is required']
+    isValid = false
+  }
+
+  if (!barangay.value) {
+    barangayErrorMessages.value = ['Barangay is required']
+    isValid = false
+  }
+
+  if (!city.value) {
+    cityErrorMessages.value = ['City is required']
+    isValid = false
+  }
+
+  if (!isValid) {
+    formWarning.value = 'Please fill out all required fields'
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    const newAddress = {
+      id: Date.now().toString(),
+      address: address.value,
+      barangay: barangay.value,
+      city: city.value
+    }
+
+    addSubmission(newAddress)
+
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      throw new Error('User not authenticated')
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        address: JSON.stringify([...submissions.value]),
+        updated_at: new Date()
+      })
+      .eq('id', userData.user.id)
+
+    if (error) throw error
+
+    closeOverlay()
+
+  } catch (error) {
+    console.error('Error saving address:', error)
+    formWarning.value = error.message || 'Failed to save address'
+    submissions.value.pop()
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const addSubmission = (submission) => {
+  const newSubmission = {
+    ...submission,
+    id: submission.id || Date.now() + Math.random().toString(36).substr(2, 9),
+  }
+
+  submissions.value.push(newSubmission)
+  newlyAddedIds.value.push(newSubmission.id)
+  setTimeout(() => {
+    const index = newlyAddedIds.value.indexOf(newSubmission.id)
+    if (index !== -1) {
+      newlyAddedIds.value.splice(index, 1)
+    }
+  }, 2000)
+}
+
+const deleteSubmission = async (index) => {
+  try {
+    submissions.value[index].isDeleting = true
+
+    setTimeout(async () => {
+      const addressToDelete = submissions.value[index]
+      submissions.value.splice(index, 1)
+
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData?.user) {
+        console.error('No authenticated user found')
+        return
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          address: JSON.stringify(submissions.value),
+          updated_at: new Date()
+        })
+        .eq('id', userData.user.id)
+
+      if (error) {
+        console.error('Error deleting address:', error)
+      }
+    }, 300)
+  } catch (error) {
+    console.error('Error in deleteSubmission:', error)
+  }
+}
+
+const isNewlyAdded = (submission) => {
+  return submission.id && newlyAddedIds.value.includes(submission.id)
+}
+
+const fetchAddresses = async () => {
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      console.error('No authenticated user found')
+      return
+    }
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, address')
+      .eq('id', userData.user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      return
+    }
+
+    if (profileData?.address) {
+      try {
+        if (profileData.address.startsWith('[') && profileData.address.endsWith(']')) {
+          submissions.value = JSON.parse(profileData.address)
+        } else if (typeof profileData.address === 'string') {
+          const addressParts = profileData.address.split(',').map(part => part.trim())
+          if (addressParts.length >= 3) {
+            submissions.value = [{
+              id: Date.now().toString(),
+              address: addressParts[0],
+              barangay: addressParts[1],
+              city: addressParts[2]
+            }]
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing address data:', err)
+        if (typeof profileData.address === 'string') {
+          const parts = profileData.address.split(',').map(part => part.trim())
+          if (parts.length >= 3) {
+            submissions.value = [{
+              id: Date.now().toString(),
+              address: parts[0],
+              barangay: parts[1],
+              city: parts[2]
+            }]
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchAddresses:', error)
+  }
+}
+
+// Profile methods
+const triggerFileUpload = () => {
+  fileInput.value.click()
+}
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  isUploading.value = true
+  uploadError.value = ''
+
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      throw new Error('User not authenticated')
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`
+    const filePath = `avatars/${fileName}`
+
+    const { data: bucket } = await supabase.storage.getBucket('avatars')
+    if (!bucket) {
+      console.warn('Avatar bucket may not exist')
+    }
+
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true,
+      contentType: file.type,
+    })
+
+    if (uploadError) throw uploadError
+
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath)
+
+    avatarUrl.value = publicUrl
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl, updated_at: new Date() })
+      .eq('id', user.id)
+
+    if (updateError) {
+      console.error('Error updating profile with new avatar:', updateError)
+    }
+
+  } catch (err) {
+    console.error('Image upload failed:', err.message)
+    uploadError.value = `Upload failed: ${err.message}`
+  } finally {
+    isUploading.value = false
+  }
 }
 
 const restrictNonNumericInput = (e) => {
@@ -530,142 +756,129 @@ const restrictNonNumericInput = (e) => {
     key !== 'ArrowLeft' &&
     key !== 'ArrowRight'
   ) {
-    e.preventDefault() // Block the input if it's not a number or allowed key
+    e.preventDefault()
   }
 }
 
 const sanitizePhoneNumber = () => {
-  phone.value = phone.value.replace(/\D/g, '') // Remove all non-digits
+  phone.value = phone.value.replace(/\D/g, '')
 }
 
-function triggerFileUpload() {
-  fileInput.value.click()
-}
-
-function handleFileUpload(event) {
-  const file = event.target.files[0]
-  if (file) {
-    avatarUrl.value = URL.createObjectURL(file)
+const validateForm = () => {
+  if (firstname.value && lastname.value && email.value && phone.value) {
+    valid.value = true
+  } else {
+    valid.value = false
   }
+  return valid.value
 }
 
-function saveProfile() {
-  // Combine first and last name
-  const updatedFullName = `${firstname.value} ${lastname.value}`
-
-  // Update the fullname, email, and phone number in the Pinia store
-  userStore.fullname = updatedFullName
-  userStore.mobile = phone.value
-
-  // Optionally, save the avatar URL here if needed
-  if (avatarUrl.value) {
-    userStore.avatarUrl = avatarUrl.value
-  }
-
-  // Save the updated profile data in localStorage
-  localStorage.setItem(
-    'userProfile',
-    JSON.stringify({
-      fullname: updatedFullName,
-      mobile: phone.value,
-      avatarUrl: avatarUrl.value,
-    }),
-  )
-
-  // Optionally log or perform other actions
-  console.log('Profile saved with name:', updatedFullName, 'phone:', phone.value)
-
-  // Open the dialog to show success message
-  dialogVisible.value = true
-}
-
-const goToProfilePage = () => {
-  dialogVisible.value = false // Close the dialog
-  router.push('/profile') // Redirect to the profile page
-}
-
-// Address form methods
-function clearErrors() {
-  formWarning.value = ''
-  addressErrorMessages.value = []
-  cityErrorMessages.value = []
-  countryErrorMessages.value = []
-}
-
-function clearForm() {
-  address.value = ''
-  city.value = ''
-  country.value = null
-}
-
-function submit() {
-  clearErrors()
-
-  if (!address.value) addressErrorMessages.value.push('Address is required')
-  if (!city.value) cityErrorMessages.value.push('City is required')
-  if (!country.value) countryErrorMessages.value.push('Country is required')
-
-  if (
-    addressErrorMessages.value.length ||
-    cityErrorMessages.value.length ||
-    countryErrorMessages.value.length
-  ) {
-    formWarning.value = 'Please complete all required fields.'
+const saveProfile = async () => {
+  if (!validateForm()) {
+    console.error('Form validation failed')
     return
   }
 
-  // Create new submission with unique ID
-  const newSubmission = {
-    id: Date.now() + Math.random().toString(36).substring(2, 9),
-    address: address.value,
-    city: city.value,
-    country: country.value,
-  }
+  isSaving.value = true
 
-  // Use the enhanced addSubmission method
-  addSubmission(newSubmission)
+  const updatedFullName = `${firstname.value} ${lastname.value}`
+  const updatedEmail = email.value
+  const updatedPhone = phone.value
 
-  overlay.value = false
-  clearForm()
-}
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-// Enhanced animation methods
-const deleteSubmission = (index) => {
-  // Add exit animation class
-  submissions.value[index].isDeleting = true
-
-  // Use setTimeout to allow animation to complete
-  setTimeout(() => {
-    submissions.value.splice(index, 1)
-  }, 300)
-}
-
-const addSubmission = (submission) => {
-  // Add a unique ID if not present
-  const newSubmission = {
-    ...submission,
-    id: submission.id || Date.now() + Math.random().toString(36).substr(2, 9),
-  }
-
-  submissions.value.push(newSubmission)
-
-  // Track as newly added for animation
-  newlyAddedIds.value.push(newSubmission.id)
-  setTimeout(() => {
-    const index = newlyAddedIds.value.indexOf(newSubmission.id)
-    if (index !== -1) {
-      newlyAddedIds.value.splice(index, 1)
+    if (userError || !user) {
+      console.error('No authenticated user found:', userError?.message)
+      alert('Error: You must be logged in to update your profile')
+      return
     }
-  }, 2000) // Remove from "newly added" after 2 seconds
+
+    if (updatedEmail !== userStore.email) {
+      const { error: authError } = await supabase.auth.updateUser({
+        email: updatedEmail,
+      })
+
+      if (authError) {
+        console.error('Error updating email in Auth:', authError.message)
+        alert(`Error updating email: ${authError.message}`)
+        return
+      }
+    }
+
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    let profileResult
+
+    if (existingProfile) {
+      profileResult = await supabase
+        .from('profiles')
+        .update({
+          full_name: updatedFullName,
+          email: updatedEmail,
+          contact_number: updatedPhone,
+          avatar_url: avatarUrl.value || '',
+          updated_at: new Date(),
+        })
+        .eq('id', user.id)
+    } else {
+      profileResult = await supabase.from('profiles').insert({
+        id: user.id,
+        full_name: updatedFullName,
+        email: updatedEmail,
+        contact_number: updatedPhone,
+        avatar_url: avatarUrl.value || '',
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+    }
+
+    const { error: profileError } = profileResult
+
+    if (profileError) {
+      console.error('Error updating profile:', profileError)
+      alert(`Error updating profile: ${profileError.message}`)
+      return
+    }
+
+    userStore.setUserData({
+      fullname: updatedFullName,
+      email: updatedEmail,
+      mobile: updatedPhone,
+      avatar_url: avatarUrl.value || '',
+      address: userStore.address,
+      userId: user.id,
+    })
+
+    dialogVisible.value = true
+  } catch (error) {
+    console.error('Error updating profile:', error)
+    alert(`Error updating profile: ${error.message || 'Unknown error'}`)
+  } finally {
+    isSaving.value = false
+  }
 }
 
-const isNewlyAdded = (submission) => {
-  return submission.id && newlyAddedIds.value.includes(submission.id)
+const goToProfilePage = () => {
+  dialogVisible.value = false
+  router.push('/profile')
+}
+
+const getLinkIcon = (route) => {
+  const icons = {
+    Myaccount: 'mdi-account-cog',
+    addresses: 'mdi-map-marker',
+    order: 'mdi-package-variant',
+  }
+  return icons[route] || 'mdi-link'
 }
 
 // Lifecycle hooks
 onMounted(() => {
-  // Initialize data from userStore
   if (userStore.fullname) {
     const names = userStore.fullname.split(' ')
     firstname.value = names[0] || ''
@@ -676,33 +889,30 @@ onMounted(() => {
     phone.value = userStore.mobile
   }
 
-  if (userStore.profilePhoto) {
-    avatarUrl.value = userStore.profilePhoto
+  if (userStore.email) {
+    email.value = userStore.email
   }
 
-  // Load saved addresses if available
-  const savedAddresses = localStorage.getItem('userAddresses')
-  if (savedAddresses) {
-    submissions.value = JSON.parse(savedAddresses)
+  if (userStore.avatar_url) {
+    avatarUrl.value = userStore.avatar_url
   }
+
+  fetchAddresses()
 })
-const getLinkIcon = (route) => {
-  const icons = {
-    Myaccount: 'mdi-account-cog',
-    addresses: 'mdi-map-marker',
-    order: 'mdi-package-variant',
-  }
-  return icons[route] || 'mdi-link'
-}
 
-// Expose methods to parent components if needed
+watch([firstname, lastname, email, phone], () => {
+  validateForm()
+})
+
 defineExpose({
   addSubmission,
   deleteSubmission,
   saveProfile,
   submit,
+  fetchAddresses,
 })
 </script>
+
 <style scoped>
 .content {
   background-image: url('/src/assets/img/bg-home-no-gallon.png');
