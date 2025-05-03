@@ -161,12 +161,15 @@
                   </template>
                 </v-date-picker>
 
+                <!-- Updated template section with fixes for order card stability -->
+                <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
                   <div class="scrollable-content">
                     <v-container
                       v-for="(order, index) in orders"
                       :key="index"
-                      :ref="`order-${index}`"
+                      :data-order-index="index"
+                      class="order-card"
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
@@ -256,15 +259,6 @@
 
                       <v-divider></v-divider>
 
-                      <div class="text-center">
-                        <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
-                          <v-icon class="pr-3 text-center text-primary" size="large">
-                            mdi-plus-circle-outline
-                          </v-icon>
-                          <span class="text-dark">Place a new order for another location</span>
-                        </v-btn>
-                      </div>
-
                       <div class="total-right mb-3">
                         <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                         <p v-if="order.quantity >= 12" class="discount-text">
@@ -281,6 +275,16 @@
                         <v-divider class="my-4"></v-divider>
                       </v-row>
                     </v-container>
+
+                    <!-- "Add new order" button moved outside the order loop -->
+                    <div class="text-center">
+                      <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
+                        <v-icon class="pr-3 text-center text-primary" size="large">
+                          mdi-plus-circle-outline
+                        </v-icon>
+                        <span class="text-dark">Place a new order for another location</span>
+                      </v-btn>
+                    </div>
                   </div>
 
                   <div class="text-end">
@@ -314,7 +318,8 @@
                   </div>
                 </v-container>
 
-                <v-container v-for="(order, index) in orders" :key="index" ref="orderRefs">
+                <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
+                <v-container class="fixed-bottom-buttons">
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" class="set-sched-btn">
                       <v-btn variant="none" class="full-btn" @click="showCalendar = !showCalendar">
@@ -379,28 +384,45 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+// Modified script setup section with fixes for orders handling
+
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '@/supabase' // ✅ import Supabase
+import { supabase } from '@/supabase'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useOrderStore } from '@/stores/orders'
 import '@/assets/main.css'
 import { useUserStore } from '@/stores/user'
+import { useReviewStore } from '@/stores/reviewStore'
 
 const router = useRouter()
-const orderRefs = ref([])
 const orderStore = useOrderStore()
-// Create an instance of the user store
 const userStore = useUserStore()
+const reviewStore = useReviewStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
 const selectedDate = ref(null)
+const ordersContainer = ref(null)
+const orderRefs = ref([])
 
-const newReview = ref({
-  rating: 0,
-  comment: '',
+// Address items
+const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
+
+// Orders and Totals
+const orders = ref([{ selected: [], address: '', quantity: 0 }])
+const totalDiscount = ref(0)
+const totalNewGallon = ref(0)
+const finalTotal = ref(0)
+const showSuccessDialog = ref(false)
+const successMessage = ref('Your order has been placed successfully!')
+const showIncompleteOrderDialog = ref(false)
+const incompleteOrderMessage = ref('Please complete your order before placing it.')
+const paymentMethod = ref('Cash on Delivery')
+
+const station = ref({
+  name: 'Aquabon Water Refilling Station',
 })
 
 function confirmDateSelection() {
@@ -423,25 +445,7 @@ onMounted(() => {
   if (userStore.profilePhoto) {
     avatarUrl.value = userStore.profilePhoto
   }
-})
-
-// Address items
-const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
-
-// Orders and Totals
-const orders = ref([{ selected: [], address: '', quantity: 0 }])
-const ordersContainer = ref(null)
-const totalDiscount = ref(0)
-const totalNewGallon = ref(0)
-const finalTotal = ref(0)
-const showSuccessDialog = ref(false)
-const successMessage = ref('Your order has been placed successfully!')
-const showIncompleteOrderDialog = ref(false)
-const incompleteOrderMessage = ref('Please complete your order before placing it.')
-const paymentMethod = ref('Cash on Delivery')
-
-const station = ref({
-  name: 'Aquabon Water Refilling Station',
+  fetchReviews()
 })
 
 function getSubtotal(order) {
@@ -486,15 +490,26 @@ function decreaseGallon(index) {
   }
 }
 
-import { nextTick } from 'vue'
-
+// Fixed addNewOrder function to prevent card movement
 function addNewOrder() {
+  // First capture the current scroll position
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
+  // Add the new order
   orders.value.push({ selected: [], address: '', quantity: 0 })
+
+  // Wait for the DOM to update
   nextTick(() => {
+    // Restore the scroll position to maintain stability
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+
+    // Then smoothly scroll to the new order
     const lastIndex = orders.value.length - 1
-    const lastOrderEl = orderRefs.value[lastIndex]
-    if (lastOrderEl?.$el) {
-      lastOrderEl.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const lastOrderEl = document.querySelector(`[data-order-index="${lastIndex}"]`)
+    if (lastOrderEl) {
+      lastOrderEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   })
 }
@@ -510,11 +525,19 @@ function handleOptionChange() {
   updateTotals()
 }
 
-updateTotals()
-
 function cancelOrder(index) {
+  // Capture scroll position before removing
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
   orders.value.splice(index, 1)
   updateTotals()
+
+  // Restore scroll position after DOM updates
+  nextTick(() => {
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+  })
 }
 
 async function getUserId() {
@@ -560,6 +583,7 @@ async function placeOrder() {
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
     payment_method: paymentMethod.value,
     station_name: station.value.name,
+    options: order.selected.join(', '),
   }))
 
   const { data, error } = await supabase.from('orders').insert(orderToSave)
@@ -592,18 +616,13 @@ function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
 
-import { computed, onMounted } from 'vue'
-import { useReviewStore } from '@/stores/reviewStore'
-
-const reviewStore = useReviewStore()
-
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
 const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 const averageRating = computed(() => {
-  if (reviews.value.length === 0) return 0
-  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0)
-  return (total / reviews.value.length).toFixed(1)
+  if (actualReviews.value.length === 0) return 0
+  const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
+  return (total / actualReviews.value.length).toFixed(1)
 })
 
 const actualReviews = ref([])
@@ -655,26 +674,12 @@ async function fetchReviews() {
     // Update the actual reviews ref for display
     actualReviews.value = reviewsWithProfiles
 
-    // Calculate average rating
-    if (actualReviews.value.length > 0) {
-      const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
-      const avg = total / actualReviews.value.length
-      averageRating.value = avg.toFixed(1)
-    }
-
     // Also update the reviews in the store if needed
     reviewStore.setReviews(reviewsWithProfiles)
-
-    console.log('Fetched reviews:', reviewsWithProfiles)
   } catch (e) {
     console.error('Error in fetchReviews:', e)
   }
 }
-
-// Fetch reviews on page load
-onMounted(() => {
-  fetchReviews()
-})
 </script>
 
 <style scoped>
@@ -719,7 +724,7 @@ onMounted(() => {
 }
 
 .scrollable-content {
-  max-height: 470px;
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 8px;
 }
