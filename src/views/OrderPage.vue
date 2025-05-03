@@ -314,6 +314,7 @@ const submitReview = async () => {
     return
   }
 
+  // Step 1: Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -323,12 +324,42 @@ const submitReview = async () => {
     return
   }
 
+  // Step 2: Get user profile (full_name, email, avatar_url)
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('full_name, email, avatar_url')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || !profileData) {
+    console.error('Profile fetch error:', profileError)
+    alert('Failed to get user profile info.')
+    return
+  }
+
+  // Step 3: Get order info (station_name)
+  const { data: orderData, error: orderError } = await supabase
+    .from('orders')
+    .select('station_name')
+    .eq('id', selectedOrder.value.id)
+    .single()
+
+  if (orderError || !orderData) {
+    console.error('Order fetch error:', orderError)
+    alert('Failed to get order info.')
+    return
+  }
+
+  // Step 4: Insert into feedbacks table
   const { error } = await supabase.from('feedbacks').insert({
     rating: feedbacks.rating,
     comment: feedbacks.comment,
     created_at: new Date().toISOString(),
-    order_id: selectedOrder.value.id, // ← FIXED
+    order_id: selectedOrder.value.id,
     user_id: user.id,
+    full_name: profileData.full_name,
+    email: profileData.email,
+    station_name: orderData.station_name,
   })
 
   if (error) {
@@ -337,15 +368,21 @@ const submitReview = async () => {
     return
   }
 
+  // Step 5: Save to local store
   reviewStore.addReview(
     stationId,
     {
       rating: feedbacks.rating,
       comment: feedbacks.comment,
     },
-    user,
+    {
+      username: profileData.full_name,
+      email: profileData.email,
+      profilePhoto: profileData.avatar_url,
+    },
   )
 
+  // Step 6: Reset UI
   showRateModal.value = false
   showSuccessModal.value = true
 }

@@ -89,14 +89,14 @@
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
                   <p class="review-style pl-8 pt-2">
                     {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
-                    ({{ reviews.length }})
+                    ({{ actualReviews.length }})
                     <v-tooltip activator="parent" location="right"
                       >Scroll down to view more reviews!</v-tooltip
                     >
                   </p>
                   <v-container id="review-section" class="modal-content">
                     <v-card
-                      v-for="(review, index) in reviews"
+                      v-for="(review, index) in actualReviews"
                       :key="index"
                       class="mb-1 pl-5 pr-5 review-card"
                     >
@@ -105,20 +105,22 @@
                           <v-col cols="12" md="2" class="">
                             <v-avatar color="deep-purple lighten-3" size="50">
                               <img
-                                v-if="avatarUrl"
-                                :src="avatarUrl"
+                                v-if="review.avatar_url"
+                                :src="review.avatar_url"
                                 alt="Avatar"
                                 class="avatar-img"
                               />
-                              <span v-else class="text-h5">{{ initials || '??' }}</span>
+                              <span v-else class="text-h5">{{
+                                review.full_name?.charAt(0).toUpperCase() || '?'
+                              }}</span>
                             </v-avatar>
                           </v-col>
                           <v-col cols="12" md="10">
                             <div>
-                              <P class="profile-name-style">{{ userStore.fullname }}</P>
+                              <p class="profile-name-style">{{ review.full_name }}</p>
                             </div>
                             <div class="text-caption">
-                              <p class="profile-email-style">{{ userStore.email }}</p>
+                              <p class="profile-email-style">{{ review.email }}</p>
                             </div>
                           </v-col>
                         </v-row>
@@ -405,14 +407,6 @@ function confirmDateSelection() {
   showCalendar.value = false
 }
 
-function submitReview() {
-  if (newReview.value.comment && newReview.value.rating) {
-    reviews.value.push({ ...newReview.value })
-    newReview.value.rating = 0
-    newReview.value.comment = ''
-  }
-}
-
 const initials = computed(() => {
   if (!userStore.fullname) return ''
   const names = userStore.fullname.trim().split(' ')
@@ -614,92 +608,66 @@ const averageRating = computed(() => {
 
 const actualReviews = ref([])
 
-// Fetch reviews from the store or Supabase
 async function fetchReviews() {
-  // First, load reviews from localStorage if they exist
-  reviewStore.loadReviewsFromLocalStorage(stationId)
-
-  // If no reviews in localStorage, check in the review store
-  if (reviews.value.length === 0) {
-    const storeReviews = reviewStore.getReviewsByStation(stationId)
-    if (storeReviews.length > 0) {
-      actualReviews.value = storeReviews
-    } else {
-      // If not in store, fetch from Supabase
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false }) // Newest reviews first
-
-      if (error) {
-        console.error('Error fetching reviews:', error)
-      } else {
-        actualReviews.value = data
-        // Save the fetched reviews into the store and localStorage
-        reviewStore.saveReviewsToLocalStorage(stationId)
-        reviewStore.setReviewsByStation(stationId, data)
-      }
-    }
-  }
-}
-
-async function submitActualReview(orderId) {
-  const user = supabase.auth.user() // Get the currently authenticated user
-
-  if (!user) {
-    console.error('User not logged in')
-    return
-  }
-
-  // Fetch additional user details from Supabase if needed (for example, profile photo, username, etc.)
-  const { data: userData, error: userError } = await supabase
-    .from('users') // Assuming you have a 'users' table to store user info
-    .select('fullname, email, profilePhoto') // Fields you need
-    .eq('id', user.id) // Get the user by their ID (from auth)
-    .single() // Fetch a single record
-
-  if (userError) {
-    console.error('Error fetching user data:', userError)
-    return
-  }
-
-  // Proceed if user data is found
-  if (userData) {
-    // Insert the review into Supabase
-    const { error } = await supabase.from('reviews').insert({
-      rating: newReview.value.rating,
-      comment: newReview.value.comment,
-      created_at: new Date().toISOString(),
-      order_id: orderId,
-      user_id: user.id,
-    })
+  try {
+    // Get reviews from feedbacks table
+    const { data, error } = await supabase
+      .from('feedbacks')
+      .select('*')
+      .order('created_at', { ascending: false }) // Newest first
 
     if (error) {
-      console.error('Error submitting review:', error)
-    } else {
-      // Create the new review data
-      const newReviewData = {
-        rating: newReview.value.rating,
-        comment: newReview.value.comment,
-        created_at: new Date().toISOString(),
-        order_id: orderId,
-        user_id: user.id,
-        username: userData.username,
-        email: userData.email,
-        profilePhoto: userData.profilePhoto,
+      console.error('Error fetching reviews:', error)
+      return
+    }
+
+    // Create an array to store reviews with user profiles
+    const reviewsWithProfiles = []
+
+    // For each feedback, get the corresponding profile
+    for (const feedback of data) {
+      // Get profile information if user_id exists
+      let profileData = { full_name: 'Anonymous', email: '', avatar_url: null }
+
+      if (feedback.user_id) {
+        const { data: profileResult, error: profileError } = await supabase
+          .from('profiles')
+          .select('full_name, email, avatar_url')
+          .eq('id', feedback.user_id)
+          .single()
+
+        if (!profileError && profileResult) {
+          profileData = profileResult
+        }
       }
 
-      // Add the new review to the start of the list
-      actualReviews.value.unshift(newReviewData) // Add to top
-
-      // Reset the new review form
-      newReview.value.rating = 0
-      newReview.value.comment = ''
-
-      // Save the new review in the review store
-      reviewStore.addReview(stationId, newReviewData)
-      reviewStore.saveReviewsToLocalStorage(stationId) // Save after adding review
+      // Add to reviews with combined data
+      reviewsWithProfiles.push({
+        rating: feedback.rating || 0,
+        comment: feedback.comment || '',
+        created_at: feedback.created_at,
+        full_name: profileData.full_name,
+        email: profileData.email || '',
+        avatar_url: profileData.avatar_url,
+      })
     }
+
+    // Update the actual reviews ref for display
+    actualReviews.value = reviewsWithProfiles
+
+    // Calculate average rating
+    if (actualReviews.value.length > 0) {
+      const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
+      const avg = total / actualReviews.value.length
+      averageRating.value = avg.toFixed(1)
+    }
+
+    // Also update the reviews in the store if needed
+    reviewStore.setReviews(reviewsWithProfiles)
+
+    console.log('Fetched reviews:', reviewsWithProfiles)
+  } catch (e) {
+    console.error('Error in fetchReviews:', e)
   }
 }
 
@@ -813,5 +781,11 @@ onMounted(() => {
 
 .custom-okay-btn:hover {
   background-color: #0296d1;
+}
+
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
 }
 </style>
