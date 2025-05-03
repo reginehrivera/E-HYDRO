@@ -54,7 +54,7 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/bg-home.png');
+  background-image: url('@/assets/img/bg-bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
