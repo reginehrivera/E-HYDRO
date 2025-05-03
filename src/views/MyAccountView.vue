@@ -527,6 +527,7 @@ const clearErrors = () => {
   cityErrorMessages.value = []
 }
 
+// Updated submit function to store address in addresses table
 const submit = async () => {
   clearErrors()
 
@@ -555,49 +556,192 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    // Create a new address object with individual components
-    const newAddress = {
-      id: Date.now().toString(),
-      address: address.value,
-      barangay: barangay.value,
-      city: city.value,
-    }
-
-    // Add to submissions array
-    addSubmission(newAddress)
-
     const { data: userData } = await supabase.auth.getUser()
 
     if (!userData?.user) {
       throw new Error('User not authenticated')
     }
 
-    // Get the first address from submissions and format it
-    const formattedAddress = `${submissions.value[0].address}, ${submissions.value[0].barangay}, ${submissions.value[0].city}`
+    // Format the complete address for display
+    const formattedAddress = `${address.value}, ${barangay.value}, ${city.value}`
 
-    // Update the profile with just the formatted address string (not an array)
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        address: formattedAddress, // Store as plain string, no JSON.stringify needed
-        updated_at: new Date(),
+    // Insert into addresses table
+    const { data: addressData, error: addressError } = await supabase
+      .from('addresses')
+      .insert({
+        user_id: userData.user.id,
+        street_address: address.value,
+        barangay: barangay.value,
+        city: city.value,
+        formatted_address: formattedAddress,
       })
-      .eq('id', userData.user.id)
+      .select()
+      .single()
 
-    if (error) throw error
+    if (addressError) throw addressError
 
-    // Update the local userStore with the new address
+    // Create a new address object with components
+    const newAddress = {
+      id: addressData.id,
+      address: address.value,
+      barangay: barangay.value,
+      city: city.value,
+      formattedAddress,
+    }
+
+    // Add to submissions array
+    addSubmission(newAddress)
+
+    // Update the userStore with the formatted address
     userStore.address = formattedAddress
-
-    if (error) throw error
 
     closeOverlay()
   } catch (error) {
     console.error('Error saving address:', error)
     formWarning.value = error.message || 'Failed to save address'
-    submissions.value.pop()
   } finally {
     isSubmitting.value = false
+  }
+}
+
+// Updated fetchAddresses function to get addresses from the addresses table
+const fetchAddresses = async () => {
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      console.error('No authenticated user found')
+      return
+    }
+
+    // Fetch addresses from the addresses table
+    const { data: addressesData, error: addressesError } = await supabase
+      .from('addresses')
+      .select('id, street_address, barangay, city, formatted_address')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false })
+
+    if (addressesError) {
+      console.error('Error fetching addresses:', addressesError)
+      return
+    }
+
+    console.log('Fetched addresses data:', addressesData) // Debug log
+
+    if (addressesData && addressesData.length > 0) {
+      // Set the most recent address as the current address in userStore
+      userStore.address = addressesData[0].formatted_address
+
+      // Map the addresses to the format expected by the submissions array
+      submissions.value = addressesData.map((addr) => ({
+        id: addr.id,
+        address: addr.street_address,
+        barangay: addr.barangay,
+        city: addr.city,
+        formattedAddress: addr.formatted_address,
+      }))
+    } else {
+      // Fallback to fetching from profiles if no addresses found (for backward compatibility)
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, address')
+        .eq('id', userData.user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError)
+        return
+      }
+
+      if (profileData?.address) {
+        // Update the userStore with the address from the database
+        userStore.address = profileData.address
+
+        try {
+          if (profileData.address.startsWith('[') && profileData.address.endsWith(']')) {
+            // Handle legacy JSON array format
+            const addressArray = JSON.parse(profileData.address)
+            submissions.value = addressArray
+
+            // Migrate old addresses to the new table
+            await migrateAddressesToNewTable(userData.user.id, addressArray)
+          } else if (typeof profileData.address === 'string') {
+            // Handle legacy string format
+            const addressParts = profileData.address.split(',').map((part) => part.trim())
+            if (addressParts.length >= 3) {
+              const newAddress = {
+                id: Date.now().toString(),
+                address: addressParts[0],
+                barangay: addressParts[1],
+                city: addressParts[2],
+              }
+              submissions.value = [newAddress]
+
+              // Migrate old address to the new table
+              await migrateAddressesToNewTable(userData.user.id, [newAddress])
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing address data:', err)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchAddresses:', error)
+  }
+}
+
+// Helper function to migrate old addresses to the new table
+const migrateAddressesToNewTable = async (userId, addresses) => {
+  try {
+    const addressPromises = addresses.map((addr) => {
+      const formattedAddress = `${addr.address}, ${addr.barangay}, ${addr.city}`
+      return supabase.from('addresses').insert({
+        user_id: userId,
+        street_address: addr.address,
+        barangay: addr.barangay,
+        city: addr.city,
+        formatted_address: formattedAddress,
+      })
+    })
+
+    await Promise.all(addressPromises)
+    console.log('Successfully migrated addresses to new table')
+  } catch (error) {
+    console.error('Error migrating addresses:', error)
+  }
+}
+
+// Function to delete an address
+const deleteAddress = async (addressId) => {
+  try {
+    const { error } = await supabase.from('addresses').delete().eq('id', addressId)
+
+    if (error) throw error
+
+    // Remove from local submissions array
+    submissions.value = submissions.value.filter((addr) => addr.id !== addressId)
+
+    // If we deleted the current address, update userStore with the next available address
+    if (submissions.value.length > 0) {
+      userStore.address = submissions.value[0].formattedAddress
+    } else {
+      userStore.address = null
+    }
+  } catch (error) {
+    console.error('Error deleting address:', error)
+  }
+}
+
+// Function to set a specific address as the primary/default address
+const setPrimaryAddress = async (addressId) => {
+  try {
+    const selectedAddress = submissions.value.find((addr) => addr.id === addressId)
+    if (selectedAddress) {
+      userStore.address = selectedAddress.formattedAddress
+    }
+  } catch (error) {
+    console.error('Error setting primary address:', error)
   }
 }
 
@@ -651,70 +795,6 @@ const deleteSubmission = async (index) => {
 
 const isNewlyAdded = (submission) => {
   return submission.id && newlyAddedIds.value.includes(submission.id)
-}
-
-const fetchAddresses = async () => {
-  try {
-    const { data: userData } = await supabase.auth.getUser()
-
-    if (!userData?.user) {
-      console.error('No authenticated user found')
-      return
-    }
-
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, address')
-      .eq('id', userData.user.id)
-      .single()
-
-    if (profileError) {
-      console.error('Error fetching profile:', profileError)
-      return
-    }
-
-    console.log('Fetched profile data:', profileData) // Debug log
-
-    if (profileData?.address) {
-      // Update the userStore with the address from the database
-      userStore.address = profileData.address
-
-      try {
-        if (profileData.address.startsWith('[') && profileData.address.endsWith(']')) {
-          submissions.value = JSON.parse(profileData.address)
-        } else if (typeof profileData.address === 'string') {
-          const addressParts = profileData.address.split(',').map((part) => part.trim())
-          if (addressParts.length >= 3) {
-            submissions.value = [
-              {
-                id: Date.now().toString(),
-                address: addressParts[0],
-                barangay: addressParts[1],
-                city: addressParts[2],
-              },
-            ]
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing address data:', err)
-        if (typeof profileData.address === 'string') {
-          const parts = profileData.address.split(',').map((part) => part.trim())
-          if (parts.length >= 3) {
-            submissions.value = [
-              {
-                id: Date.now().toString(),
-                address: parts[0],
-                barangay: parts[1],
-                city: parts[2],
-              },
-            ]
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error in fetchAddresses:', error)
-  }
 }
 
 // Profile methods

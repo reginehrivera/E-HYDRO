@@ -199,11 +199,56 @@
                         </v-col>
                         <v-col cols="6">
                           <h4 class="blue-color mb-3">Delivery Address Option</h4>
-                          <v-select
-                            v-model="order.address"
-                            :items="items"
-                            label="Select Address..."
-                          />
+                          <div v-if="isLoadingAddresses">
+                            <v-progress-circular
+                              indeterminate
+                              color="primary"
+                              size="24"
+                              class="mr-2"
+                            ></v-progress-circular>
+                            <span>Loading addresses...</span>
+                          </div>
+                          <div v-else-if="userAddresses.length > 0">
+                            <v-select
+                              v-model="order.address"
+                              :items="userAddresses"
+                              label="Select Address..."
+                              item-title="title"
+                              item-value="value"
+                              variant="outlined"
+                              density="comfortable"
+                              :error-messages="order.address ? [] : ['Please select an address']"
+                            >
+                              <template v-slot:append-item>
+                                <v-divider class="mb-2"></v-divider>
+                                <v-list-item
+                                  @click="goToAddressPage"
+                                  class="text-primary"
+                                  title="Manage Addresses"
+                                  prepend-icon="mdi-plus-circle"
+                                ></v-list-item>
+                              </template>
+                            </v-select>
+                          </div>
+                          <div v-else class="address-empty-state pa-4 rounded">
+                            <div class="text-center mb-3">
+                              <v-icon color="grey" size="36">mdi-map-marker-off</v-icon>
+                              <p class="text-body-1 mt-2">No addresses found</p>
+                              <p class="text-caption text-grey">
+                                Please add a delivery address to continue
+                              </p>
+                            </div>
+                            <v-btn
+                              color="primary"
+                              variant="outlined"
+                              block
+                              @click="goToAddressPage"
+                              class="mt-2"
+                            >
+                              <v-icon left class="mr-1">mdi-plus</v-icon>
+                              Add New Address
+                            </v-btn>
+                          </div>
                         </v-col>
                       </v-row>
 
@@ -405,8 +450,78 @@ const selectedDate = ref(null)
 const ordersContainer = ref(null)
 const orderRefs = ref([])
 
-// Address items
-const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
+const userAddresses = ref([])
+const isLoadingAddresses = ref(false)
+const hasNoAddresses = ref(false)
+
+// Function to fetch user addresses from Supabase
+async function fetchUserAddresses() {
+  isLoadingAddresses.value = true
+  hasNoAddresses.value = false
+
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      console.error('No authenticated user found')
+      hasNoAddresses.value = true
+      return
+    }
+
+    // Fetch all addresses for this user from addresses table
+    // (we'll use the existing submissions data that's already stored in your system)
+    const { data: addressesData, error: addressesError } = await supabase
+      .from('addresses')
+      .select('id, street_address, barangay, city, formatted_address')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false })
+
+    if (addressesError) {
+      console.error('Error fetching addresses:', addressesError)
+      hasNoAddresses.value = true
+      return
+    }
+
+    console.log('Fetched addresses data:', addressesData) // Debug log
+
+    if (addressesData && addressesData.length > 0) {
+      // Map the addresses to format needed for v-select
+      userAddresses.value = addressesData.map((addr) => ({
+        value: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        title: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        id: addr.id,
+      }))
+    } else {
+      // Fallback to check if we have submissions in local state already
+      if (submissions.value && submissions.value.length > 0) {
+        userAddresses.value = submissions.value.map((addr) => ({
+          value: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          title: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          id: addr.id,
+        }))
+      } else {
+        // No addresses found for this user
+        userAddresses.value = []
+        hasNoAddresses.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchUserAddresses:', error)
+    hasNoAddresses.value = true
+  } finally {
+    isLoadingAddresses.value = false
+  }
+}
+
+// Function to go to address management page
+function goToAddressPage() {
+  router.push('/addresses') // Adjust to match your route for the address management page
+}
+
+// Call fetchUserAddresses when component mounts
+onMounted(() => {
+  fetchUserAddresses()
+})
 
 // Orders and Totals
 const orders = ref([{ selected: [], address: '', quantity: 0 }])
@@ -789,5 +904,38 @@ async function fetchReviews() {
   object-fit: contain;
   width: 100%;
   height: 100%;
+}
+
+.address-empty-state {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.5);
+}
+
+.v-select :deep(.v-field__append-inner) {
+  padding-top: 8px;
+}
+
+.v-select :deep(.v-select__selection) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animation for empty state */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.v-progress-circular {
+  animation: pulse 2s infinite ease-in-out;
 }
 </style>
