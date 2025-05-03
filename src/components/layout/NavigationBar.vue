@@ -1,3 +1,5 @@
+//navigation bar component with in-progress order notification
+
 <template>
   <header :class="{ 'scrolled-nav': scrollPosition }">
     <nav>
@@ -11,9 +13,22 @@
         <li><router-link class="link" :to="{ name: 'order' }">My Order</router-link></li>
         <li class="notification-wrapper">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
+          <div v-if="hasInProgressOrders" class="notification-badge">!</div>
           <div v-if="showNotifications" class="notification-dropdown">
             <div class="notification-header">Recently Received Notifications</div>
             <ul>
+              <!-- In Progress Order Notification -->
+              <li v-if="hasInProgressOrders" class="new-notification">
+                <img
+                  src="@/assets/img/icons/galloon.png"
+                  alt="In Progress Icon"
+                  class="notif-icon"
+                />
+                <div>
+                  <strong>Order In Progress:</strong> Your water delivery is being processed.
+                  <span class="timestamp">Just now</span>
+                </div>
+              </li>
               <li>
                 <img src="@/assets/img/icons/confirm.jpg" alt="Confirmed Icon" class="notif-icon" />
                 <div><strong>Order Confirmed:</strong> Your order #12345 is confirmed.</div>
@@ -59,7 +74,7 @@
               <p class="username">{{ fullname }}</p>
 
               <p class="email">{{ userStore.email }}</p>
-              <router-link class="edit-btn" to="/profile">Profile Info</router-link>
+              <router-link class="edit-btn" to="/profile">View Profile</router-link>
             </div>
 
             <ul>
@@ -118,8 +133,9 @@
           </li>
           <li>
             <router-link class="link" :to="{ name: 'notification' }"
-              ><v-icon>mdi-bell</v-icon> Notification</router-link
-            >
+              ><v-icon>mdi-bell</v-icon> Notification
+              <span v-if="hasInProgressOrders" class="mobile-notification-badge">!</span>
+            </router-link>
           </li>
           <li>
             <router-link class="link" :to="{ name: '' }"
@@ -137,9 +153,11 @@
 // Fix for the navigation bar component
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useOrderStore } from '@/stores/orders' // Import the order store
 import { supabase } from '@/supabase' // adjust path if needed
 
 const userStore = useUserStore()
+const orderStore = useOrderStore() // Use the order store
 
 // Fix: Use avatar_url (to match your store) instead of avatarUrl
 const avatarUrl = computed(() => {
@@ -172,7 +190,13 @@ const fullname = computed(() => {
   return userStore.fullname || authUser.value?.user_metadata?.full_name || 'User'
 })
 
-// Fetch authenticated user on mount
+// Check if there are in-progress orders
+const hasInProgressOrders = computed(() => {
+  // Return true if there are any orders with status "To Deliver" or "Processing"
+  return orderStore.inProgressOrdersCount > 0
+})
+
+// Fetch authenticated user and check for in-progress orders on mount
 onMounted(async () => {
   window.addEventListener('resize', checkScreen)
   checkScreen()
@@ -186,6 +210,9 @@ onMounted(async () => {
     if (!userStore.fullname || !userStore.avatar_url) {
       userStore.fetchUserProfile()
     }
+
+    // Fetch in-progress orders
+    await fetchInProgressOrders(data.user.id)
   } else {
     console.error('Auth error:', error)
   }
@@ -194,6 +221,27 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreen)
 })
+
+// Fetch in-progress orders for the current user
+async function fetchInProgressOrders(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, status')
+      .eq('user_id', userId)
+      .in('status', ['To Deliver', 'Processing'])
+
+    if (error) {
+      console.error('Error fetching in-progress orders:', error)
+      return
+    }
+
+    // Update the order store with the count of in-progress orders
+    orderStore.setInProgressOrdersCount(data.length)
+  } catch (err) {
+    console.error('Failed to fetch in-progress orders:', err)
+  }
+}
 
 // --- Methods ---
 function checkScreen() {
@@ -573,5 +621,47 @@ li {
   font-size: 1.2rem;
   border: 3px solid #7e57c2;
   margin-bottom: 10px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff5252;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.mobile-notification-badge {
+  background-color: #ff5252;
+  color: white;
+  border-radius: 50%;
+  padding: 1px 6px;
+  font-size: 12px;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.new-notification {
+  background-color: rgba(253, 123, 56, 0.1);
+  border-left: 3px solid #fd7b38;
+}
+
+.timestamp {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.notification-wrapper {
+  position: relative;
 }
 </style>

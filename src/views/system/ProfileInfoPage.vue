@@ -40,8 +40,10 @@ const handleAvatarError = (e) => {
             <div class="profile-wrapper">
               <v-card class="pa-6 profile-card" flat>
                 <!-- Avatar without decorative elements -->
-                <div class="d-flex justify-center mb-4">  <!-- Reduced mb-6 to mb-4 -->
-                  <v-avatar color="deep-purple lighten-3" size="120" class="avatar-elevated">  <!-- Reduced size from 150 to 120 -->
+                <div class="d-flex justify-center mb-4">
+                  <!-- Reduced mb-6 to mb-4 -->
+                  <v-avatar color="deep-purple lighten-3" size="120" class="avatar-elevated">
+                    <!-- Reduced size from 150 to 120 -->
                     <img
                       v-if="avatarUrl"
                       :src="avatarUrl"
@@ -93,7 +95,8 @@ const handleAvatarError = (e) => {
                 </div>
 
                 <!-- Action button -->
-                <div class="d-flex justify-center mt-6">  <!-- Reduced mt-8 to mt-6 -->
+                <div class="d-flex justify-center mt-6">
+                  <!-- Reduced mt-8 to mt-6 -->
                   <v-btn
                     color="#0c3b2e"
                     variant="outlined"
@@ -101,7 +104,8 @@ const handleAvatarError = (e) => {
                     class="action-btn"
                     size="small"
                   >
-                    <v-icon left size="small">mdi-account-edit</v-icon>  <!-- Added size small -->
+                    <v-icon left size="small">mdi-account-edit</v-icon>
+                    <!-- Added size small -->
                     Edit Profile
                   </v-btn>
                 </div>
@@ -205,6 +209,12 @@ const handleAvatarError = (e) => {
   height: 120px !important;
 }
 
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
 /* Button adjustments */
 .action-btn {
   border-radius: 8px; /* Slightly smaller */
@@ -214,7 +224,6 @@ const handleAvatarError = (e) => {
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
   font-size: 0.8rem; /* Smaller text */
-  
 }
 
 /* Responsive adjustments */
@@ -252,8 +261,12 @@ const handleAvatarError = (e) => {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
