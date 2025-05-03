@@ -1,39 +1,43 @@
 <template>
   <NavigationBar>
     <template #content>
-      <v-container fluid class="bg-image">
+      <v-app>
+      <v-container fluid class="bg-image pb-0">
         <v-row>
-          <v-col cols="12" md="5" class="pt-16">
+          <v-col cols="12" md="5" class="pt-16 pb-0">
             <h1></h1>
             <p></p>
           </v-col>
-          <v-col cols="12" md="7">
+          <v-col cols="12" md="7" class="pb-0 hero-h2">
             <h2>
               We provide clean, safe, and <br />worry-free water delivered right <br />
               to your doorstep.
             </h2>
-            <router-link to="/station"
-              ><v-btn class="home-btn"><span>Order Now!</span></v-btn>
+            <router-link to="/station" class="home-btn-routerlink"
+              ><v-btn class="home-btn">Order Now!</v-btn>
             </router-link>
-            <!--footer icons-->
-            <ul class="footer-icons">
-              <li><img :src="firstIcon" alt="" />Convenient <br />Ordering</li>
-              <li>
-                <img :src="secondIcon" alt="" />Offers <br />Affordable and <br />Quality Water
-              </li>
-              <li>
-                <img :src="thirdIcon" alt="" />Deliver quickly<br />
-                to your <br />doorstep
-              </li>
-              <li>
-                <img :src="fourthIcon" alt="" />Recommend a Clean<br />
-                & Safe Water <br />Refilling Station
-              </li>
-            </ul>
-            <!--End footer icons-->
           </v-col>
         </v-row>
+         <!--footer icons-->
+          <v-footer class="footer-style" app>
+              <ul class="footer-icons">
+                <li><img :src="firstIcon" alt="" />Convenient <br />Ordering</li>
+                <li>
+                  <img :src="secondIcon" alt="" />Affordable and <br />Quality Water
+                </li>
+                <li>
+                  <img :src="thirdIcon" alt="" />Deliver quickly<br />
+                  to your <br />doorstep
+                </li>
+                <li>
+                  <img :src="fourthIcon" alt="" />Clean &<br />
+                  Safe Water
+                </li>
+              </ul>
+            </v-footer>
+            <!--End footer icons-->
       </v-container>
+    </v-app>
     </template>
   </NavigationBar>
 </template>
@@ -50,7 +54,9 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
   name: 'HomeView',
   components: {},
 }*/
+
 </script>
+
 
 <style scoped>
 .bg-image {
@@ -59,11 +65,15 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
   background-position: center;
   background-repeat: no-repeat;
   min-height: 100vh;
+  margin-bottom: 0%;
+  padding-bottom: 0% !important;
 }
-
+.hero-h2{
+  padding-bottom: 0%;
+}
 h2 {
   font-family: 'familjen-grotesk', sans-serif;
-  font-size: 19px;
+  font-size: 25px;
   color: #0557b6;
   font-style: italic;
   font-weight: 600;
@@ -76,19 +86,20 @@ h2 {
   background-size: 200% auto;
   background-position: left center;
   color: white;
-  font-family: 'familjen-grotesk', sans-serif;
-  font-size: 17px;
+  font-family: 'Familjen Grotesk', Courier, monospace;
+  font-size: 19px;
   font-weight: 700 !important;
-  padding: 9px 22px;
   border-radius: 20px 0;
+  width: 200px;
+  height: 45px;
   margin-left: 9%;
   margin-top: 15px;
   text-transform: none;
   transition: background-position 0.5s ease;
+  border-bottom: #02acef46 4px solid;
+  border-right: #02dfefa6 1px solid;
 }
-.home-btn span {
-  font-weight: 600;
-}
+
 
 .home-btn:hover {
   background-position: right center;
@@ -97,7 +108,6 @@ h2 {
 /*Footer-icon*/
 .footer-icons {
   margin-left: 10%;
-  margin-top: 26%;
   display: flex;
   gap: 30px;
   /*justify-content: center;*/
@@ -111,33 +121,102 @@ h2 {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 160px;
-  font-size: 11px;
-  font-family: 'familjen-grotesk', sans-serif;
+  max-width: 200px;
+  font-size: 12px;
+  font-family: 'Inter', Courier, monospace;
   font-weight: 600;
   color: #04448d;
   line-height: 1.4;
   animation: floatUpDown 3s ease-in-out infinite;
 }
 
-/* Floating animation like water */
+/* Floating animation like water
 @keyframes floatUpDown {
   0% {
     transform: translateY(0px);
   }
-  50% {
+  40% {
     transform: translateY(-8px);
   }
   100% {
     transform: translateY(0px);
   }
-}
+}*/
 
 .footer-icons img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 10px;
-  border: 1px solid #04448d;
+  width: 45px;
+  height: 45px;
+  border-bottom: #02adef 4px solid;
   border-radius: 50%;
 }
+.footer-style {
+  background-color: #7195a1a8 !important;
+  justify-content: center;
+}
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* full height of viewport */
+}
+
+.footer-style {
+  margin-top: auto; /* push footer to bottom */
+  background-color: #f8f8f8; /* example background */
+  padding: 20px;
+  height: 17%;
+  border-radius: 40px 40px 0 0;
+}
+
+.footer-icons {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-icons li {
+  text-align: center;
+}
+
+/* Animated gradient border */
+.footer-style {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 3px solid #02acef4d;
+  color: #fff;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* The running border using a ::before pseudo-element */
+.footer-style:before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  border-radius: 12px;
+  background: linear-gradient(270deg, #90caf956, #42a4f585, #89c4ddd7, #408db33d, #90caf94b);
+  background-size: 400% 400%;
+  animation: gradient-run 6s ease infinite;
+  opacity: 1; /* Always visible */
+}
+
+/* Animation keyframes */
+@keyframes gradient-run {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 </style>
