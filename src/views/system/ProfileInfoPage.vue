@@ -40,8 +40,8 @@ const handleAvatarError = (e) => {
             <div class="profile-wrapper">
               <v-card class="pa-6 profile-card" flat>
                 <!-- Avatar without decorative elements -->
-                <div class="d-flex justify-center mb-6">
-                  <v-avatar color="deep-purple lighten-3" size="150" class="avatar-elevated">
+                <div class="d-flex justify-center mb-4">  <!-- Reduced mb-6 to mb-4 -->
+                  <v-avatar color="deep-purple lighten-3" size="120" class="avatar-elevated">  <!-- Reduced size from 150 to 120 -->
                     <img
                       v-if="avatarUrl"
                       :src="avatarUrl"
@@ -53,41 +53,55 @@ const handleAvatarError = (e) => {
                   </v-avatar>
                 </div>
 
-                <!-- Profile Info with cards -->
-                <v-row class="profile-info">
-                  <v-col cols="12">
-                    <v-row>
-                      <v-col cols="12" sm="6">
-                        <v-card class="info-card" variant="outlined">
-                          <div class="field-label">Full Name</div>
-                          <div class="field-value">{{ userStore.fullname || 'N/A' }}</div>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-card class="info-card" variant="outlined">
-                          <div class="field-label">Mobile Number</div>
-                          <div class="field-value">{{ userStore.mobile || 'N/A' }}</div>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-card class="info-card" variant="outlined">
-                          <div class="field-label">Email</div>
-                          <div class="field-value">{{ userStore.email || 'N/A' }}</div>
-                        </v-card>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
+                <!-- Compact Profile Info -->
+                <div class="compact-profile-info">
+                  <div class="form-field">
+                    <span class="text-grey-darken-1 field-label">Full Name</span>
+                    <v-text-field
+                      :model-value="userStore.fullname || 'N/A'"
+                      variant="solo"
+                      density="compact"
+                      readonly
+                      class="pa-0 ma-0 profile-field"
+                      hide-details
+                    />
+                  </div>
 
-                <!-- Action buttons with animation -->
-                <div class="d-flex justify-center mt-8">
+                  <div class="form-field">
+                    <span class="text-grey-darken-1 field-label">Mobile Number</span>
+                    <v-text-field
+                      :model-value="userStore.mobile || 'N/A'"
+                      variant="solo"
+                      density="compact"
+                      readonly
+                      class="pa-0 ma-0 profile-field"
+                      hide-details
+                    />
+                  </div>
+
+                  <div class="form-field">
+                    <span class="text-grey-darken-1 field-label">Email</span>
+                    <v-text-field
+                      :model-value="userStore.email || 'N/A'"
+                      variant="solo"
+                      density="compact"
+                      readonly
+                      class="pa-0 ma-0 profile-field"
+                      hide-details
+                    />
+                  </div>
+                </div>
+
+                <!-- Action button -->
+                <div class="d-flex justify-center mt-6">  <!-- Reduced mt-8 to mt-6 -->
                   <v-btn
                     color="#0c3b2e"
                     variant="outlined"
                     @click="goToMyAccount"
                     class="action-btn"
+                    size="small"
                   >
-                    <v-icon left>mdi-account-edit</v-icon>
+                    <v-icon left size="small">mdi-account-edit</v-icon>  <!-- Added size small -->
                     Edit Profile
                   </v-btn>
                 </div>
@@ -109,24 +123,26 @@ const handleAvatarError = (e) => {
 </template>
 
 <style scoped>
+/* Base container styles */
 .account-container {
-  position: relative; /* Required for absolute children */
+  position: relative;
   width: 100%;
-  min-height: 100vh; /* Ensure container covers the viewport */
+  min-height: 100vh;
 }
 
 .overlay-layout {
-  position: absolute; /* Overlay on top of MyAccountView */
+  position: absolute;
   top: 6rem;
   left: 9rem;
   width: 60%;
   height: 60%;
-  z-index: 10; /* Higher than MyAccountView (default: auto) */
-  /* background: rgba(114, 17, 17, 0.3); */
+  z-index: 10;
 }
+
+/* Profile card adjustments */
 .profile-wrapper {
   width: 100%;
-  max-width: 900px;
+  max-width: 500px; /* Reduced from 900px */
   animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -138,84 +154,106 @@ const handleAvatarError = (e) => {
   backdrop-filter: blur(5px);
   border: 1px solid rgba(12, 59, 46, 0.1);
   overflow: hidden;
+  height: auto; /* Changed from 75vh to auto */
+  padding: 24px; /* Reduced from pa-6 (48px) */
 }
 
+/* Compact profile info section */
+.compact-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Tight spacing between fields */
+  margin: 0 auto;
+  width: 80%; /* Controls width of fields */
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 4px; /* Reduced from 8px */
+}
+
+.field-label {
+  font-size: 0.7rem; /* Slightly smaller */
+  color: rgba(0, 0, 0, 0.6);
+  margin-left: 4px; /* Reduced from 8px */
+  margin-bottom: 1px; /* Very tight */
+  display: block;
+}
+
+.profile-field {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.profile-field .v-field__outline {
+  opacity: 0.3;
+}
+
+.profile-field .v-field__input {
+  color: rgba(0, 0, 0, 0.87);
+  cursor: default;
+  padding-top: 2px; /* Reduced from 4px */
+  font-size: 0.85rem; /* Slightly smaller text */
+}
+
+/* Avatar adjustments */
 .avatar-elevated {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   border: 3px solid white;
   transition: transform 0.3s ease;
+  width: 120px !important;
+  height: 120px !important;
 }
 
-.avatar-elevated:hover {
-  transform: scale(1.05);
-}
-
-.avatar-img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-}
-
-.field-label {
-  font-size: 0.85rem;
-  color: #0c3b2e;
-  font-weight: 600;
-  margin-bottom: 4px;
-  opacity: 0.8;
-}
-
-.field-value {
-  font-size: 1rem;
-  padding: 12px;
-  background-color: rgba(245, 245, 245, 0.5);
-  border-radius: 6px;
-  min-height: 45px;
-  display: flex;
-  align-items: center;
-  color: #0c3b2e;
-}
-
-.info-card {
-  padding: 16px;
-  border-radius: 12px !important;
-  border-color: rgba(12, 59, 46, 0.1) !important;
-  background-color: rgba(255, 255, 255, 0.7) !important;
-  transition: all 0.3s ease;
-  height: 100%;
-}
-
-.info-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(12, 59, 46, 0.1) !important;
-}
-
+/* Button adjustments */
 .action-btn {
-  border-radius: 12px;
-  padding: 0 24px;
-  height: 48px;
+  border-radius: 8px; /* Slightly smaller */
+  padding: 0 16px; /* Reduced from 24px */
+  height: 36px; /* Reduced from 48px */
   font-weight: 600;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
+  font-size: 0.8rem; /* Smaller text */
+  
 }
 
-.action-btn:hover {
-  background-color: #0c3b2e !important;
-  color: white !important;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(12, 59, 46, 0.3);
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .overlay-layout {
+    left: 5rem;
+    width: 70%;
+  }
+
+  .compact-profile-info {
+    width: 90%;
+  }
 }
 
-.profile-info {
-  animation: slideUp 0.5s ease-in-out;
+@media (max-width: 600px) {
+  .overlay-layout {
+    left: 2rem;
+    width: 85%;
+    top: 4rem;
+  }
+
+  .profile-card {
+    padding: 16px;
+  }
+
+  .compact-profile-info {
+    width: 100%;
+  }
+
+  .avatar-elevated {
+    width: 100px !important;
+    height: 100px !important;
+  }
 }
 
+/* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
@@ -226,12 +264,6 @@ const handleAvatarError = (e) => {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@media (max-width: 600px) {
-  .profile-card {
-    padding: 24px 16px;
   }
 }
 </style>
