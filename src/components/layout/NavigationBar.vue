@@ -169,7 +169,7 @@ const avatarUrl = computed(() => {
 })
 
 // --- Refs ---
-const scrollPosition = ref(null)
+
 const mobile = ref(null)
 const mobileNav = ref(null)
 const windowWidth = ref(window.innerWidth)
@@ -590,27 +590,119 @@ function addNotification(type, title, message) {
 
   showStatusToast(`${title}: ${message}`, toastType)
 }
+
+// Scroll position ref to track whether we've scrolled
+const scrollPosition = ref(false)
+
+// Update scroll position based on window scroll
+function updateScroll() {
+  // If scrolled more than 50px, set scrollPosition to true
+  scrollPosition.value = window.scrollY > 50
+}
+
+// Add scroll event listener on mount
+onMounted(() => {
+  window.addEventListener('scroll', updateScroll)
+  window.addEventListener('resize', checkScreen)
+  // Initial check in case page loads already scrolled
+  updateScroll()
+  checkScreen()
+})
+
+// Remove scroll event listener on unmount
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateScroll)
+  window.removeEventListener('resize', checkScreen)
+})
 </script>
 
 <style scoped>
 header {
-  z-index: 99;
-  width: 100%;
   position: fixed;
-  transition: 0.5s ease all;
-  color: #04448d;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99;
+  transition: all 0.5s ease;
+  /* Initially transparent background */
+  background-color: transparent;
 }
+
+/* When scrolled, apply the background color */
+header.scrolled-nav {
+  background-color: rgba(56, 56, 56, 0.452);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header.scrolled-nav .first-word,
+header.scrolled-nav .second-word {
+  font-size: 40px;
+}
+
 nav {
   display: flex;
   flex-direction: row;
   padding: 12px 0;
-  transition: 0.5s ease all;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.5s ease;
   width: 90%;
   margin: 0 auto;
   @media (min-width: 1140px) {
     max-width: 1140px;
   }
 }
+
+/* Bell icon animation */
+@keyframes shake {
+  0% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(5deg);
+  }
+  30% {
+    transform: rotate(-5deg);
+  }
+  45% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+  85% {
+    transform: rotate(-2deg);
+  }
+  92% {
+    transform: rotate(1deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+/* Apply shake on hover */
+.second-last:hover {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Notification bell with notifications class */
+.has-notifications {
+  animation: shake 0.8s ease-in-out;
+  animation-iteration-count: infinite;
+  animation-delay: 2s;
+}
+
+/* Pause animation when hovering */
+.has-notifications:hover {
+  animation: shake 0.5s ease-in-out;
+  animation-iteration-count: 1;
+  animation-delay: 0s;
+}
+
 ul,
 .link {
   font-weight: 400;
@@ -621,21 +713,20 @@ ul,
 }
 
 li {
-  padding: 16px;
-  margin-left: 24px;
-
-  .last,
-  second-last {
-    margin-left: -2.7rem !important;
-  }
-  .last {
-    font-size: 36px;
-    border-style: none;
-  }
-  .second-last {
-    font-size: 32px;
-    border-style: none;
-  }
+  padding: 15px;
+  margin-left: 27px;
+}
+.last,
+.second-last {
+  margin-left: -2.7rem !important;
+}
+.last {
+  font-size: 36px;
+  border-style: none;
+}
+.second-last {
+  font-size: 32px;
+  border-style: none;
 }
 
 .link {
@@ -651,46 +742,28 @@ li {
 .branding {
   display: flex;
   align-items: center;
-
-  .first-word,
-  .second-word {
-    font-weight: 500;
-    font-size: 53px;
-    transition: 0.5s ease all;
-    font-family: 'Antonio', sans-serif;
-  }
-  .first-word {
-    color: #02adef;
-  }
-  .second-word {
-    color: #04448d;
-  }
 }
+
+.first-word,
+.second-word {
+  font-weight: 600;
+  font-size: 53px;
+  transition: 0.5s ease all;
+  font-family: 'Antonio', sans-serif;
+}
+.first-word {
+  color: #02adef;
+}
+.second-word {
+  color: #04448d;
+}
+
 .navigation {
   display: flex;
   align-items: center;
-  flex: 1;
-  justify-content: flex-end;
-}
-@keyframes bell-shake {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(3deg);
-  }
-  50% {
-    transform: rotate(-3deg);
-  }
-  75% {
-    transform: rotate(2deg);
-  }
-}
-
-.bell {
-  display: inline-block;
-  animation: bell-shake 1s infinite ease-in-out;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .icon-style {
@@ -954,7 +1027,7 @@ li {
 }
 
 .small-icon {
-  font-size: 19px;
+  font-size: 20px;
 }
 
 /* Ensure underline only appears on text */
@@ -983,7 +1056,7 @@ li {
 .notification-badge {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 17px;
   background-color: #ff5252;
   color: white;
   border-radius: 50%;
@@ -1100,5 +1173,32 @@ li {
   font-size: 0.8rem;
   color: #757575;
   margin-top: 4px;
+}
+
+/* Change icon color when scrolled */
+.scrolled-icon,
+.scrolled-nav .v-icon {
+  color: #ffffff !important;
+}
+
+/* Change brand colors when scrolled */
+.scrolled-nav .first-word {
+  color: #02b5fc;
+}
+
+.scrolled-nav .second-word {
+  color: #ffffff;
+}
+
+/* Change text color when scrolled */
+.scrolled-nav .navigation li a {
+  color: #ffffff;
+}
+
+/* Red hover animation for icon and nav links */
+.scrolled-nav .navigation li a:hover,
+.scrolled-nav .v-icon:hover {
+  color: #02adef !important; /* Red on hover */
+  transition: color 0.3s ease;
 }
 </style>
