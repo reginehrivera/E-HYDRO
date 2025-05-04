@@ -408,11 +408,14 @@
 
   <!-- Success Dialog for Completed Orders -->
   <v-dialog v-model="showSuccessDialog" max-width="400">
-    <v-card>
-      <v-card-title class="text-h6">Order Successful</v-card-title>
-      <v-card-text>{{ successMessage }}</v-card-text>
-      <v-card-actions class="justify-center">
-        <v-btn class="custom-okay-btn" @click="handleDialogOk"> Okay </v-btn>
+    <v-card class="modal-message-style">
+      <v-card-title class="text-h6 success-style">Order Successful</v-card-title>
+      <v-card-text class="">{{ successMessage }}</v-card-text>
+      <v-card-actions class=""> 
+        <router-link to="/station" class=" pl-7 text-start">
+          <v-btn class="custom-exit-btn"> Exit </v-btn>
+        </router-link>
+        <v-btn class="custom-okay-btn text-end" @click="handleDialogOk"> Check Orders </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -420,11 +423,11 @@
 
   <!-- Incomplete Order Dialog -->
   <v-dialog v-model="showIncompleteOrderDialog" max-width="400">
-    <v-card>
-      <v-card-title class="text-h6">Incomplete Order</v-card-title>
+    <v-card class="modal-message-style">
+      <v-card-title class="text-h6 incomplete-style">Incomplete Order</v-card-title>
       <v-card-text>{{ incompleteOrderMessage }}</v-card-text>
-      <v-card-actions class="justify-center">
-        <v-btn class="custom-okay-btn" @click="handleIncompleteOrderOk"> Okay </v-btn>
+      <v-card-actions class="justify-end pr-7">
+        <v-btn class="custom-incomplete-btn" @click="handleIncompleteOrderOk"> Okay </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -546,15 +549,6 @@ function confirmDateSelection() {
   showCalendar.value = true
 }
 
-/*const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
-  return names
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-})*/
-
 const avatarUrl = ref('')
 
 // Update avatarUrl when user data is available
@@ -631,13 +625,6 @@ function addNewOrder() {
   })
 }
 
-/*function orderInBulk() {
-  orders.value.forEach((order) => {
-    order.quantity += 12
-  })
-  updateTotals()
-}*/
-
 function handleOptionChange() {
   updateTotals()
 }
@@ -685,8 +672,6 @@ async function placeOrder() {
     return
   }
 
-  // Generate random ID for each order placed
-
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
     address: order.address,
@@ -730,10 +715,6 @@ function handleDialogOk() {
 function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
-
-//const stationId = 'station-123' // Should be dynamic (from route param maybe)
-//const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
-
 const averageRating = computed(() => {
   if (actualReviews.value.length === 0) return 0
   const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
@@ -795,8 +776,8 @@ async function fetchReviews() {
     console.error('Error in fetchReviews:', e)
   }
 }
-//Bottom -Butttons colored when hover and clicked logic
 
+//========Bottom buttton colored when hover and clicked logic====//
 const clickedButton = ref(''); // For tracking which button was clicked
 
 function toggleCalendar() {
@@ -807,7 +788,6 @@ function toggleCalendar() {
 function placeOrderButton() {
   showCalendar.value = false;
   clickedButton.value = 'order';
-  // your order logic here
 }
 </script>
 
@@ -922,15 +902,6 @@ function placeOrderButton() {
   display: none; /* Chrome, Safari */
 }
 
-.custom-okay-btn {
-  background-color: #02adef;
-  color: white;
-}
-
-.custom-okay-btn:hover {
-  background-color: #0296d1;
-}
-
 .avatar-img {
   object-fit: contain;
   width: 100%;
@@ -1024,5 +995,40 @@ function placeOrderButton() {
   background-size: 200% auto;
   background-position: left center;
   color: white;
+}
+
+/**========Modal Style============ */
+.modal-message-style{
+  border-radius: 20px !important;
+  padding: 10px;
+  font-family: 'Familjen Grotesk', Times, serif;
+}
+.success-style {
+  color: #0557b6;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+.custom-okay-btn {
+  background-color: #02adef;
+  color: white;
+  text-transform: none;
+}
+.custom-exit-btn{
+  text-transform: none;
+  border: 1px solid #02adef;
+  color: #02adef;
+}
+
+.custom-okay-btn:hover {
+  background-color: #0296d1;
+}
+.modal-message-style .incomplete-style{
+  color: red;
+}
+.custom-incomplete-btn {
+  border: 1px solid #02adef !important; 
+  color: #02adef;
+  text-transform: none;
 }
 </style>
