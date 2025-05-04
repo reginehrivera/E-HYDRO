@@ -971,7 +971,6 @@ function placeOrderButton() {
 }
 
 .clicked-btn {
-  background-color: #4caf50 !important;
   color: white !important;
 }
 
@@ -986,6 +985,12 @@ function placeOrderButton() {
 .full-btn:hover {
   background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
   color: white;
+  h3{
+    color: white;
+  }
+  h5{
+    color: white;
+  }
 }
 
 /* Clicked (active) effect */
@@ -994,6 +999,12 @@ function placeOrderButton() {
   background-size: 200% auto;
   background-position: left center;
   transition: background-position 0.5s ease;
+  h3{
+    color: white;
+  }
+  h5{
+    color: white;
+  }
 }
 .order-btn {
   text-transform: none;
