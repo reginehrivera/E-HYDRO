@@ -91,7 +91,38 @@
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
-              <v-col cols="12" md="7" class="">
+              <v-col cols="12" md="7"class="d-flex flex-column align-center">
+
+                <v-date-picker
+                  v-if="showCalendar"
+                  v-model="selectedDate"
+                  :min="new Date().toISOString().substr(0, 10)"
+                  show-adjacent-months
+                  class="custom-calendar"
+                  hide-header="false"
+                  width="600"
+                  color="green"
+                  :selected-color="'#2e2545'"
+                  >+
+                  <template #actions>
+                    <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
+                    <v-btn
+                      @click="confirmDateSelection"
+                      href="#station-right-container-content"
+                      color="green"
+                      text
+                      >Confirm</v-btn
+                    >
+                  </template>
+                </v-date-picker>
+
+                <span v-if="showDateInput" class="delivery-date">
+                  <v-icon color="green" size="20" style="top: -2px">mdi-check-circle</v-icon>
+                  Your delivery is set for <span class="blue-text">{{ formattedDate }}</span
+                  >.<br />
+                  Please provide the other details to proceed.
+                </span>
+
                 <v-container class="right-container">
                   <v-row class="first-row">
                     <v-col cols="6" class="grp-checkbox">
@@ -200,25 +231,31 @@
                 <v-container>
                   <v-row class="text-center mx-auto">
                     <v-col cols="12" md="4" sm="4" xs="4" class="set-sched-btn">
-                      <router-link class="no-underline" to="/calendar">
-                        <v-btn variant="none" class="full-btn">
-                          <div>
-                            <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
-                            <h3>schedule</h3>
-                          </div>
-                        </v-btn>
-                      </router-link>
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'calendar' }"
+                        @click="toggleCalendar"
+                      >
+                        <div>
+                          <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
+                          <h3>schedule</h3>
+                        </div>
+                      </v-btn>
                     </v-col>
 
                     <v-col cols="12" md="4" sm="4" xs="4" class="bulk-btn">
-                      <router-link class="no-underline" to="#" @click="orderInBulk">
-                        <v-btn variant="none" class="full-btn">
-                          <div>
-                            <h5>Order in bulk</h5>
-                            <h3>Save ₱10.00</h3>
-                          </div>
-                        </v-btn>
-                      </router-link>
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'order' }"
+                        @click="placeOrderButton"
+                      >
+                        <div>
+                          <h5>Deliver Water Now</h5>
+                          <h3>₱20 per gallon</h3>
+                        </div>
+                      </v-btn>
                     </v-col>
 
                     <v-col cols="12" md="4" sm="4" xs="4" class="order-bottom-btn">
@@ -254,7 +291,8 @@ import { ref, computed } from 'vue'
 
 const selected = ref([''])
 const items = ['']
-
+const formattedDate = ref('')
+const showDateInput = ref(false)
 // Increasing and Decreasing number of gallon
 const numberOfGallon = ref(0)
 const isBulkOrder = ref(false)
@@ -282,6 +320,47 @@ const pricePerGallon = 30
 const subtotal = computed(() => numberOfGallon.value * pricePerGallon)
 const discount = computed(() => (isBulkOrder.value ? 10 : 0))
 const totalPriceWithDiscount = computed(() => subtotal.value - discount.value)
+
+const showCalendar = ref(false)
+const selectedDate = ref(null);  // Stores the selected date (YYYY-MM-DD format)
+function placeOrderButton() {
+  showCalendar.value = false;  // Ensures calendar is hidden
+  clickedButton.value = 'order';  // Marks "Deliver Now" as active
+  // Note: Your current code doesn't automatically place the order here
+}
+const orderToSave = {
+  // ...other data...
+  calendar: selectedDate.value || new Date().toISOString().substr(0, 10)  // Uses selected date or today
+};
+function toggleCalendar() {
+  showCalendar.value = true;  // Shows the calendar
+  clickedButton.value = 'calendar';  // Marks the calendar button as active
+}
+function confirmDateSelection() {
+  if (!selectedDate.value) {
+    console.warn('No date selected!')
+    return // Exit early if no date
+  }
+
+  formattedDate.value = new Date(selectedDate.value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+
+  showDateInput.value = true
+  showCalendar.value = false
+
+  // Optional: Auto-scroll to form
+  nextTick(() => {
+    document.querySelector('#station-right-container-content')?.scrollIntoView({
+      behavior: 'smooth'
+    })
+  })
+}
+const clickedButton = ref('') // For tracking which button was clicked
+
+
 </script>
 
 <style scoped>
@@ -289,5 +368,79 @@ const totalPriceWithDiscount = computed(() => subtotal.value - discount.value)
   color: red;
   font-weight: normal;
   font-size: 15px;
+}
+
+.full-btn {
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Hover effect */
+.full-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  color: white;
+  h3 {
+    color: white;
+  }
+  h5 {
+    color: white;
+  }
+}
+.custom-calendar {
+  background-color: #dee8efc2;
+  color: #000;
+  border-radius: 12px;
+  border: 3px solid #0557b6;
+  padding: 1rem;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 17px !important;
+}
+.custom-calendar .v-btn {
+  border-radius: 15px;
+}
+.delivery-date {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  background-color: #dee8ef;
+  border: 2px solid #0557b6;
+  border-radius: 12px;
+  color: #333;
+  padding: 16px;
+  margin: 16px auto; /* Center horizontally */
+  font-weight: 500;
+  position: relative; /* For proper positioning */
+  z-index: 1; /* Ensure it appears above other elements */
+  box-sizing: border-box; /* Include padding in width calculation */
+
+}
+
+@media (max-width: 1288px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 450px;
+  }
+}
+@media (max-width: 950px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+
+    width: 100%;
+
+  }
+}
+@media (max-width:700px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 90%;
+
+  }
+}
+.blue-text {
+  color: blue;
 }
 </style>
