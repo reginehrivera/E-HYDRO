@@ -972,6 +972,7 @@ h3 {
   padding: 16px;              /* Space inside the box */
   margin: 16px 0;
   margin: 1rem auto;
+  font-weight: 500;
 }
 
 @media (max-width: 1288px) {
