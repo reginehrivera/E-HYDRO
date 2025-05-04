@@ -362,7 +362,7 @@ const toggleConfirmPasswordVisibility = () => {
 
 .wrapper {
   overflow: hidden;
-  max-width: 390px;
+  max-width: 380px;
   width: 100%;
   background: #fff;
   padding: 30px;
@@ -381,7 +381,7 @@ const toggleConfirmPasswordVisibility = () => {
 .slide-controls {
   position: relative;
   display: flex;
-  height: 40px;
+  height: 39px;
   width: 100%;
   overflow: hidden;
   margin: 20px 0 15px 0;
@@ -558,15 +558,15 @@ const toggleConfirmPasswordVisibility = () => {
 
 /* Vuetify Field Overrides */
 :deep(.v-text-field .v-field) {
-  font-size: 17px;
+  font-size: 15px;
   border-radius: 5px;
   border: 1px solid lightgrey;
   border-bottom-width: 2px;
 }
 
 :deep(.v-text-field .v-field__input) {
-  padding: 0 15px;
-  min-height: 40px;
+  padding: 0 10px;
+  min-height: 32px;
 }
 
 :deep(.v-text-field .v-field__outline) {
