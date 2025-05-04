@@ -33,15 +33,15 @@
                   <!--Description-->
                   <v-container class="description-card">
                     <v-row class="description-row">
-                      <v-col cols="12" md="7" class="description shrink-line">
+                      <v-col cols="12" md="7" sm="7" class="description shrink-line">
                         <p class="shrink-line">
                           <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
                           Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
                         </p>
                       </v-col>
-                      <v-col cols="12" md="5" class="description text-end shrink-line">
+                      <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
-                        <p4 class="blue-color">per gallon</p4><br />
+                        <p class="blue-color">per gallon</p><br />
                         <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
@@ -145,22 +145,21 @@
               <!--Right Column-->
               <v-col cols="12" md="7" class="d-flex flex-column align-center">
                 <v-date-picker
-                  v-if="showCalendar"
+                v-if="showCalendar"
                   v-model="selectedDate"
                   :min="new Date().toISOString().substr(0, 10)"
                   show-adjacent-months
                   class="custom-calendar"
                   hide-header="false"
                   width="600"
-                  color="#FD7B38"
-                  :selected-color="'#FD7B38'"
+                  color="green"
+                  :selected-color="'#2e2545'"
                   >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
-                    <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
+                    <v-btn @click="confirmDateSelection" href="#station-right-container-content" color="green" text>Confirm</v-btn>
                   </template>
                 </v-date-picker>
-
                 <!-- Updated template section with fixes for order card stability -->
                 <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
@@ -173,7 +172,7 @@
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
-                          <h4 class="blue-color">Order Option</h4>
+                          <h4 class="blue-color" id="station-right-container-content">Order Option</h4>
                           <div class="checkboxes">
                             <div class="checkbox-one">
                               <v-checkbox
@@ -262,8 +261,8 @@
                         </v-col>
                         <v-col cols="12" md="10" class="pl-6">
                           <v-row>
-                            <v-col cols="12">
-                              <h5 class="blue-color">{{ station.name }}</h5>
+                            <v-col cols="12" class="pt-3">
+                              <h5 class="blue-color pt-0 mt-0">{{ station.name }}</h5>
                               <h6>
                                 Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal
                               </h6>
@@ -271,7 +270,7 @@
                           </v-row>
                           <v-row>
                             <v-col cols="12" md="6">
-                              <p class="text-h6">₱ 25.00 per gallon</p>
+                              <p class="text-h6 pt-0">₱ 25.00 per gallon</p>
                             </v-col>
                             <v-col cols="12" md="6">
                               <v-container d-flex align-center class="btn-group">
@@ -297,6 +296,7 @@
                                   </v-btn>
                                 </v-row>
                               </v-container>
+                              <p class="subtotal-style">Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                             </v-col>
                           </v-row>
                         </v-col>
@@ -305,7 +305,6 @@
                       <v-divider></v-divider>
 
                       <div class="total-right mb-3">
-                        <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                         <p v-if="order.quantity >= 12" class="discount-text">
                           Discount: -₱{{ getDiscount(order) }}.00
                         </p>
@@ -323,7 +322,7 @@
 
                     <!-- "Add new order" button moved outside the order loop -->
                     <div class="text-center">
-                      <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
+                      <v-btn rounded="0" class="add-address-btn pt-0 mb-4" @click="addNewOrder">
                         <v-icon class="pr-3 text-center text-primary" size="large">
                           mdi-plus-circle-outline
                         </v-icon>
@@ -335,7 +334,7 @@
                   <div class="text-end">
                     <v-divider class="my-4"></v-divider>
 
-                    <div class="d-flex justify-space-between align-start mb-4">
+                    <div class="d-flex justify-space-between align-start mb-3 ml-2 mr-2">
                       <!-- Payment Method LEFT -->
                       <div class="text-left">
                         <h4 class="text-start" style="margin-bottom: 9px">Payment Method:</h4>
@@ -361,32 +360,36 @@
                       </div>
                     </div>
                   </div>
+
+                  <div col="12" md="6" class="text-end">
+                      <v-btn variant="none" class="order-btn" @click="placeOrder">Place Order <v-tooltip activator="parent" location="left">Click to confirm order </v-tooltip></v-btn>
+                    </div>
                 </v-container>
 
                 <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
                 <v-container class="fixed-bottom-buttons">
                   <v-row class="text-center mx-auto">
-                    <v-col cols="12" md="4" class="set-sched-btn">
-                      <v-btn variant="none" class="full-btn" @click="showCalendar = !showCalendar">
+                    <v-col cols="12" md="6" sm="6" xs="6" class="set-sched-btn">
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'calendar' }"
+                        @click="toggleCalendar">
                         <div>
                           <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
                           <h3>schedule</h3>
                         </div>
                       </v-btn>
                     </v-col>
-                    <v-col cols="12" md="4" class="bulk-btn">
-                      <v-btn variant="none" class="full-btn" @click="orderInBulk">
-                        <div>
-                          <h5>Order in bulk</h5>
-                          <h3>Save ₱10.00</h3>
-                        </div>
-                      </v-btn>
-                    </v-col>
-                    <v-col cols="12" md="4" class="order-bottom-btn">
-                      <v-btn variant="none" class="full-btn" @click="placeOrder">
-                        <div>
-                          <h5>Order now</h5>
-                          <h3>₱20 | each</h3>
+                    <v-col cols="12" md="6" sm="6" xs="6" class="order-bottom-btn">
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'order' }"
+                        @click="placeOrderButton">
+                        <div >
+                          <h5>Deliver Water Now</h5>
+                          <h3>₱20 per gallon</h3>
                         </div>
                       </v-btn>
                     </v-col>
@@ -434,13 +437,13 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-import { useOrderStore } from '@/stores/orders'
+//import { useOrderStore } from '@/stores/orders'
 import '@/assets/main.css'
 import { useUserStore } from '@/stores/user'
 import { useReviewStore } from '@/stores/reviewStore'
 
 const router = useRouter()
-const orderStore = useOrderStore()
+//const orderStore = useOrderStore()
 const userStore = useUserStore()
 const reviewStore = useReviewStore()
 
@@ -448,12 +451,13 @@ const reviewStore = useReviewStore()
 const showCalendar = ref(false)
 const selectedDate = ref(null)
 const ordersContainer = ref(null)
-const orderRefs = ref([])
+//const orderRefs = ref([])
 
 const userAddresses = ref([])
 const isLoadingAddresses = ref(false)
 const hasNoAddresses = ref(false)
 
+const submissions = ref([]) // Placeholder for existing submissions data
 // Function to fetch user addresses from Supabase
 async function fetchUserAddresses() {
   isLoadingAddresses.value = true
@@ -539,17 +543,17 @@ const station = ref({
 })
 
 function confirmDateSelection() {
-  showCalendar.value = false
+  showCalendar.value = true
 }
 
-const initials = computed(() => {
+/*const initials = computed(() => {
   if (!userStore.fullname) return ''
   const names = userStore.fullname.trim().split(' ')
   return names
     .map((n) => n[0])
     .join('')
     .toUpperCase()
-})
+})*/
 
 const avatarUrl = ref('')
 
@@ -627,12 +631,12 @@ function addNewOrder() {
   })
 }
 
-function orderInBulk() {
+/*function orderInBulk() {
   orders.value.forEach((order) => {
     order.quantity += 12
   })
   updateTotals()
-}
+}*/
 
 function handleOptionChange() {
   updateTotals()
@@ -682,7 +686,6 @@ async function placeOrder() {
   }
 
   // Generate random ID for each order placed
-  const randomId = Math.floor(Math.random() * 1000000) // Example random id
 
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
@@ -698,7 +701,7 @@ async function placeOrder() {
     options: order.selected.join(', '),
   }))
 
-  const { data, error } = await supabase.from('orders').insert(orderToSave)
+  const { error } = await supabase.from('orders').insert(orderToSave)
 
   if (error) {
     console.error('Error placing order:', error)
@@ -728,8 +731,8 @@ function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
 
-const stationId = 'station-123' // Should be dynamic (from route param maybe)
-const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
+//const stationId = 'station-123' // Should be dynamic (from route param maybe)
+//const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 const averageRating = computed(() => {
   if (actualReviews.value.length === 0) return 0
@@ -792,6 +795,20 @@ async function fetchReviews() {
     console.error('Error in fetchReviews:', e)
   }
 }
+//Bottom -Butttons colored when hover and clicked logic
+
+const clickedButton = ref(''); // For tracking which button was clicked
+
+function toggleCalendar() {
+  showCalendar.value = true;
+  clickedButton.value = 'calendar';
+}
+
+function placeOrderButton() {
+  showCalendar.value = false;
+  clickedButton.value = 'order';
+  // your order logic here
+}
 </script>
 
 <style scoped>
@@ -830,19 +847,14 @@ async function fetchReviews() {
   font-size: 13px;
   margin-top: -0.5rem;
 }
-
-.discount-text {
-  color: red;
-}
-
 .scrollable-content {
   max-height: 420px;
   overflow-y: auto;
   padding-right: 8px;
 }
-
+/*----Total Details Style */
 .stable-select {
-  width: 200px; /* enough for longest option */
+  width: 210px; /* enough for longest option */
   height: 42px !important;
 }
 
@@ -861,29 +873,48 @@ async function fetchReviews() {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+.text-left h4{
+  font-family: 'Inter', Times, serif !important;  
+  color: #04448d;
+}
+.text-right h4, h3{
+  font-family: 'Inter', Times, serif;
+}
+.text-right h4{
+  font-size: 15px;
+}
+.text-right h3{
+  font-size: 18px;
+}
+.discount-text {
+  color: red;
+  font-size: 15px;
+}
 
+/*--------------Calendar Style ------------*/
 .custom-calendar {
-  background-color: #2e2545;
-  color: white;
-
+  background-color: #dee8efc2;
+  color: #000;
   border-radius: 12px;
-
+  border: 3px solid #0557b6;
   padding: 1rem;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 17px !important;
 }
 
-.custom-calendar .v-date-picker-header {
-  background-color: #2e2545;
-}
+/*.custom-calendar .v-date-picker-header {
+  background-color: #2e2545 !important;
+}*/
 
 /* Optional: tweak day cells */
 .custom-calendar .v-btn {
-  color: white; /* Make calendar day numbers white */
+  border-radius: 15px;
 }
 
 .modal-content {
   border-radius: 10px;
-  width: 100%;
-  max-width: 500px;
+  width: 100%;  
+  max-width: 400px;
   max-height: 30vh;
   overflow-y: auto;
 }
@@ -937,5 +968,61 @@ async function fetchReviews() {
 
 .v-progress-circular {
   animation: pulse 2s infinite ease-in-out;
+}
+
+.clicked-btn {
+  color: white !important;
+}
+
+/**Bottom Btn Colored when hover or clicked MAIN CSS*/
+.full-btn {
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Hover effect */
+.full-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  color: white;
+  h3{
+    color: white;
+  }
+  h5{
+    color: white;
+  }
+}
+
+/* Clicked (active) effect */
+.clicked-btn {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  transition: background-position 0.5s ease;
+  h3{
+    color: white;
+  }
+  h5{
+    color: white;
+  }
+}
+.order-btn {
+  text-transform: none;
+  font-family: 'Inter' sans-serif;
+  font-weight: 600;
+  background: #0557b6;
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+  border-radius: 20px ;
+  text-transform: none;
+  transition: background-position 0.5s ease;
+  margin-right: .20rem;
+}
+.order-btn:hover{
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
 }
 </style>

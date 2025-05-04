@@ -62,7 +62,7 @@
   font-size: 13px;
 }
 .description h3 {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 600;
 }
 .description h4 {
@@ -176,6 +176,12 @@
   background-color: #d5dfe6;
   border-radius: 5px !important;
 }
+.subtotal-style{
+  font-family: 'Inter', sans-serif !important;
+  font-size: 18px;
+  font-weight: 800 !important;
+  padding-left: 20px;
+}
 .total-right {
   text-align: right;
   margin-top: 1rem;
@@ -205,7 +211,7 @@
 
 /*set-sched-btn */
 .set-sched-btn {
-  border-radius: 15px 0 0 0;
+  border-radius: 17px 0 0 0;
 }
 .set-sched-btn h3 {
   color: #0557b6;
@@ -234,11 +240,8 @@
 }
 /*order-bottom-btn */
 .order-bottom-btn {
-  border-radius: 0 15px 0 0;
-  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
-  background-size: 200% auto;
-  background-position: left center;
-  transition: background-position 0.5s ease;
+  border-radius: 0 17px 0 0;
+  background: #ffffff;
 }
 .order-bottom-btn:hover {
   background-position: right center;
@@ -248,14 +251,15 @@
 }
 .order-bottom-btn h5 {
   font-family: 'Familjen Grotesk', Times, serif;
-  color: #bdb8d3;
-  font-size: 13px;
-  font-weight: 500;
+  color: #0255ef;
+  font-size: 15px;
+  font-weight: 700 !important;
 }
 .order-bottom-btn h3 {
   font-family: 'Familjen Grotesk', Times, serif;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 700 !important;
+  color: #0557b6;
 }
 .set-sched-btn,
 .bulk-btn,
