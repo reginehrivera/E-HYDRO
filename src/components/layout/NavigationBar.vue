@@ -36,15 +36,6 @@
                   <span class="timestamp">{{ notification.timestamp }}</span>
                 </div>
               </li>
-              <!-- Older static notifications -->
-              <li>
-                <v-icon class="notif-icon completed-icon">mdi-check-circle</v-icon>
-                <div><strong>Order Confirmed:</strong> Your order #12345 is confirmed.</div>
-              </li>
-              <li>
-                <v-icon class="notif-icon progress-icon">mdi-truck-delivery</v-icon>
-                <div><strong>On the Way:</strong> Your delivery is out.</div>
-              </li>
             </ul>
             <div class="notification-footer">
               <router-link class="view-all" to="/notifications">View All</router-link>
@@ -741,11 +732,6 @@ li {
   }
 }
 
-/* ✅ Notification Dropdown Styles */
-.notification-wrapper {
-  position: relative;
-}
-
 .notification-dropdown {
   position: absolute;
   right: 0;
@@ -840,12 +826,6 @@ li {
 
 .notification-dropdown ul::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-}
-
-/* For Firefox */
-.notification-dropdown ul {
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f1f1f1;
 }
 
 .view-all {
@@ -985,10 +965,6 @@ li {
   display: inline-block;
 }
 
-.link .v-icon {
-  margin-right: 5px;
-}
-
 .profile-initials {
   width: 60px;
   height: 60px;
@@ -1116,13 +1092,6 @@ li {
 
 .notification-dropdown li:hover {
   background-color: #f5f5f5;
-}
-
-/* Read notification styling */
-.notification-dropdown li:not(.new-notification) {
-  background-color: transparent;
-  border-left: none;
-  opacity: 0.85;
 }
 
 /* Timestamp styling */
