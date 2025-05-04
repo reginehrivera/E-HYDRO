@@ -327,10 +327,7 @@ function placeOrderButton() {
   clickedButton.value = 'order';  // Marks "Deliver Now" as active
   // Note: Your current code doesn't automatically place the order here
 }
-const orderToSave = {
-  // ...other data...
-  calendar: selectedDate.value || new Date().toISOString().substr(0, 10)  // Uses selected date or today
-};
+
 function toggleCalendar() {
   showCalendar.value = true;  // Shows the calendar
   clickedButton.value = 'calendar';  // Marks the calendar button as active
