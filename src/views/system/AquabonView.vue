@@ -33,15 +33,16 @@
                   <!--Description-->
                   <v-container class="description-card">
                     <v-row class="description-row">
-                      <v-col cols="12" md="7" class="description shrink-line">
+                      <v-col cols="12" md="7" sm="7" class="description shrink-line">
                         <p class="shrink-line">
                           <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
                           Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
                         </p>
                       </v-col>
-                      <v-col cols="12" md="5" class="description text-end shrink-line">
+                      <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
-                        <p4 class="blue-color">per gallon</p4><br />
+                        <p class="blue-color">per gallon</p>
+                        <br />
                         <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
@@ -152,25 +153,35 @@
                   class="custom-calendar"
                   hide-header="false"
                   width="600"
-                  color="#FD7B38"
-                  :selected-color="'#FD7B38'"
+                  color="green"
+                  :selected-color="'#2e2545'"
                   >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
-                    <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
+                    <v-btn
+                      @click="confirmDateSelection"
+                      href="#station-right-container-content"
+                      color="green"
+                      text
+                      >Confirm</v-btn
+                    >
                   </template>
                 </v-date-picker>
-
+                <!-- Updated template section with fixes for order card stability -->
+                <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
                   <div class="scrollable-content">
                     <v-container
                       v-for="(order, index) in orders"
                       :key="index"
-                      :ref="`order-${index}`"
+                      :data-order-index="index"
+                      class="order-card"
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
-                          <h4 class="blue-color">Order Option</h4>
+                          <h4 class="blue-color" id="station-right-container-content">
+                            Order Option
+                          </h4>
                           <div class="checkboxes">
                             <div class="checkbox-one">
                               <v-checkbox
@@ -196,11 +207,56 @@
                         </v-col>
                         <v-col cols="6">
                           <h4 class="blue-color mb-3">Delivery Address Option</h4>
-                          <v-select
-                            v-model="order.address"
-                            :items="items"
-                            label="Select Address..."
-                          />
+                          <div v-if="isLoadingAddresses">
+                            <v-progress-circular
+                              indeterminate
+                              color="primary"
+                              size="24"
+                              class="mr-2"
+                            ></v-progress-circular>
+                            <span>Loading addresses...</span>
+                          </div>
+                          <div v-else-if="userAddresses.length > 0">
+                            <v-select
+                              v-model="order.address"
+                              :items="userAddresses"
+                              label="Select Address..."
+                              item-title="title"
+                              item-value="value"
+                              variant="outlined"
+                              density="comfortable"
+                              :error-messages="order.address ? [] : ['Please select an address']"
+                            >
+                              <template v-slot:append-item>
+                                <v-divider class="mb-2"></v-divider>
+                                <v-list-item
+                                  @click="goToAddressPage"
+                                  class="text-primary"
+                                  title="Manage Addresses"
+                                  prepend-icon="mdi-plus-circle"
+                                ></v-list-item>
+                              </template>
+                            </v-select>
+                          </div>
+                          <div v-else class="address-empty-state pa-4 rounded">
+                            <div class="text-center mb-3">
+                              <v-icon color="grey" size="36">mdi-map-marker-off</v-icon>
+                              <p class="text-body-1 mt-2">No addresses found</p>
+                              <p class="text-caption text-grey">
+                                Please add a delivery address to continue
+                              </p>
+                            </div>
+                            <v-btn
+                              color="primary"
+                              variant="outlined"
+                              block
+                              @click="goToAddressPage"
+                              class="mt-2"
+                            >
+                              <v-icon left class="mr-1">mdi-plus</v-icon>
+                              Add New Address
+                            </v-btn>
+                          </div>
                         </v-col>
                       </v-row>
 
@@ -214,8 +270,8 @@
                         </v-col>
                         <v-col cols="12" md="10" class="pl-6">
                           <v-row>
-                            <v-col cols="12">
-                              <h5 class="blue-color">{{ station.name }}</h5>
+                            <v-col cols="12" class="pt-3">
+                              <h5 class="blue-color pt-0 mt-0">{{ station.name }}</h5>
                               <h6>
                                 Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal
                               </h6>
@@ -223,7 +279,7 @@
                           </v-row>
                           <v-row>
                             <v-col cols="12" md="6">
-                              <p class="text-h6">₱ 25.00 per gallon</p>
+                              <p class="text-h6 pt-0">₱ 25.00 per gallon</p>
                             </v-col>
                             <v-col cols="12" md="6">
                               <v-container d-flex align-center class="btn-group">
@@ -249,6 +305,7 @@
                                   </v-btn>
                                 </v-row>
                               </v-container>
+                              <p class="subtotal-style">Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                             </v-col>
                           </v-row>
                         </v-col>
@@ -256,17 +313,7 @@
 
                       <v-divider></v-divider>
 
-                      <div class="text-center">
-                        <v-btn rounded="0" class="add-address-btn mt-2 mb-4" @click="addNewOrder">
-                          <v-icon class="pr-3 text-center text-primary" size="large">
-                            mdi-plus-circle-outline
-                          </v-icon>
-                          <span class="text-dark">Place a new order for another location</span>
-                        </v-btn>
-                      </div>
-
                       <div class="total-right mb-3">
-                        <p>Subtotal: ₱{{ getSubtotal(order) }}.00</p>
                         <p v-if="order.quantity >= 12" class="discount-text">
                           Discount: -₱{{ getDiscount(order) }}.00
                         </p>
@@ -281,12 +328,22 @@
                         <v-divider class="my-4"></v-divider>
                       </v-row>
                     </v-container>
+
+                    <!-- "Add new order" button moved outside the order loop -->
+                    <div class="text-center">
+                      <v-btn rounded="0" class="add-address-btn pt-0 mb-4" @click="addNewOrder">
+                        <v-icon class="pr-3 text-center text-primary" size="large">
+                          mdi-plus-circle-outline
+                        </v-icon>
+                        <span class="text-dark">Place a new order for another location</span>
+                      </v-btn>
+                    </div>
                   </div>
 
                   <div class="text-end">
                     <v-divider class="my-4"></v-divider>
 
-                    <div class="d-flex justify-space-between align-start mb-4">
+                    <div class="d-flex justify-space-between align-start mb-3 ml-2 mr-2">
                       <!-- Payment Method LEFT -->
                       <div class="text-left">
                         <h4 class="text-start" style="margin-bottom: 9px">Payment Method:</h4>
@@ -312,31 +369,43 @@
                       </div>
                     </div>
                   </div>
+
+                  <div col="12" md="6" class="text-end">
+                    <v-btn variant="none" class="order-btn" @click="placeOrder"
+                      >Place Order
+                      <v-tooltip activator="parent" location="left"
+                        >Click to confirm order
+                      </v-tooltip></v-btn
+                    >
+                  </div>
                 </v-container>
 
-                <v-container v-for="(order, index) in orders" :key="index" ref="orderRefs">
+                <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
+                <v-container class="fixed-bottom-buttons">
                   <v-row class="text-center mx-auto">
-                    <v-col cols="12" md="4" class="set-sched-btn">
-                      <v-btn variant="none" class="full-btn" @click="showCalendar = !showCalendar">
+                    <v-col cols="12" md="6" sm="6" xs="6" class="set-sched-btn">
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'calendar' }"
+                        @click="toggleCalendar"
+                      >
                         <div>
                           <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
                           <h3>schedule</h3>
                         </div>
                       </v-btn>
                     </v-col>
-                    <v-col cols="12" md="4" class="bulk-btn">
-                      <v-btn variant="none" class="full-btn" @click="orderInBulk">
+                    <v-col cols="12" md="6" sm="6" xs="6" class="order-bottom-btn">
+                      <v-btn
+                        variant="none"
+                        class="full-btn"
+                        :class="{ 'clicked-btn': clickedButton === 'order' }"
+                        @click="placeOrderButton"
+                      >
                         <div>
-                          <h5>Order in bulk</h5>
-                          <h3>Save ₱10.00</h3>
-                        </div>
-                      </v-btn>
-                    </v-col>
-                    <v-col cols="12" md="4" class="order-bottom-btn">
-                      <v-btn variant="none" class="full-btn" @click="placeOrder">
-                        <div>
-                          <h5>Order now</h5>
-                          <h3>₱20 | each</h3>
+                          <h5>Deliver Water Now</h5>
+                          <h3>₱20 per gallon</h3>
                         </div>
                       </v-btn>
                     </v-col>
@@ -355,11 +424,14 @@
 
   <!-- Success Dialog for Completed Orders -->
   <v-dialog v-model="showSuccessDialog" max-width="400">
-    <v-card>
-      <v-card-title class="text-h6">Order Successful</v-card-title>
-      <v-card-text>{{ successMessage }}</v-card-text>
-      <v-card-actions class="justify-center">
-        <v-btn class="custom-okay-btn" @click="handleDialogOk"> Okay </v-btn>
+    <v-card class="modal-message-style">
+      <v-card-title class="text-h6 success-style">Order Successful</v-card-title>
+      <v-card-text class="">{{ successMessage }}</v-card-text>
+      <v-card-actions class="">
+        <router-link to="/station" class="pl-7 text-start">
+          <v-btn class="custom-exit-btn"> Exit </v-btn>
+        </router-link>
+        <v-btn class="custom-okay-btn text-end" @click="handleDialogOk"> Check Orders </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -367,11 +439,11 @@
 
   <!-- Incomplete Order Dialog -->
   <v-dialog v-model="showIncompleteOrderDialog" max-width="400">
-    <v-card>
-      <v-card-title class="text-h6">Incomplete Order</v-card-title>
+    <v-card class="modal-message-style">
+      <v-card-title class="text-h6 incomplete-style">Incomplete Order</v-card-title>
       <v-card-text>{{ incompleteOrderMessage }}</v-card-text>
-      <v-card-actions class="justify-center">
-        <v-btn class="custom-okay-btn" @click="handleIncompleteOrderOk"> Okay </v-btn>
+      <v-card-actions class="justify-end pr-7">
+        <v-btn class="custom-incomplete-btn" @click="handleIncompleteOrderOk"> Okay </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -379,58 +451,102 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '@/supabase' // ✅ import Supabase
+import { supabase } from '@/supabase'
 import StationLayout from '@/components/layout/StationLayout.vue'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
-import { useOrderStore } from '@/stores/orders'
+//import { useOrderStore } from '@/stores/orders'
 import '@/assets/main.css'
 import { useUserStore } from '@/stores/user'
+import { useReviewStore } from '@/stores/reviewStore'
 
 const router = useRouter()
-const orderRefs = ref([])
-const orderStore = useOrderStore()
-// Create an instance of the user store
+//const orderStore = useOrderStore()
 const userStore = useUserStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
 const selectedDate = ref(null)
+const ordersContainer = ref(null)
+//const orderRefs = ref([])
 
-const newReview = ref({
-  rating: 0,
-  comment: '',
-})
+const userAddresses = ref([])
+const isLoadingAddresses = ref(false)
+const hasNoAddresses = ref(false)
 
-function confirmDateSelection() {
-  showCalendar.value = false
+const submissions = ref([]) // Placeholder for existing submissions data
+// Function to fetch user addresses from Supabase
+async function fetchUserAddresses() {
+  isLoadingAddresses.value = true
+  hasNoAddresses.value = false
+
+  try {
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      console.error('No authenticated user found')
+      hasNoAddresses.value = true
+      return
+    }
+
+    // Fetch all addresses for this user from addresses table
+    // (we'll use the existing submissions data that's already stored in your system)
+    const { data: addressesData, error: addressesError } = await supabase
+      .from('addresses')
+      .select('id, street_address, barangay, city, formatted_address')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false })
+
+    if (addressesError) {
+      console.error('Error fetching addresses:', addressesError)
+      hasNoAddresses.value = true
+      return
+    }
+
+    console.log('Fetched addresses data:', addressesData) // Debug log
+
+    if (addressesData && addressesData.length > 0) {
+      // Map the addresses to format needed for v-select
+      userAddresses.value = addressesData.map((addr) => ({
+        value: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        title: addr.formatted_address || `${addr.street_address}, ${addr.barangay}, ${addr.city}`,
+        id: addr.id,
+      }))
+    } else {
+      // Fallback to check if we have submissions in local state already
+      if (submissions.value && submissions.value.length > 0) {
+        userAddresses.value = submissions.value.map((addr) => ({
+          value: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          title: `${addr.address}, ${addr.barangay}, ${addr.city}`,
+          id: addr.id,
+        }))
+      } else {
+        // No addresses found for this user
+        userAddresses.value = []
+        hasNoAddresses.value = true
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchUserAddresses:', error)
+    hasNoAddresses.value = true
+  } finally {
+    isLoadingAddresses.value = false
+  }
 }
 
-const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
-  return names
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-})
+// Function to go to address management page
+function goToAddressPage() {
+  router.push('/addresses') // Adjust to match your route for the address management page
+}
 
-const avatarUrl = ref('')
-
-// Update avatarUrl when user data is available
+// Call fetchUserAddresses when component mounts
 onMounted(() => {
-  if (userStore.profilePhoto) {
-    avatarUrl.value = userStore.profilePhoto
-  }
+  fetchUserAddresses()
 })
-
-// Address items
-const items = ['Guingona Subdivision', 'JP Rizal St.', 'Montilla Blvd']
 
 // Orders and Totals
 const orders = ref([{ selected: [], address: '', quantity: 0 }])
-const ordersContainer = ref(null)
 const totalDiscount = ref(0)
 const totalNewGallon = ref(0)
 const finalTotal = ref(0)
@@ -442,6 +558,20 @@ const paymentMethod = ref('Cash on Delivery')
 
 const station = ref({
   name: 'Aquabon Water Refilling Station',
+})
+
+function confirmDateSelection() {
+  showCalendar.value = true
+}
+
+const avatarUrl = ref('')
+
+// Update avatarUrl when user data is available
+onMounted(() => {
+  if (userStore.profilePhoto) {
+    avatarUrl.value = userStore.profilePhoto
+  }
+  fetchReviews()
 })
 
 function getSubtotal(order) {
@@ -486,35 +616,47 @@ function decreaseGallon(index) {
   }
 }
 
-import { nextTick } from 'vue'
-
+// Fixed addNewOrder function to prevent card movement
 function addNewOrder() {
+  // First capture the current scroll position
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
+  // Add the new order
   orders.value.push({ selected: [], address: '', quantity: 0 })
+
+  // Wait for the DOM to update
   nextTick(() => {
+    // Restore the scroll position to maintain stability
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+
+    // Then smoothly scroll to the new order
     const lastIndex = orders.value.length - 1
-    const lastOrderEl = orderRefs.value[lastIndex]
-    if (lastOrderEl?.$el) {
-      lastOrderEl.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const lastOrderEl = document.querySelector(`[data-order-index="${lastIndex}"]`)
+    if (lastOrderEl) {
+      lastOrderEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   })
-}
-
-function orderInBulk() {
-  orders.value.forEach((order) => {
-    order.quantity += 12
-  })
-  updateTotals()
 }
 
 function handleOptionChange() {
   updateTotals()
 }
 
-updateTotals()
-
 function cancelOrder(index) {
+  // Capture scroll position before removing
+  const currentScrollPosition = ordersContainer.value?.scrollTop || 0
+
   orders.value.splice(index, 1)
   updateTotals()
+
+  // Restore scroll position after DOM updates
+  nextTick(() => {
+    if (ordersContainer.value) {
+      ordersContainer.value.scrollTop = currentScrollPosition
+    }
+  })
 }
 
 async function getUserId() {
@@ -545,12 +687,8 @@ async function placeOrder() {
     return
   }
 
-  // Generate random ID for each order placed
-  const randomId = Math.floor(Math.random() * 1000000) // Example random id
-
   // Insert the order into the database
   const orderToSave = orders.value.map((order) => ({
-    id: randomId, // Include random ID
     address: order.address,
     quantity: order.quantity,
     total_price: getSubtotal(order),
@@ -560,9 +698,10 @@ async function placeOrder() {
     calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
     payment_method: paymentMethod.value,
     station_name: station.value.name,
+    options: order.selected.join(', '),
   }))
 
-  const { data, error } = await supabase.from('orders').insert(orderToSave)
+  const { error } = await supabase.from('orders').insert(orderToSave)
 
   if (error) {
     console.error('Error placing order:', error)
@@ -600,7 +739,11 @@ const reviewStore = useReviewStore()
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
 const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
-const averageRating = ref(0)
+const averageRating = computed(() => {
+  if (actualReviews.value.length === 0) return 0
+  const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
+  return (total / actualReviews.value.length).toFixed(1)
+})
 
 const actualReviews = ref([])
 
@@ -651,26 +794,25 @@ async function fetchReviews() {
     // Update the actual reviews ref for display
     actualReviews.value = reviewsWithProfiles
 
-    // Calculate average rating
-    if (actualReviews.value.length > 0) {
-      const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
-      const avg = total / actualReviews.value.length
-      averageRating.value = avg.toFixed(1)
-    }
-
     // Also update the reviews in the store if needed
     reviewStore.setReviews(reviewsWithProfiles)
-
-    console.log('Fetched reviews:', reviewsWithProfiles)
   } catch (e) {
     console.error('Error in fetchReviews:', e)
   }
 }
 
-// Fetch reviews on page load
-onMounted(() => {
-  fetchReviews()
-})
+//========Bottom buttton colored when hover and clicked logic====//
+const clickedButton = ref('') // For tracking which button was clicked
+
+function toggleCalendar() {
+  showCalendar.value = true
+  clickedButton.value = 'calendar'
+}
+
+function placeOrderButton() {
+  showCalendar.value = false
+  clickedButton.value = 'order'
+}
 </script>
 
 <style scoped>
@@ -709,19 +851,14 @@ onMounted(() => {
   font-size: 13px;
   margin-top: -0.5rem;
 }
-
-.discount-text {
-  color: red;
-}
-
 .scrollable-content {
-  max-height: 470px;
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 8px;
 }
-
+/*----Total Details Style */
 .stable-select {
-  width: 200px; /* enough for longest option */
+  width: 210px; /* enough for longest option */
   height: 42px !important;
 }
 
@@ -740,29 +877,49 @@ onMounted(() => {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+.text-left h4 {
+  font-family: 'Inter', Times, serif !important;
+  color: #04448d;
+}
+.text-right h4,
+h3 {
+  font-family: 'Inter', Times, serif;
+}
+.text-right h4 {
+  font-size: 15px;
+}
+.text-right h3 {
+  font-size: 18px;
+}
+.discount-text {
+  color: red;
+  font-size: 15px;
+}
 
+/*--------------Calendar Style ------------*/
 .custom-calendar {
-  background-color: #2e2545;
-  color: white;
-
+  background-color: #dee8efc2;
+  color: #000;
   border-radius: 12px;
-
+  border: 3px solid #0557b6;
   padding: 1rem;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 17px !important;
 }
 
-.custom-calendar .v-date-picker-header {
-  background-color: #2e2545;
-}
+/*.custom-calendar .v-date-picker-header {
+  background-color: #2e2545 !important;
+}*/
 
 /* Optional: tweak day cells */
 .custom-calendar .v-btn {
-  color: white; /* Make calendar day numbers white */
+  border-radius: 15px;
 }
 
 .modal-content {
   border-radius: 10px;
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   max-height: 30vh;
   overflow-y: auto;
 }
@@ -770,18 +927,133 @@ onMounted(() => {
   display: none; /* Chrome, Safari */
 }
 
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.address-empty-state {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.5);
+}
+
+.v-select :deep(.v-field__append-inner) {
+  padding-top: 8px;
+}
+
+.v-select :deep(.v-select__selection) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animation for empty state */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.v-progress-circular {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.clicked-btn {
+  color: white !important;
+}
+
+/**Bottom Btn Colored when hover or clicked MAIN CSS*/
+.full-btn {
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Hover effect */
+.full-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  color: white;
+  h3 {
+    color: white;
+  }
+  h5 {
+    color: white;
+  }
+}
+
+/* Clicked (active) effect */
+.clicked-btn {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  transition: background-position 0.5s ease;
+  h3 {
+    color: white;
+  }
+  h5 {
+    color: white;
+  }
+}
+.order-btn {
+  text-transform: none;
+  font-family: 'Inter' sans-serif;
+  font-weight: 600;
+  background: #0557b6;
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+  border-radius: 20px;
+  text-transform: none;
+  transition: background-position 0.5s ease;
+  margin-right: 0.2rem;
+}
+.order-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+}
+
+/**========Modal Style============ */
+.modal-message-style {
+  border-radius: 20px !important;
+  padding: 10px;
+  font-family: 'Familjen Grotesk', Times, serif;
+}
+.success-style {
+  color: #0557b6;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
 .custom-okay-btn {
   background-color: #02adef;
   color: white;
+  text-transform: none;
+}
+.custom-exit-btn {
+  text-transform: none;
+  border: 1px solid #02adef;
+  color: #02adef;
 }
 
 .custom-okay-btn:hover {
   background-color: #0296d1;
 }
-
-.avatar-img {
-  object-fit: contain;
-  width: 100%;
-  height: 100%;
+.modal-message-style .incomplete-style {
+  color: red;
+}
+.custom-incomplete-btn {
+  border: 1px solid #02adef !important;
+  color: #02adef;
+  text-transform: none;
 }
 </style>

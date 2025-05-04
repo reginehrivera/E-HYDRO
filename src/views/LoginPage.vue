@@ -233,7 +233,7 @@ const handleLogin = async () => {
     // Fetch profile from 'profiles' table
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('full_name, contact_number')
+      .select('full_name, contact_number, avatar_url')
       .eq('id', user.id)
       .single()
 
@@ -244,6 +244,7 @@ const handleLogin = async () => {
       email: user.email,
       fullname: profile.full_name,
       mobile: profile.contact_number,
+      avatar_url: profile.avatar_url || '',
     })
 
     localStorage.setItem('email', user.email)
@@ -265,7 +266,7 @@ const handleSignup = async () => {
   loading.value = true
 
   try {
-    // Check if the email already exists in the profiles table
+    // Check if email already exists in 'profiles' table
     const { data: existingUser, error: userError } = await supabase
       .from('profiles')
       .select('email')
@@ -273,7 +274,6 @@ const handleSignup = async () => {
       .single()
 
     if (userError && userError.code !== 'PGRST116') {
-      // 'PGRST116' indicates no match found
       throw userError
     }
 
@@ -283,10 +283,15 @@ const handleSignup = async () => {
       return
     }
 
-    // Proceed with signup
+    // Sign up and set full_name in user_metadata
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
+      options: {
+        data: {
+          full_name: name.value, // ✅ Add to user_metadata
+        },
+      },
     })
 
     if (signUpError) {
@@ -296,13 +301,12 @@ const handleSignup = async () => {
     const user = signUpData.user
     if (!user) throw new Error('Signup succeeded, but user data is missing.')
 
-    // Log the user ID to ensure it's available
     console.log('User ID:', user.id)
 
-    // Insert into profiles table
+    // Insert into 'profiles' table
     const { error: profileError } = await supabase.from('profiles').insert([
       {
-        id: user.id, // Use UUID from Supabase Auth
+        id: user.id,
         full_name: name.value,
         contact_number: contactNumber.value,
         email: email.value,
