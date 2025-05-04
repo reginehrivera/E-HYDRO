@@ -1175,8 +1175,6 @@ li {
   margin-top: 4px;
 }
 
-/* Change icon color when scrolled */
-.scrolled-icon,
 .scrolled-nav .v-icon {
   color: #ffffff !important;
 }
@@ -1190,9 +1188,16 @@ li {
   color: #ffffff;
 }
 
-/* Change text color when scrolled */
-.scrolled-nav .navigation li a {
+.scrolled-nav .navigation li .link {
   color: #ffffff;
+}
+
+.profile-dropdown .v-icon {
+  color: #04448d !important;
+}
+
+.profile-dropdown .link {
+  color: #04448d !important;
 }
 
 /* Red hover animation for icon and nav links */
