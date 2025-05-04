@@ -1,455 +1,3 @@
-<template>
-  <div class="layout">
-    <NavigationBar />
-    <main class="content">
-      <v-row class="flex-row-reverse justify-space-between" no-gutters style="gap: 5rem">
-        <v-col md="3">
-  <v-card
-    hover
-    :style="{
-      background: 'linear-gradient(145deg, #f0f0f0, #D9D9D9)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-    }"
-    class="animated-card profile-card"
-  >
-    <v-card-item class="pa-4">
-      <div class="d-flex mt-3 mb-2 profile-content">
-        <v-avatar
-          color="deep-purple lighten-3"
-          size="90"
-          class="avatar-animate"
-          :style="{
-            border: '3px solid #7E57C2',
-            boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
-          }"
-        >
-          <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-          <span v-else class="text-h5 initials-animate white--text">{{
-            initials || '??'
-          }}</span>
-        </v-avatar>
-
-        <div class="ms-4 d-flex flex-column justify-start profile-info">
-          <span class="profile-name text-h6 font-weight-bold text--primary">
-            {{ userStore.fullname }}
-          </span>
-          <span class="profile-email text-caption text--secondary mt-1">
-            <v-icon small class="mr-1">mdi-email</v-icon>
-            {{ userStore.email }}
-          </span>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            size="small"
-            class="mt-2 view-profile-btn"
-            @click="goToProfile"
-          >
-            <v-icon small class="mr-1">mdi-account</v-icon>
-            View Profile
-          </v-btn>
-        </div>
-      </div>
-    </v-card-item>
-
-    <v-card-text class="pt-0 pb-4">
-      <v-divider class="mb-3"></v-divider>
-      <div
-        v-for="(link, index) in profileLinks"
-        :key="link.route"
-        class="link-item"
-        :style="{
-          animationDelay: `${0.2 + index * 0.1}s`,
-        }"
-      >
-        <router-link
-          :to="{ name: link.route }"
-          class="link d-flex align-center"
-          :class="{ 'active-link': $route.name === link.route }"
-        >
-          <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
-          <span>{{ link.text }}</span>
-          <v-spacer />
-          <v-icon small>mdi-chevron-right</v-icon>
-        </router-link>
-      </div>
-    </v-card-text>
-  </v-card>
-</v-col>
-        <!-- Left side: Profile Form -->
-        <v-col cols="12" md="8" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
-          <v-slide-y-transition>
-            <v-card
-              class="w-100 profile-edit-card"
-              max-width="900"
-              hover
-              elevation="6"
-              :style="{ background: '#D9D9D9' }"
-            >
-              <span class="text-h5 font-weight-medium d-flex justify-center my-4 profile-title">
-                Edit Profile
-              </span>
-
-              <div class="d-flex flex-column align-center avatar-section">
-                <div class="avatar-wrapper">
-                  <v-avatar
-                    size="120"
-                    color="deep-purple lighten-3"
-                    class="profile-avatar"
-                    :style="{
-                      border: '3px solid #7E57C2',
-                      boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
-                    }"
-                  >
-                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                    <span v-else class="text-h5 white--text initials">{{ initials || '??' }}</span>
-                  </v-avatar>
-
-                  <v-icon
-                    @click="triggerFileUpload"
-                    style="cursor: pointer"
-                    class="mt-15 icon-left"
-                    :disabled="isUploading"
-                  >
-                    mdi-square-edit-outline
-                  </v-icon>
-                </div>
-                <input
-                  ref="fileInput"
-                  type="file"
-                  accept="image/*"
-                  @change="handleFileUpload"
-                  style="display: none"
-                />
-
-                <v-progress-circular
-                  v-if="isUploading"
-                  indeterminate
-                  color="primary"
-                  size="24"
-                  class="mt-2"
-                ></v-progress-circular>
-
-                <v-alert
-                  v-if="uploadError"
-                  type="error"
-                  dense
-                  class="mt-2"
-                  dismissible
-                  @click:close="uploadError = ''"
-                >
-                  {{ uploadError }}
-                </v-alert>
-              </div>
-
-              <v-form @submit.prevent="saveProfile" v-model="valid" class="profile-form">
-                <v-container fluid>
-                  <v-row no-gutters>
-                    <v-col class="form-field animate-field-1">
-                      <span class="text-grey-darken-1 field-label">First Name</span>
-                      <v-text-field
-                        v-model="firstname"
-                        placeholder="Name"
-                        variant="solo"
-                        density="compact"
-                        class="pa-0 ma-1"
-                      />
-                    </v-col>
-                    <v-col cols="12" sm="6" class="form-field animate-field-2">
-                      <span class="text-grey-darken-1 field-label">Last Name</span>
-                      <v-text-field
-                        v-model="lastname"
-                        placeholder="Last name"
-                        variant="solo"
-                        density="compact"
-                        class="pa-0 ma-1"
-                      />
-                    </v-col>
-                  </v-row>
-
-                  <v-row no-gutters>
-                    <v-col class="form-field animate-field-3">
-                      <span class="text-grey-darken-1 field-label">Email</span>
-                      <v-text-field
-                        v-model="email"
-                        placeholder="Email"
-                        variant="solo"
-                        density="compact"
-                        class="pa-0 ma-1"
-                      />
-                    </v-col>
-                    <v-col class="form-field animate-field-4">
-                      <span class="text-grey-darken-1 field-label">Phone Number</span>
-                      <v-text-field
-                        v-model="phone"
-                        placeholder="Phone number"
-                        variant="solo"
-                        density="compact"
-                        class="pa-0 ma-1"
-                        type="tel"
-                        required
-                        @keydown="restrictNonNumericInput"
-                        @input="sanitizePhoneNumber"
-                      />
-                    </v-col>
-                  </v-row>
-
-                  <v-row no-gutters>
-                    <v-col class="form-field animate-field-5">
-                      <span class="text-grey-darken-1 field-label">New Password</span>
-                      <v-text-field
-                        v-model="newPassword"
-                        placeholder="New Password"
-                        variant="solo"
-                        density="compact"
-                        type="password"
-                        class="pa-0 ma-1"
-                      />
-                    </v-col>
-                    <v-col class="form-field animate-field-6">
-                      <span class="text-grey-darken-1 field-label">Confirm Password</span>
-                      <v-text-field
-                        v-model="confirmPassword"
-                        placeholder="Confirm Password"
-                        variant="solo"
-                        density="compact"
-                        type="password"
-                        class="pa-0 ma-1"
-                      />
-                    </v-col>
-                  </v-row>
-
-                  <v-row justify="center" no-gutters>
-                    <v-col cols="12" sm="8" md="4" class="save-button-container">
-                      <v-btn
-                        :style="{ backgroundColor: '#022650', color: 'white' }"
-                        rounded="lg"
-                        block
-                        class="transition-all"
-                        type="submit"
-                        @click="saveProfile"
-                        :loading="isSaving"
-                        :disabled="isSaving || isUploading"
-                      >
-                        Save Changes
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-form>
-            </v-card>
-          </v-slide-y-transition>
-        </v-col>
-
-        <!-- Address Section -->
-        <v-card
-          class="v-cardv2"
-          min-height="500"
-          max-width="900"
-          hover
-          :style="{ background: '#D9D9D9' }"
-          v-if="SelectedPage"
-        >
-          <div class="d-flex justify-end">
-            <v-btn
-              class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg add-button"
-              :style="{ backgroundColor: '#64B5F6' }"
-              @click="triggerAddAddress"
-              v-ripple
-            >
-              <v-icon class="add-icon mr-1">mdi-plus</v-icon>
-              Add Address
-            </v-btn>
-
-            <!-- Fixed Address Overlay Dialog -->
-            <v-dialog
-              v-model="overlay"
-              transition="dialog-bottom-transition"
-              max-width="500px"
-              :retain-focus="false"
-            >
-              <v-card ref="form" class="pa-4 form-card">
-                <v-card-title class="text-h5 mb-2">
-                  Add New Address
-                  <v-btn icon class="float-right" @click="closeOverlay">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-expand-transition>
-                    <v-alert v-if="formWarning" type="error" variant="tonal" class="mb-4">
-                      {{ formWarning }}
-                    </v-alert>
-                  </v-expand-transition>
-
-                  <v-text-field
-                    ref="addressRef"
-                    v-model="address"
-                    :error-messages="addressErrorMessages"
-                    :rules="[() => !!address || 'This field is required']"
-                    label="Street Name, Building, House No."
-                    placeholder="1234 Main Street"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-map-marker"
-                    class="form-field mb-3"
-                  />
-
-                  <v-text-field
-                    ref="barangayRef"
-                    v-model="barangay"
-                    :error-messages="barangayErrorMessages"
-                    :rules="[() => !!barangay || 'This field is required']"
-                    label="Barangay"
-                    placeholder="Ampayon"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-home"
-                    class="form-field mb-3"
-                  />
-
-                  <v-text-field
-                    ref="cityRef"
-                    v-model="city"
-                    :error-messages="cityErrorMessages"
-                    :rules="[() => !!city || 'This field is required']"
-                    label="City"
-                    placeholder="Butuan City"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-city"
-                    class="form-field mb-3"
-                  />
-                </v-card-text>
-
-                <v-divider class="my-3" />
-
-                <v-card-actions>
-                  <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
-                  <v-spacer />
-                  <v-btn
-                    color="primary"
-                    @click="submit"
-                    class="submit-btn"
-                    :loading="isSubmitting"
-                    :disabled="isSubmitting"
-                  >
-                    Submit
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </div>
-
-          <container>
-            <v-col>
-              <div class="d-flex align-center section-header">
-                <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
-                <span class="text-h6">My Addresses</span>
-              </div>
-              <v-divider :color="'black'" :thickness="2" class="mb-4"></v-divider>
-            </v-col>
-
-            <div class="scrollable-content">
-              <transition-group name="address-list" tag="div" class="flex-container">
-                <v-col
-                  v-for="(submission, index) in submissions"
-                  :key="submission.id || index"
-                  cols="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                  class="address-item"
-                >
-                  <v-card
-                    class="address-card"
-                    variant="outlined"
-                    v-ripple
-                    elevation="2"
-                    :class="{
-                      'animate-pulse': isNewlyAdded(submission),
-                      isDeleting: submission.isDeleting,
-                    }"
-                  >
-                    <v-card-text class="card-content mt-14">
-                      <div class="card-header">
-                        <div class="d-flex align-center">
-                          <v-badge
-                            color="deep-purple"
-                            :content="index + 1"
-                            inline
-                            class="mr-2"
-                          ></v-badge>
-                          <strong class="address-title">Address</strong>
-                        </div>
-                        <v-btn
-                          density="comfortable"
-                          size="small"
-                          color="red"
-                          variant="tonal"
-                          class="delete-btn"
-                          @click.stop="deleteSubmission(index)"
-                        >
-                          <v-icon class="mr-1 delete-icon">mdi-delete</v-icon>
-                          <span class="btn-text">Delete</span>
-                        </v-btn>
-                      </div>
-
-                      <div class="text-body-2 address-content">
-                        <div class="d-flex mb-1 address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
-                          <span><strong>Street Name:</strong> {{ submission.address }}</span>
-                        </div>
-                        <div class="d-flex mb-1 address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
-                          <span
-                            ><strong>Barangay:</strong>
-                            {{ submission.barangay || submission.city }}</span
-                          >
-                        </div>
-                        <div class="d-flex address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
-                          <span><strong>City:</strong> {{ submission.city }}</span>
-                        </div>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </transition-group>
-
-              <v-fade-transition>
-                <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
-                  <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
-                  <p class="text-body-1">No addresses added yet</p>
-                  <v-btn
-                    color="primary"
-                    variant="text"
-                    class="mt-3 empty-add-btn"
-                    @click="triggerAddAddress"
-                  >
-                    Add your first address
-                  </v-btn>
-                </div>
-              </v-fade-transition>
-            </div>
-          </container>
-        </v-card>
-      </v-row>
-    </main>
-  </div>
-
-  <v-dialog v-model="dialogVisible" persistent max-width="400px">
-    <v-card>
-      <v-card-title class="headline">Profile Updated</v-card-title>
-      <v-card-text>Your profile has been updated successfully!</v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" @click="goToProfilePage">OK</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</template>
-
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -496,8 +44,8 @@ const initials = computed(() => {
     .toUpperCase()
 })
 const goToProfile = () => {
-  router.push({ name: 'profile' }); // Or whatever your profile route name is
-};
+  router.push({ name: 'profile' }) // Or whatever your profile route name is
+}
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
 const SelectedPage = computed(() => route.name === 'addresses')
 
@@ -958,6 +506,458 @@ defineExpose({
 })
 </script>
 
+<template>
+  <div class="layout">
+    <NavigationBar />
+    <main class="content">
+      <div class="vrow">
+        <v-col md="3">
+          <v-card
+            hover
+            :style="{
+              background: 'linear-gradient(145deg, #f0f0f0, #D9D9D9)',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            }"
+            class="animated-card profile-card"
+          >
+            <v-card-item class="pa-4">
+              <div class="d-flex mt-3 mb-2 profile-content">
+                <v-avatar
+                  color="deep-purple lighten-3"
+                  size="90"
+                  class="avatar-animate"
+                  :style="{
+                    border: '3px solid #7E57C2',
+                    boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                  }"
+                >
+                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                  <span v-else class="text-h5 initials-animate white--text">{{
+                    initials || '??'
+                  }}</span>
+                </v-avatar>
+
+                <div class="ms-4 d-flex flex-column justify-start profile-info">
+                  <span class="profile-name text-h6 font-weight-bold text--primary">
+                    {{ userStore.fullname }}
+                  </span>
+                  <span class="profile-email text-caption text--secondary mt-1">
+                    <v-icon small class="mr-1">mdi-email</v-icon>
+                    {{ userStore.email }}
+                  </span>
+                  <v-btn
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    class="mt-2 view-profile-btn"
+                    @click="goToProfile"
+                  >
+                    <v-icon small class="mr-1">mdi-account</v-icon>
+                    View Profile
+                  </v-btn>
+                </div>
+              </div>
+            </v-card-item>
+
+            <v-card-text class="pt-0 pb-4">
+              <v-divider class="mb-3"></v-divider>
+              <div
+                v-for="(link, index) in profileLinks"
+                :key="link.route"
+                class="link-item"
+                :style="{
+                  animationDelay: `${0.2 + index * 0.1}s`,
+                }"
+              >
+                <router-link
+                  :to="{ name: link.route }"
+                  class="link d-flex align-center"
+                  :class="{ 'active-link': $route.name === link.route }"
+                >
+                  <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
+                  <span>{{ link.text }}</span>
+                  <v-spacer />
+                  <v-icon small>mdi-chevron-right</v-icon>
+                </router-link>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <!-- Left side: Profile Form -->
+        <v-col cols="12" md="8" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
+          <v-slide-y-transition>
+            <v-card
+              class="w-100 profile-edit-card"
+              max-width="900"
+              hover
+              elevation="6"
+              :style="{ background: '#D9D9D9' }"
+            >
+              <span class="text-h5 font-weight-medium d-flex justify-center my-4 profile-title">
+                Edit Profile
+              </span>
+
+              <div class="d-flex flex-column align-center avatar-section">
+                <div class="avatar-wrapper">
+                  <v-avatar
+                    size="120"
+                    color="deep-purple lighten-3"
+                    class="profile-avatar"
+                    :style="{
+                      border: '3px solid #7E57C2',
+                      boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                    }"
+                  >
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                    <span v-else class="text-h5 white--text initials">{{ initials || '??' }}</span>
+                  </v-avatar>
+
+                  <v-icon
+                    @click="triggerFileUpload"
+                    style="cursor: pointer"
+                    class="mt-15 icon-left"
+                    :disabled="isUploading"
+                  >
+                    mdi-square-edit-outline
+                  </v-icon>
+                </div>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handleFileUpload"
+                  style="display: none"
+                />
+
+                <v-progress-circular
+                  v-if="isUploading"
+                  indeterminate
+                  color="primary"
+                  size="24"
+                  class="mt-2"
+                ></v-progress-circular>
+
+                <v-alert
+                  v-if="uploadError"
+                  type="error"
+                  dense
+                  class="mt-2"
+                  dismissible
+                  @click:close="uploadError = ''"
+                >
+                  {{ uploadError }}
+                </v-alert>
+              </div>
+
+              <v-form @submit.prevent="saveProfile" v-model="valid" class="profile-form">
+                <v-container fluid>
+                  <v-row no-gutters>
+                    <v-col class="form-field animate-field-1">
+                      <span class="text-grey-darken-1 field-label">First Name</span>
+                      <v-text-field
+                        v-model="firstname"
+                        placeholder="Name"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6" class="form-field animate-field-2">
+                      <span class="text-grey-darken-1 field-label">Last Name</span>
+                      <v-text-field
+                        v-model="lastname"
+                        placeholder="Last name"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row no-gutters>
+                    <v-col class="form-field animate-field-3">
+                      <span class="text-grey-darken-1 field-label">Email</span>
+                      <v-text-field
+                        v-model="email"
+                        placeholder="Email"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                      />
+                    </v-col>
+                    <v-col class="form-field animate-field-4">
+                      <span class="text-grey-darken-1 field-label">Phone Number</span>
+                      <v-text-field
+                        v-model="phone"
+                        placeholder="Phone number"
+                        variant="solo"
+                        density="compact"
+                        class="pa-0 ma-1"
+                        type="tel"
+                        required
+                        @keydown="restrictNonNumericInput"
+                        @input="sanitizePhoneNumber"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row no-gutters>
+                    <v-col class="form-field animate-field-5">
+                      <span class="text-grey-darken-1 field-label">New Password</span>
+                      <v-text-field
+                        v-model="newPassword"
+                        placeholder="New Password"
+                        variant="solo"
+                        density="compact"
+                        type="password"
+                        class="pa-0 ma-1"
+                      />
+                    </v-col>
+                    <v-col class="form-field animate-field-6">
+                      <span class="text-grey-darken-1 field-label">Confirm Password</span>
+                      <v-text-field
+                        v-model="confirmPassword"
+                        placeholder="Confirm Password"
+                        variant="solo"
+                        density="compact"
+                        type="password"
+                        class="pa-0 ma-1"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row justify="center" no-gutters>
+                    <v-col cols="12" sm="8" md="4" class="save-button-container">
+                      <v-btn
+                        :style="{ backgroundColor: '#022650', color: 'white' }"
+                        rounded="lg"
+                        block
+                        class="transition-all"
+                        type="submit"
+                        @click="saveProfile"
+                        :loading="isSaving"
+                        :disabled="isSaving || isUploading"
+                      >
+                        Save Changes
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-form>
+            </v-card>
+          </v-slide-y-transition>
+        </v-col>
+
+        <!-- Address Section -->
+        <v-card
+          min-height="500"
+          max-width="900"
+          hover
+          :style="{ background: '#D9D9D9' }"
+          v-if="SelectedPage"
+          class="shrink"
+        >
+          <div class="d-flex justify-end">
+            <v-btn
+              class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg add-button"
+              :style="{ backgroundColor: '#64B5F6' }"
+              @click="triggerAddAddress"
+              v-ripple
+            >
+              <v-icon class="add-icon mr-1">mdi-plus</v-icon>
+              Add Address
+            </v-btn>
+
+            <!-- Fixed Address Overlay Dialog -->
+            <v-dialog
+              v-model="overlay"
+              transition="dialog-bottom-transition"
+              max-width="500px"
+              :retain-focus="false"
+            >
+              <v-card ref="form" class="pa-4 form-card">
+                <v-card-title class="text-h5 mb-2">
+                  Add New Address
+                  <v-btn icon class="float-right" @click="closeOverlay">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-card-title>
+
+                <v-card-text>
+                  <v-expand-transition>
+                    <v-alert v-if="formWarning" type="error" variant="tonal" class="mb-4">
+                      {{ formWarning }}
+                    </v-alert>
+                  </v-expand-transition>
+
+                  <v-text-field
+                    ref="addressRef"
+                    v-model="address"
+                    :error-messages="addressErrorMessages"
+                    :rules="[() => !!address || 'This field is required']"
+                    label="Street Name, Building, House No."
+                    placeholder="1234 Main Street"
+                    required
+                    variant="outlined"
+                    prepend-inner-icon="mdi-map-marker"
+                    class="form-field mb-3"
+                  />
+
+                  <v-text-field
+                    ref="barangayRef"
+                    v-model="barangay"
+                    :error-messages="barangayErrorMessages"
+                    :rules="[() => !!barangay || 'This field is required']"
+                    label="Barangay"
+                    placeholder="Ampayon"
+                    required
+                    variant="outlined"
+                    prepend-inner-icon="mdi-home"
+                    class="form-field mb-3"
+                  />
+
+                  <v-text-field
+                    ref="cityRef"
+                    v-model="city"
+                    :error-messages="cityErrorMessages"
+                    :rules="[() => !!city || 'This field is required']"
+                    label="City"
+                    placeholder="Butuan City"
+                    required
+                    variant="outlined"
+                    prepend-inner-icon="mdi-city"
+                    class="form-field mb-3"
+                  />
+                </v-card-text>
+
+                <v-divider class="my-3" />
+
+                <v-card-actions>
+                  <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
+                  <v-spacer />
+                  <v-btn
+                    color="primary"
+                    @click="submit"
+                    class="submit-btn"
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
+                  >
+                    Submit
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </div>
+
+          <container>
+            <v-col>
+              <div class="d-flex align-center section-header">
+                <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
+                <span class="text-h6">My Addresses</span>
+              </div>
+              <v-divider :color="'black'" :thickness="2" class="mb-4"></v-divider>
+            </v-col>
+
+            <div class="scrollable-content">
+              <transition-group name="address-list" tag="div" class="flex-container">
+                <v-col
+                  v-for="(submission, index) in submissions"
+                  :key="submission.id || index"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                  lg="3"
+                  class="address-item"
+                >
+                  <v-card
+                    class="address-card"
+                    variant="outlined"
+                    v-ripple
+                    elevation="2"
+                    :class="{
+                      'animate-pulse': isNewlyAdded(submission),
+                      isDeleting: submission.isDeleting,
+                    }"
+                  >
+                    <v-card-text class="card-content mt-14">
+                      <div class="card-header">
+                        <div class="d-flex align-center">
+                          <v-badge
+                            color="deep-purple"
+                            :content="index + 1"
+                            inline
+                            class="mr-2"
+                          ></v-badge>
+                          <strong class="address-title">Address</strong>
+                        </div>
+                        <v-btn
+                          density="comfortable"
+                          size="small"
+                          color="red"
+                          variant="tonal"
+                          class="delete-btn"
+                          @click.stop="deleteSubmission(index)"
+                        >
+                          <v-icon class="mr-1 delete-icon">mdi-delete</v-icon>
+                          <span class="btn-text">Delete</span>
+                        </v-btn>
+                      </div>
+
+                      <div class="text-body-2 address-content">
+                        <div class="d-flex mb-1 address-line">
+                          <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
+                          <span><strong>Street Name:</strong> {{ submission.address }}</span>
+                        </div>
+                        <div class="d-flex mb-1 address-line">
+                          <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
+                          <span
+                            ><strong>Barangay:</strong>
+                            {{ submission.barangay || submission.city }}</span
+                          >
+                        </div>
+                        <div class="d-flex address-line">
+                          <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
+                          <span><strong>City:</strong> {{ submission.city }}</span>
+                        </div>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </transition-group>
+
+              <v-fade-transition>
+                <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
+                  <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
+                  <p class="text-body-1">No addresses added yet</p>
+                  <v-btn
+                    color="primary"
+                    variant="text"
+                    class="mt-3 empty-add-btn"
+                    @click="triggerAddAddress"
+                  >
+                    Add your first address
+                  </v-btn>
+                </div>
+              </v-fade-transition>
+            </div>
+          </container>
+        </v-card>
+      </div>
+    </main>
+  </div>
+
+  <v-dialog v-model="dialogVisible" persistent max-width="400px">
+    <v-card>
+      <v-card-title class="headline">Profile Updated</v-card-title>
+      <v-card-text>Your profile has been updated successfully!</v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" @click="goToProfilePage">OK</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
 <style scoped>
 .content {
   background-image: url('/src/assets/img/bg-home-no-gallon.png');
@@ -975,9 +975,6 @@ defineExpose({
 .row {
   margin-left: 2rem;
 }
-.spanex {
-  margin-left: 1rem;
-}
 .btn {
   top: 1rem;
   margin-right: 2rem;
@@ -987,7 +984,6 @@ defineExpose({
   top: 150px;
 }
 .v-card {
-  position: relative;
   top: -5rem;
 }
 .v-container {
@@ -1001,6 +997,7 @@ defineExpose({
   text-decoration: none;
   color: black;
 }
+
 .v-btn--active {
   color: #1565c0 !important;
   font-weight: bold;
@@ -1013,59 +1010,36 @@ defineExpose({
   justify-content: flex-end; /* Positions the card to the right */
   padding: 20px;
 }
-.v-cards {
-  max-width: 344px; /* Limiting the width */
-  height: 20rem;
-}
 
-/*spacing in profile */
-.vrow {
-  padding: 0px;
-  margin: 0px;
-}
 .tight-text {
   letter-spacing: 0;
 }
-
 .flex-container {
   display: flex;
   flex-wrap: wrap;
 }
-.size-card {
-  max-width: 200px;
-}
-
 .avatar-img {
   object-fit: contain;
   width: 100%;
   height: 100%;
 }
 
-/* In your style section */
-/* .card-custom-size {
-    width: 35rem;
-  } */
 .icon-left {
   margin-left: -1rem;
   color: rgb(37, 37, 37);
 }
 
-/* address card  */
-
-/* Animation Classes */
 .animated-card {
   transition: all 0.3s ease;
   transform: translateY(20px);
   opacity: 0;
   animation: fadeInUp 0.5s ease forwards;
-  right: 3rem;
+  /* right: 3rem; */
 }
-
 .profile-content {
   opacity: 0;
   animation: fadeIn 0.4s ease forwards 0.2s;
 }
-
 .avatar-animate {
   transition: all 0.3s ease;
   transform: scale(0.95);
@@ -1076,7 +1050,6 @@ defineExpose({
   display: inline-block;
   animation: bounceIn 0.6s ease forwards;
 }
-
 .profile-info {
   opacity: 0;
   transform: translateX(-10px);
@@ -1125,7 +1098,6 @@ defineExpose({
   background: #1565c0;
   animation: underlineGrow 0.3s ease forwards;
 }
-
 /* Keyframe Animations */
 @keyframes fadeIn {
   from {
@@ -1299,7 +1271,6 @@ defineExpose({
 .animate-field-6 {
   animation-delay: 1s;
 }
-
 .field-label {
   display: inline-block;
   transition: all 0.3s ease;
@@ -1331,18 +1302,10 @@ defineExpose({
     animation-duration: 0.3s;
   }
 }
-
-scrollable-content {
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 0 8px;
-}
-
 .flex-container {
   display: flex;
   flex-wrap: wrap;
 }
-
 .address-card {
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
@@ -1401,7 +1364,6 @@ scrollable-content {
     box-shadow: 0 0 0 0 rgba(103, 58, 183, 0);
   }
 }
-
 .animate-pulse {
   animation: pulse 1.5s infinite;
   background-color: rgba(103, 58, 183, 0.1);
@@ -1420,6 +1382,19 @@ scrollable-content {
   margin-top: 16px;
   padding-right: 8px; /* Prevent scrollbar from overlapping content */
   width: 899px;
+}
+/* .shrink{
+  flex-shrink: 1;
+} */
+.vrow{
+  display: flex;
+  flex-direction: row-reverse;
+}
+@media (max-width:1000px) {
+  .vrow{
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
 .scrollable-content {
   max-height: 70vh;
@@ -1771,6 +1746,8 @@ scrollable-content {
 .profile-card {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
+
+
 }
 
 .profile-card:hover {
