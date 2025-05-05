@@ -925,8 +925,9 @@ defineExpose({
                   </v-card>
                 </v-col>
               </transition-group>
-
-              <v-fade-transition>
+            </div>
+          </container>
+          <v-fade-transition>
                 <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
                   <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
                   <p class="text-body-1">No addresses added yet</p>
@@ -940,8 +941,6 @@ defineExpose({
                   </v-btn>
                 </div>
               </v-fade-transition>
-            </div>
-          </container>
         </v-card>
       </div>
     </main>
@@ -1386,12 +1385,12 @@ defineExpose({
 /* .shrink{
   flex-shrink: 1;
 } */
-.vrow {
+.vrow{
   display: flex;
   flex-direction: row-reverse;
 }
-@media (max-width: 1000px) {
-  .vrow {
+@media (max-width:1000px) {
+  .vrow{
     display: flex;
     flex-wrap: wrap;
   }
@@ -1512,6 +1511,9 @@ defineExpose({
 /* Empty state animations */
 .empty-state {
   animation: fadeIn 1s ease;
+
+  width: 100%;
+
 }
 
 .empty-add-btn {
@@ -1746,6 +1748,8 @@ defineExpose({
 .profile-card {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
+
+
 }
 
 .profile-card:hover {
