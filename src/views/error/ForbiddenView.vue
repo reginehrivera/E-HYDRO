@@ -1,3 +1,5 @@
+//ForbiddenView.vue
+
 <script></script>
 
 <template>hello</template>
