@@ -855,7 +855,7 @@ li {
   content: '';
   position: absolute;
   top: -10px;
-  right: 21px;
+  right: 31px;
   width: 0;
   height: 0;
   border-left: 10px solid transparent;

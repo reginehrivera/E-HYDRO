@@ -247,7 +247,7 @@ const combinedNotifications = computed(() => {
   return staticNotifications.value
 })
 
-const visibleNotifications = ref(9)
+const visibleNotifications = ref(5)
 const showLoadMore = ref(true)
 const selectAll = ref(false)
 const deleteAll = ref(false)
@@ -508,7 +508,7 @@ onMounted(() => {
   padding: 20px;
   background-color: #8fe4faa1;
   border-radius: 10px;
-  max-width: 1300px;
+  max-width: 1000px;
   margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }

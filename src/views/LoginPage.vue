@@ -364,7 +364,7 @@ const toggleConfirmPasswordVisibility = () => {
 
 .wrapper {
   overflow: hidden;
-  max-width: 380px;
+  max-width: 350px;
   width: 100%;
   background: #fff;
   padding: 30px;
