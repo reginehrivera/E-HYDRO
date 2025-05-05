@@ -41,8 +41,7 @@
                       </v-col>
                       <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
-                        <p class="blue-color">per gallon</p>
-                        <br />
+                        <p class="blue-color">per gallon</p><br />
                         <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
@@ -146,7 +145,7 @@
               <!--Right Column-->
               <v-col cols="12" md="7" class="d-flex flex-column align-center">
                 <v-date-picker
-                  v-if="showCalendar"
+                v-if="showCalendar"
                   v-model="selectedDate"
                   :min="new Date().toISOString().substr(0, 10)"
                   show-adjacent-months
@@ -158,23 +157,9 @@
                   >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
-                    <v-btn
-                      @click="confirmDateSelection"
-                      href="#station-right-container-content"
-                      color="green"
-                      text
-                      >Confirm</v-btn
-                    >
+                    <v-btn @click="confirmDateSelection" href="#station-right-container-content" color="green" text>Confirm</v-btn>
                   </template>
                 </v-date-picker>
-
-                <span v-if="showDateInput" class="delivery-date">
-                  <v-icon color="green" size="20" style="top: -2px">mdi-check-circle</v-icon>
-                  Your delivery is set for <span class="blue-text">{{ formattedDate }}</span
-                  >.<br />
-                  Please provide the other details to proceed.
-                </span>
-
                 <!-- Updated template section with fixes for order card stability -->
                 <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
@@ -187,9 +172,7 @@
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
-                          <h4 class="blue-color" id="station-right-container-content">
-                            Order Option
-                          </h4>
+                          <h4 class="blue-color" id="station-right-container-content">Order Option</h4>
                           <div class="checkboxes">
                             <div class="checkbox-one">
                               <v-checkbox
@@ -379,13 +362,8 @@
                   </div>
 
                   <div col="12" md="6" class="text-end">
-                    <v-btn variant="none" class="order-btn" @click="placeOrder"
-                      >Place Order
-                      <v-tooltip activator="parent" location="left"
-                        >Click to confirm order
-                      </v-tooltip></v-btn
-                    >
-                  </div>
+                      <v-btn variant="none" class="order-btn" @click="placeOrder">Place Order <v-tooltip activator="parent" location="left">Click to confirm order </v-tooltip></v-btn>
+                    </div>
                 </v-container>
 
                 <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
@@ -396,8 +374,7 @@
                         variant="none"
                         class="full-btn"
                         :class="{ 'clicked-btn': clickedButton === 'calendar' }"
-                        @click="toggleCalendar"
-                      >
+                        @click="toggleCalendar">
                         <div>
                           <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
                           <h3>schedule</h3>
@@ -409,9 +386,8 @@
                         variant="none"
                         class="full-btn"
                         :class="{ 'clicked-btn': clickedButton === 'order' }"
-                        @click="placeOrderButton"
-                      >
-                        <div>
+                        @click="placeOrderButton">
+                        <div >
                           <h5>Deliver Water Now</h5>
                           <h3>₱20 per gallon</h3>
                         </div>
@@ -436,7 +412,7 @@
       <v-card-title class="text-h6 success-style">Order Successful</v-card-title>
       <v-card-text class="">{{ successMessage }}</v-card-text>
       <v-card-actions class="">
-        <router-link to="/station" class="pl-7 text-start">
+        <router-link to="/station" class=" pl-7 text-start">
           <v-btn class="custom-exit-btn"> Exit </v-btn>
         </router-link>
         <v-btn class="custom-okay-btn text-end" @click="handleDialogOk"> Check Orders </v-btn>
@@ -483,8 +459,7 @@ const ordersContainer = ref(null)
 const userAddresses = ref([])
 const isLoadingAddresses = ref(false)
 const hasNoAddresses = ref(false)
-const showDateInput = ref(false)
-const formattedDate = ref('')
+
 const submissions = ref([]) // Placeholder for existing submissions data
 // Function to fetch user addresses from Supabase
 async function fetchUserAddresses() {
@@ -571,16 +546,7 @@ const station = ref({
 })
 
 function confirmDateSelection() {
-  console.log('Confirming date:', selectedDate.value) // Debug log
-  if (selectedDate.value) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }
-    formattedDate.value = new Date(selectedDate.value).toLocaleDateString('en-US', options)
-    showDateInput.value = true
-    showCalendar.value = false
-    console.log('Date confirmed:', formattedDate.value) // Debug log
-  } else {
-    console.warn('No date selected!') // Debug log
-  }
+  showCalendar.value = true
 }
 
 const avatarUrl = ref('')
@@ -812,16 +778,16 @@ async function fetchReviews() {
 }
 
 //========Bottom buttton colored when hover and clicked logic====//
-const clickedButton = ref('') // For tracking which button was clicked
+const clickedButton = ref(''); // For tracking which button was clicked
 
 function toggleCalendar() {
-  showCalendar.value = true
-  clickedButton.value = 'calendar'
+  showCalendar.value = true;
+  clickedButton.value = 'calendar';
 }
 
 function placeOrderButton() {
-  showCalendar.value = false
-  clickedButton.value = 'order'
+  showCalendar.value = false;
+  clickedButton.value = 'order';
 }
 </script>
 
@@ -887,18 +853,17 @@ function placeOrderButton() {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
-.text-left h4 {
+.text-left h4{
   font-family: 'Inter', Times, serif !important;
   color: #04448d;
 }
-.text-right h4,
-h3 {
+.text-right h4, h3{
   font-family: 'Inter', Times, serif;
 }
-.text-right h4 {
+.text-right h4{
   font-size: 15px;
 }
-.text-right h3 {
+.text-right h3{
   font-size: 18px;
 }
 .discount-text {
@@ -958,46 +923,7 @@ h3 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.blue-text {
-  color: blue;
-}
-.delivery-date {
-  max-width: 600px;
-  width: 100%;              /* Make the container take full width */
-  text-align: center;
-  background-color: #dee8ef;  /* Background color */
-  border: 2px solid #0557b6;  /* Full border */
-  border-radius: 12px;
-  color: #333;
-  padding: 16px;              /* Space inside the box */
-  margin: 16px 0;
-  margin: 1rem auto;
-  font-weight: 500;
-}
 
-@media (max-width: 1288px) {
-  .delivery-date {
-    font-size: 0.875rem; /* slightly smaller text */
-    padding: 0.75rem;
-    width: 450px;
-  }
-}
-@media (max-width: 950px) {
-  .delivery-date {
-    font-size: 0.875rem; /* slightly smaller text */
-
-    width: 100%;
-
-  }
-}
-@media (max-width:700px) {
-  .delivery-date {
-    font-size: 0.875rem; /* slightly smaller text */
-    padding: 0.75rem;
-    width: 90%;
-
-  }
-}
 /* Animation for empty state */
 @keyframes pulse {
   0% {
@@ -1030,10 +956,10 @@ h3 {
 .full-btn:hover {
   background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
   color: white;
-  h3 {
+  h3{
     color: white;
   }
-  h5 {
+  h5{
     color: white;
   }
 }
@@ -1044,10 +970,10 @@ h3 {
   background-size: 200% auto;
   background-position: left center;
   transition: background-position 0.5s ease;
-  h3 {
+  h3{
     color: white;
   }
-  h5 {
+  h5{
     color: white;
   }
 }
@@ -1059,12 +985,12 @@ h3 {
   background-size: 200% auto;
   background-position: left center;
   color: white;
-  border-radius: 20px;
+  border-radius: 20px ;
   text-transform: none;
   transition: background-position 0.5s ease;
-  margin-right: 0.2rem;
+  margin-right: .20rem;
 }
-.order-btn:hover {
+.order-btn:hover{
   background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
   background-size: 200% auto;
   background-position: left center;
@@ -1072,7 +998,7 @@ h3 {
 }
 
 /**========Modal Style============ */
-.modal-message-style {
+.modal-message-style{
   border-radius: 20px !important;
   padding: 10px;
   font-family: 'Familjen Grotesk', Times, serif;
@@ -1088,7 +1014,7 @@ h3 {
   color: white;
   text-transform: none;
 }
-.custom-exit-btn {
+.custom-exit-btn{
   text-transform: none;
   border: 1px solid #02adef;
   color: #02adef;
@@ -1097,7 +1023,7 @@ h3 {
 .custom-okay-btn:hover {
   background-color: #0296d1;
 }
-.modal-message-style .incomplete-style {
+.modal-message-style .incomplete-style{
   color: red;
 }
 .custom-incomplete-btn {
