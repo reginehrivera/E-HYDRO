@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { supabase } from '@/supabase'
 import LoginPage from '@/views/LoginPage.vue'
 import HomeView from '@/views/HomeView.vue'
 import StationView from '@/views/StationView.vue'
@@ -13,6 +14,7 @@ import AddressesView from '@/views/system/AddressesView.vue'
 import CalendarOrderView from '@/views/system/CalendarOrderView.vue'
 import LandingPageView from '@/views/LandingPageView.vue'
 import ProfileInfoPage from '@/views/system/ProfileInfoPage.vue'
+import ForbiddenView from '@/views/error/ForbiddenView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -101,32 +103,33 @@ const router = createRouter({
       component: ProfileInfoPage,
       meta: { requiresAuth: true },
     },
+    {
+      path: '/:catchAll(.*)',
+      name: 'forbidden',
+      component: ForbiddenView,
+    },
   ],
 })
 
-// Navigation guard to check authentication
-router.beforeEach((to, from, next) => {
-  // Check if the route requires authentication
+// Navigation guard
+router.beforeEach(async (to, from) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
-  // Function to check if user is logged in
-  const isLoggedIn = () => {
-    // Check if auth token exists in localStorage
-    return localStorage.getItem('authToken') !== null
+  // Get current auth status from Supabase
+  const { data } = await supabase.auth.getSession()
+  const isAuthenticated = !!data.session
+
+  // Route requires auth but user is not logged in
+  if (requiresAuth && !isAuthenticated) {
+    return { name: 'login' }
   }
 
-  // If route requires auth and user is not logged in, redirect to login page
-  if (requiresAuth && !isLoggedIn()) {
-    next({ name: 'login' })
-  } else {
-    // If user is logged in and tries to access login page, redirect to home
-    if (to.name === 'login' && isLoggedIn()) {
-      next({ name: 'home' })
-    } else {
-      // Otherwise proceed as normal
-      next()
-    }
+  // User is logged in but trying to access login page
+  if (to.name === 'login' && isAuthenticated) {
+    return { name: 'home' }
   }
+
+  return true
 })
 
 export default router
