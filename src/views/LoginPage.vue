@@ -358,7 +358,7 @@ const toggleConfirmPasswordVisibility = () => {
   justify-content: center;
   align-items: center;
   position: relative;
-  background: url('../assets/img/body.png') no-repeat center center;
+  background: url('../assets/img/bg-home-no-gallon.png') no-repeat center center;
   background-size: cover;
 }
 
@@ -479,7 +479,7 @@ const toggleConfirmPasswordVisibility = () => {
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
-  font-size: 14px;
+
   color: #555;
 }
 
@@ -498,6 +498,11 @@ const toggleConfirmPasswordVisibility = () => {
   text-decoration: none;
 }
 
+.pass-link a {
+  font-size: 14px;
+  margin-left: 10px; /* Adjust gap to the left if needed */
+  text-decoration: none;
+}
 .pass-link a:hover,
 .signup-link a:hover,
 .login-link a:hover {
@@ -610,9 +615,34 @@ const toggleConfirmPasswordVisibility = () => {
   }
 
   .remember-me {
-    font-size: 10px;
-    gap: 4px;
+    gap: 2px;
     margin-top: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .wrapper {
+    width: 90% !important;
+    padding: 15px !important;
+  }
+
+  .v-text-field,
+  .v-btn {
+    font-size: 14px;
+  }
+
+  .slide-controls label {
+    font-size: 14px;
+  }
+
+  .signup-link,
+  .login-link {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .form-options {
+    gap: 4px;
   }
 }
 </style>
