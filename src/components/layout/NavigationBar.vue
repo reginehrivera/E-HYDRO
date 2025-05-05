@@ -658,7 +658,7 @@ header {
 
 /* When scrolled, apply the background color */
 header.scrolled-nav {
-  background-color: rgba(56, 56, 56, 0.521);
+  background-color: rgba(16, 5, 117, 0.87);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
