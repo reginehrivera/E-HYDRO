@@ -1,5 +1,3 @@
-//navigation bar component naa diri ang logout
-
 <template>
   <header :class="{ 'scrolled-nav': scrollPosition }">
     <nav>
@@ -654,17 +652,27 @@ header {
   transition: all 0.5s ease;
   /* Initially transparent background */
   background-color: transparent;
+  height: 80px;
 }
 
 /* When scrolled, apply the background color */
 header.scrolled-nav {
-  background-color: rgba(16, 5, 117, 0.87);
+  background: linear-gradient(120deg, #0557b6, #011c3a, #0557b6);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 75px;
+}
+
+/* Ensure navigation remains centered when scrolled */
+header.scrolled-nav nav {
+  padding: 0; /* Remove vertical padding when scrolled */
+  height: 100%; /* Take full height of header */
+  display: flex;
+  align-items: center; /* Center items vertically */
 }
 
 header.scrolled-nav .first-word,
 header.scrolled-nav .second-word {
-  font-size: 40px;
+  font-size: 35px;
 }
 
 nav {
@@ -855,7 +863,7 @@ li {
   content: '';
   position: absolute;
   top: -10px;
-  right: 31px;
+  right: 21px;
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
