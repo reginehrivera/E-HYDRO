@@ -749,9 +749,6 @@ function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
 
-import { computed, onMounted } from 'vue'
-import { useReviewStore } from '@/stores/reviewStore'
-
 const reviewStore = useReviewStore()
 
 const stationId = 'station-123' // Should be dynamic (from route param maybe)
@@ -971,13 +968,13 @@ h3 {
 }
 .delivery-date {
   max-width: 600px;
-  width: 100%;              /* Make the container take full width */
+  width: 100%; /* Make the container take full width */
   text-align: center;
-  background-color: #dee8ef;  /* Background color */
-  border: 2px solid #0557b6;  /* Full border */
+  background-color: #dee8ef; /* Background color */
+  border: 2px solid #0557b6; /* Full border */
   border-radius: 12px;
   color: #333;
-  padding: 16px;              /* Space inside the box */
+  padding: 16px; /* Space inside the box */
   margin: 16px 0;
   margin: 1rem auto;
   font-weight: 500;
@@ -995,15 +992,13 @@ h3 {
     font-size: 0.875rem; /* slightly smaller text */
 
     width: 100%;
-
   }
 }
-@media (max-width:700px) {
+@media (max-width: 700px) {
   .delivery-date {
     font-size: 0.875rem; /* slightly smaller text */
     padding: 0.75rem;
     width: 90%;
-
   }
 }
 /* Animation for empty state */
