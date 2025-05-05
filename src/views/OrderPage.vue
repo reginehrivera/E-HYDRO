@@ -34,7 +34,7 @@
           <!-- Loading Indicator -->
           <div class="loading-state" v-if="isLoading">
             <div class="loading-content">
-              <v-progress-circular indeterminate color="#02adef" size="50"></v-progress-circular>
+              <v-progress-circular indeterminate color="#ffff" size="50"></v-progress-circular>
               <h3 class="mt-4">Loading your orders...</h3>
             </div>
           </div>
@@ -505,7 +505,7 @@ onMounted(async () => {
 
 .loading-content h3 {
   margin-top: 16px;
-  color: #000000;
+  color: #ffffff;
   font-weight: 800;
 }
 

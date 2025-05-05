@@ -1,4 +1,4 @@
-//navigation bar component
+//navigation bar component naa diri ang logout
 
 <template>
   <header :class="{ 'scrolled-nav': scrollPosition }">
@@ -82,9 +82,9 @@
               </li>
 
               <li>
-                <router-link class="link" to="/">
+                <a href="#" class="link" @click.prevent="handleLogout">
                   <v-icon class="logout-icon small-icon">mdi-logout</v-icon> Logout
-                </router-link>
+                </a>
               </li>
             </ul>
           </div>
@@ -159,7 +159,7 @@ import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/orders' // Import the order store
 import { supabase } from '@/supabase' // adjust path if needed
-
+import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const orderStore = useOrderStore() // Use the order store
 
@@ -614,6 +614,34 @@ onUnmounted(() => {
   window.removeEventListener('scroll', updateScroll)
   window.removeEventListener('resize', checkScreen)
 })
+
+const router = useRouter()
+
+async function handleLogout() {
+  try {
+    console.log('Logout function triggered')
+
+    // First clear user data from store
+    userStore.clearUserData()
+
+    // Sign out using Supabase
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Error during logout:', error)
+      return
+    }
+
+    console.log('Logged out successfully, redirecting to login page')
+
+    // Important: Use router.push in a timeout to ensure it executes after all state updates
+    setTimeout(() => {
+      router.push('/login')
+    }, 100)
+  } catch (err) {
+    console.error('Logout failed:', err)
+  }
+}
 </script>
 
 <style scoped>
@@ -630,7 +658,7 @@ header {
 
 /* When scrolled, apply the background color */
 header.scrolled-nav {
-  background-color: rgba(56, 56, 56, 0.452);
+  background-color: rgba(16, 5, 117, 0.87);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -827,7 +855,7 @@ li {
   content: '';
   position: absolute;
   top: -10px;
-  right: 21px;
+  right: 31px;
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
@@ -1036,6 +1064,7 @@ li {
   transition: 0.5s ease all;
   border-bottom: 1px solid transparent;
   display: inline-block;
+  margin-right: 15px;
 }
 
 .profile-initials {
@@ -1175,8 +1204,6 @@ li {
   margin-top: 4px;
 }
 
-/* Change icon color when scrolled */
-.scrolled-icon,
 .scrolled-nav .v-icon {
   color: #ffffff !important;
 }
@@ -1190,9 +1217,16 @@ li {
   color: #ffffff;
 }
 
-/* Change text color when scrolled */
-.scrolled-nav .navigation li a {
+.scrolled-nav .navigation li .link {
   color: #ffffff;
+}
+
+.profile-dropdown .v-icon {
+  color: #04448d !important;
+}
+
+.profile-dropdown .link {
+  color: #04448d !important;
 }
 
 /* Red hover animation for icon and nav links */

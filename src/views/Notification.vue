@@ -2,118 +2,125 @@
   <NavigationBar>
     <template #content>
       <v-container fluid class="bg-image">
-        <div class="notifications-container">
-          <div class="notification-header">
-            <h2 class="notification-title">All Notifications</h2>
-            <div class="notification-actions">
-              <label>
-                <input type="checkbox" v-model="selectAll" @change="toggleAllNotifications" />
-                Mark All as Read
-              </label>
-              <label>
-                <input type="checkbox" v-model="deleteAll" @change="showDeleteAllModal = true" />
-                Delete All
-              </label>
-            </div>
-          </div>
-
-          <!-- Display a message when there are no notifications -->
-          <div v-if="combinedNotifications.length === 0" class="no-notifications">
-            <v-icon large>mdi-bell-off-outline</v-icon>
-            <p>No notifications available</p>
-          </div>
-
-          <div
-            v-for="(notification, index) in combinedNotifications.slice(0, visibleNotifications)"
-            :key="notification.id || index"
-            class="notification-item"
-            :class="{ read: !notification.isNew, 'new-notification': notification.isNew }"
-          >
-            <input
-              type="checkbox"
-              v-model="selectedNotifications"
-              :value="index"
-              class="checkbox-left"
-            />
-            <div class="notification-icon-wrapper">
-              <v-icon
-                class="notification-icon"
-                :class="getNotificationIconClass(notification.type)"
-              >
-                {{ getNotificationIcon(notification.type) }}
-              </v-icon>
-            </div>
-            <div class="notification-content">
-              <strong>{{ notification.title }}</strong>
-              <p>{{ notification.message }}</p>
-              <span class="timestamp">{{ notification.date || notification.timestamp }}</span>
-            </div>
-            <button class="btn-details" @click="viewDetails(notification)">View Details</button>
-          </div>
-
-          <div class="button-group" v-if="selectedNotifications.length > 0 || showLoadMore">
-            <button
-              v-if="selectedNotifications.length > 0"
-              class="btn-border"
-              @click="showDeleteSelectedModal = true"
-            >
-              Delete Selected
-            </button>
-
-            <button v-if="showLoadMore" class="btn-primary" @click="loadMoreNotifications">
-              Load More Notifications
-            </button>
-          </div>
-
-          <div
-            v-if="!showLoadMore && combinedNotifications.length > 0"
-            class="no-more-notifications"
-          >
-            No more notifications.
-          </div>
-
-          <!-- Modals -->
-          <div class="modal" v-if="showDeleteAllModal">
-            <div class="modal-content">
-              <p>Are you sure you want to delete all notifications?</p>
-              <div class="modal-buttons">
-                <button @click="confirmDeleteAll" class="btn-primary">Yes</button>
-                <button @click="cancelDeleteAll" class="btn-border">Cancel</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal" v-if="showDeleteSelectedModal">
-            <div class="modal-content">
-              <p>Are you sure you want to delete the selected notifications?</p>
-              <div class="modal-buttons">
-                <button @click="confirmDeleteSelected" class="btn-primary">Yes</button>
-                <button @click="cancelDeleteSelected" class="btn-border">Cancel</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal" v-if="selectedNotificationDetails">
-            <div class="modal-content">
-              <h3>{{ selectedNotificationDetails.title }}</h3>
-              <p>{{ selectedNotificationDetails.message }}</p>
-              <p>
-                <strong>Date Received:</strong>
-                {{ selectedNotificationDetails.date || selectedNotificationDetails.timestamp }}
-              </p>
-              <div class="modal-buttons">
-                <button
-                  @click="
-                    () => {
-                      markAsRead(selectedNotificationDetails)
-                      selectedNotificationDetails = null
-                    }
-                  "
-                  class="btn-primary"
-                >
-                  Close
+        <div class="notifications-modal">
+          <div class="notifications-container">
+            <div class="notification-header">
+              <div class="title-close-wrapper">
+                <h2 class="notification-title">All Notifications</h2>
+                <button class="close-button" @click="closeNotifications">
+                  <v-icon>mdi-close</v-icon>
                 </button>
               </div>
+              <div class="notification-actions">
+                <label>
+                  <input type="checkbox" v-model="selectAll" @change="toggleAllNotifications" />
+                  Mark All as Read
+                </label>
+                <label>
+                  <input type="checkbox" v-model="deleteAll" @change="showDeleteAllModal = true" />
+                  Delete All
+                </label>
+              </div>
+            </div>
+
+            <!-- Display a message when there are no notifications -->
+            <div v-if="combinedNotifications.length === 0" class="no-notifications">
+              <v-icon large>mdi-bell-off-outline</v-icon>
+              <p>No notifications available</p>
+            </div>
+
+            <div
+              v-for="(notification, index) in combinedNotifications.slice(0, visibleNotifications)"
+              :key="notification.id || index"
+              class="notification-item"
+              :class="{ read: !notification.isNew, 'new-notification': notification.isNew }"
+            >
+              <input
+                type="checkbox"
+                v-model="selectedNotifications"
+                :value="index"
+                class="checkbox-left"
+              />
+              <div class="notification-icon-wrapper">
+                <v-icon
+                  class="notification-icon"
+                  :class="getNotificationIconClass(notification.type)"
+                >
+                  {{ getNotificationIcon(notification.type) }}
+                </v-icon>
+              </div>
+              <div class="notification-content">
+                <strong>{{ notification.title }}</strong>
+                <p>{{ notification.message }}</p>
+                <span class="timestamp">{{ notification.date || notification.timestamp }}</span>
+              </div>
+              <button class="btn-details" @click="viewDetails(notification)">View Details</button>
+            </div>
+
+            <div class="button-group" v-if="selectedNotifications.length > 0 || showLoadMore">
+              <button
+                v-if="selectedNotifications.length > 0"
+                class="btn-border"
+                @click="showDeleteSelectedModal = true"
+              >
+                Delete Selected
+              </button>
+
+              <button v-if="showLoadMore" class="btn-secondary" @click="loadMoreNotifications">
+                Load More Notifications
+              </button>
+            </div>
+
+            <div
+              v-if="!showLoadMore && combinedNotifications.length > 0"
+              class="no-more-notifications"
+            >
+              No more notifications.
+            </div>
+          </div>
+        </div>
+
+        <!-- Modals -->
+        <div class="modal" v-if="showDeleteAllModal">
+          <div class="modal-content">
+            <p>Are you sure you want to delete all notifications?</p>
+            <div class="modal-buttons">
+              <button @click="confirmDeleteAll" class="btn-primary">Yes</button>
+              <button @click="cancelDeleteAll" class="btn-border">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal" v-if="showDeleteSelectedModal">
+          <div class="modal-content">
+            <p>Are you sure you want to delete the selected notifications?</p>
+            <div class="modal-buttons">
+              <button @click="confirmDeleteSelected" class="btn-primary">Yes</button>
+              <button @click="cancelDeleteSelected" class="btn-border">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal" v-if="selectedNotificationDetails">
+          <div class="modal-content">
+            <h3>{{ selectedNotificationDetails.title }}</h3>
+            <p>{{ selectedNotificationDetails.message }}</p>
+            <p>
+              <strong>Date Received:</strong>
+              {{ selectedNotificationDetails.date || selectedNotificationDetails.timestamp }}
+            </p>
+            <div class="modal-buttons">
+              <button
+                @click="
+                  () => {
+                    markAsRead(selectedNotificationDetails)
+                    selectedNotificationDetails = null
+                  }
+                "
+                class="btn-primary"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -124,6 +131,7 @@
 
 <script setup>
 import { ref, inject, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import galloonIcon from '@/assets/img/icons/galloon.png'
 import confirmIcon from '@/assets/img/icons/confirm.jpg'
@@ -247,7 +255,7 @@ const combinedNotifications = computed(() => {
   return staticNotifications.value
 })
 
-const visibleNotifications = ref(9)
+const visibleNotifications = ref(5)
 const showLoadMore = ref(true)
 const selectAll = ref(false)
 const deleteAll = ref(false)
@@ -255,6 +263,7 @@ const selectedNotifications = ref([])
 const showDeleteAllModal = ref(false)
 const showDeleteSelectedModal = ref(false)
 const selectedNotificationDetails = ref(null)
+const router = useRouter() // Add the router import
 
 // Update load more function to use combined notifications length
 function loadMoreNotifications() {
@@ -396,6 +405,12 @@ function viewDetails(notification) {
   markAsRead(notification)
 }
 
+// Function to close notifications and navigate back
+function closeNotifications() {
+  // Navigate back to the previous page or to home
+  router.push('/home')
+}
+
 // Fetch notifications from server if needed
 async function fetchServerNotifications() {
   try {
@@ -502,169 +517,122 @@ onMounted(() => {
   background-attachment: fixed;
   min-height: 100vh;
   padding-top: 100px;
+  position: relative;
 }
 
-.notifications-container {
-  padding: 20px;
-  background-color: #8fe4faa1;
-  border-radius: 10px;
-  max-width: 1300px;
-  margin: 0 auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.notification-actions label {
-  margin-left: 15px;
-}
-
-.notification-title {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.notification-item.read {
-  opacity: 0.1;
-}
-
-.checkbox-left {
-  margin-right: 10px;
-  align-self: center;
-}
-
-.notification-icon {
-  width: 40px;
-  height: 40px;
-  margin-right: 15px;
-  align-self: center;
-}
-
-.notification-content {
-  flex: 1;
-}
-
-.notification-content p {
-  margin: 5px 0 0;
-}
-
-.button-group {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.btn-primary {
-  background-color: #02adef;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #0281b5;
-}
-
-.btn-border {
-  background-color: transparent;
-  border: 2px solid black;
-  color: black;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-border:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.modal {
+/* Modal-like appearance for the entire notification page */
+.notifications-modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.6); /* Transparent black overlay */
+  backdrop-filter: blur(8px); /* Blurred background effect */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 100;
+  padding: 20px;
+  overflow-y: auto;
 }
 
-.modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  max-width: 400px;
-  text-align: center;
+.notifications-container {
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  border-radius: 16px;
+  max-width: 1000px;
+  width: 90%;
+  max-height: 90vh;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.modal-buttons {
+.notification-header {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
+  flex-direction: column;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 15px;
 }
 
-.btn-primary,
-.btn-border {
-  padding: 6px 14px;
-  font-size: 14px;
+.title-close-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-.btn-details {
-  margin-left: auto;
-  background-color: #ddd;
-  padding: 6px 12px;
-  border-radius: 5px;
+.close-button {
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
-.btn-details:hover {
-  background-color: #ccc;
+.close-button:hover {
+  background-color: rgba(255, 0, 0, 0.842);
 }
 
-.no-more-notifications {
-  text-align: center;
-  font-size: 16px;
-  color: #888;
-  margin-top: 10px;
+.close-button .v-icon {
+  font-size: 22px;
+  color: #333;
+}
+
+.v-icon:hover {
+  color: #ffffff;
+}
+
+.notification-actions label {
+  margin-left: 15px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.notification-actions input[type='checkbox'] {
+  margin-right: 5px;
+}
+
+.notification-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
 }
 
 .notification-item {
   display: flex;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
   transition: all 0.3s ease;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 /* New notification styling */
 .new-notification {
-  background-color: #f0f0f0; /* Light gray background for new notifications */
-  border-left: 3px solid #6200ea; /* Purple accent for new notifications */
+  background-color: rgba(255, 255, 255, 0.95); /* Whiter background for new notifications */
+  border-left: 4px solid #19a3ff; /* Purple accent for new notifications */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Read notification styling */
 .notification-item.read {
-  background-color: #dadada93; /* Light gray background for read notifications */
+  background-color: rgba(240, 240, 240, 0.8); /* Light gray for read notifications */
   border-left: none;
-  opacity: 2;
 }
 
 /* Type-specific notification styling */
@@ -689,8 +657,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   margin-right: 16px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.05);
@@ -703,49 +671,149 @@ onMounted(() => {
 
 .notification-content strong {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  color: #333;
 }
 
 .notification-content p {
   margin: 0;
   color: #555;
+  line-height: 1.4;
 }
 
 .timestamp {
   display: block;
   font-size: 0.8rem;
   color: #757575;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 /* Checkbox styling */
 .checkbox-left {
-  margin-right: 12px;
+  margin-right: 16px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 /* Button styling */
 .btn-details {
   background-color: transparent;
-  color: #6200ea;
-  border: 1px solid #6200ea;
-  padding: 6px 12px;
-  border-radius: 4px;
+  color: #00c3ff;
+  border: 1px solid #0099ff;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .btn-details:hover {
-  background-color: #6200ea;
+  background-color: #19a3ff;
   color: white;
 }
 
-/* Loading more section */
-.no-more-notifications {
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #f73636;
+  color: white;
+  border: none;
+  padding: 5px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background-color: #ff0202;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary {
+  background-color: #19a3ff;
+  color: white;
+  border: none;
+  padding: 5px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+  background-color: #0285ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-border {
+  background-color: transparent;
+  border: 2px solid #333;
+  color: #333;
+  padding: 10px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-border:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Modal styling */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 80%;
   text-align: center;
-  padding: 16px;
-  color: #757575;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 /* No notifications message */
@@ -754,13 +822,63 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
+  padding: 60px 0;
   color: #757575;
 }
 
 .no-notifications .v-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 64px;
+  margin-bottom: 20px;
   opacity: 0.6;
+  color: #666;
+}
+
+.no-more-notifications {
+  text-align: center;
+  padding: 20px;
+  color: #757575;
+  font-style: italic;
+}
+
+/* For screens smaller than 768px (mobile) */
+@media (max-width: 768px) {
+  .notifications-container {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .notification-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .notification-actions label {
+    margin-left: 0;
+    font-size: 14px;
+  }
+
+  .notification-item {
+    flex-wrap: wrap;
+  }
+
+  .btn-details {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .close-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .close-button .v-icon {
+    font-size: 20px;
+  }
 }
 </style>

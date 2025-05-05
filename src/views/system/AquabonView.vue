@@ -167,6 +167,14 @@
                     >
                   </template>
                 </v-date-picker>
+
+                <span v-if="showDateInput" class="delivery-date">
+                  <v-icon color="green" size="20" style="top: -2px">mdi-check-circle</v-icon>
+                  Your delivery is set for <span class="blue-text">{{ formattedDate }}</span
+                  >.<br />
+                  Please provide the other details to proceed.
+                </span>
+
                 <!-- Updated template section with fixes for order card stability -->
                 <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
@@ -474,7 +482,8 @@ const ordersContainer = ref(null)
 const userAddresses = ref([])
 const isLoadingAddresses = ref(false)
 const hasNoAddresses = ref(false)
-
+const showDateInput = ref(false)
+const formattedDate = ref('')
 const submissions = ref([]) // Placeholder for existing submissions data
 // Function to fetch user addresses from Supabase
 async function fetchUserAddresses() {
@@ -561,7 +570,16 @@ const station = ref({
 })
 
 function confirmDateSelection() {
-  showCalendar.value = true
+  console.log('Confirming date:', selectedDate.value) // Debug log
+  if (selectedDate.value) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    formattedDate.value = new Date(selectedDate.value).toLocaleDateString('en-US', options)
+    showDateInput.value = true
+    showCalendar.value = false
+    console.log('Date confirmed:', formattedDate.value) // Debug log
+  } else {
+    console.warn('No date selected!') // Debug log
+  }
 }
 
 const avatarUrl = ref('')
@@ -948,7 +966,46 @@ h3 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.blue-text {
+  color: blue;
+}
+.delivery-date {
+  max-width: 600px;
+  width: 100%;              /* Make the container take full width */
+  text-align: center;
+  background-color: #dee8ef;  /* Background color */
+  border: 2px solid #0557b6;  /* Full border */
+  border-radius: 12px;
+  color: #333;
+  padding: 16px;              /* Space inside the box */
+  margin: 16px 0;
+  margin: 1rem auto;
+  font-weight: 500;
+}
 
+@media (max-width: 1288px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 450px;
+  }
+}
+@media (max-width: 950px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+
+    width: 100%;
+
+  }
+}
+@media (max-width:700px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 90%;
+
+  }
+}
 /* Animation for empty state */
 @keyframes pulse {
   0% {

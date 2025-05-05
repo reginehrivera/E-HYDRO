@@ -1,3 +1,5 @@
+//loginpage and sign up
+
 <template>
   <v-container class="pa-0 fill-height" fluid>
     <!-- Loading Overlay -->
@@ -356,13 +358,13 @@ const toggleConfirmPasswordVisibility = () => {
   justify-content: center;
   align-items: center;
   position: relative;
-  background: url('../assets/img/body.png') no-repeat center center;
+  background: url('../assets/img/bg-home-no-gallon.png') no-repeat center center;
   background-size: cover;
 }
 
 .wrapper {
   overflow: hidden;
-  max-width: 390px;
+  max-width: 350px;
   width: 100%;
   background: #fff;
   padding: 30px;
@@ -381,7 +383,7 @@ const toggleConfirmPasswordVisibility = () => {
 .slide-controls {
   position: relative;
   display: flex;
-  height: 40px;
+  height: 39px;
   width: 100%;
   overflow: hidden;
   margin: 20px 0 15px 0;
@@ -477,7 +479,7 @@ const toggleConfirmPasswordVisibility = () => {
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
-  font-size: 14px;
+
   color: #555;
 }
 
@@ -496,6 +498,11 @@ const toggleConfirmPasswordVisibility = () => {
   text-decoration: none;
 }
 
+.pass-link a {
+  font-size: 14px;
+  margin-left: 10px; /* Adjust gap to the left if needed */
+  text-decoration: none;
+}
 .pass-link a:hover,
 .signup-link a:hover,
 .login-link a:hover {
@@ -558,15 +565,15 @@ const toggleConfirmPasswordVisibility = () => {
 
 /* Vuetify Field Overrides */
 :deep(.v-text-field .v-field) {
-  font-size: 17px;
+  font-size: 15px;
   border-radius: 5px;
   border: 1px solid lightgrey;
   border-bottom-width: 2px;
 }
 
 :deep(.v-text-field .v-field__input) {
-  padding: 0 15px;
-  min-height: 40px;
+  padding: 0 10px;
+  min-height: 32px;
 }
 
 :deep(.v-text-field .v-field__outline) {
@@ -608,9 +615,34 @@ const toggleConfirmPasswordVisibility = () => {
   }
 
   .remember-me {
-    font-size: 10px;
-    gap: 4px;
+    gap: 2px;
     margin-top: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .wrapper {
+    width: 90% !important;
+    padding: 15px !important;
+  }
+
+  .v-text-field,
+  .v-btn {
+    font-size: 14px;
+  }
+
+  .slide-controls label {
+    font-size: 14px;
+  }
+
+  .signup-link,
+  .login-link {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .form-options {
+    gap: 4px;
   }
 }
 </style>

@@ -1,0 +1,525 @@
+[33mcommit 85ae167eb35280ba3fb57a0640e51853737267f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mREG-INE[m[33m)[m
+Merge: b147d21 121e7c6
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 22:15:32 2025 +0800
+
+    commit your changes before pulling
+
+[33mcommit b147d2104b8400e69102245d9c48b58959a5d03b[m[33m ([m[1;31morigin/REG-INE[m[33m)[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 22:01:32 2025 +0800
+
+    fix: loading state color
+
+[33mcommit 02513a63c267b0e313e90983f0ba5f794d5f90ff[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 21:39:04 2025 +0800
+
+    feat: redirect user to login page after logout
+
+[33mcommit 52b2597e3697c59fc63fe153dc6c9dfc748d5e8d[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 05:11:57 2025 +0800
+
+    fix: login page card
+
+[33mcommit 121e7c688fc8f05b84e923ae6c7d3415b9dee759[m[33m ([m[1;31morigin/aquabon/develop[m[33m)[m
+Author: earl <menionearl22@gmail.com>
+Date:   Mon May 5 04:06:53 2025 +0800
+
+    added calendar aquasis
+
+[33mcommit 6179eb2cb4f005fe6f49eba43bf207400ad1fa53[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 04:00:03 2025 +0800
+
+    feat: add navigation guards to protect routes from unauthorized access
+
+[33mcommit 344c111336c6c55e7b00433da55f0f84bb558777[m
+Author: earl <menionearl22@gmail.com>
+Date:   Mon May 5 03:48:08 2025 +0800
+
+    added calendar waterdrop
+
+[33mcommit e6bdc44e181e209fd014bbb19b5bd79d5d577efb[m
+Author: earl <menionearl22@gmail.com>
+Date:   Mon May 5 03:42:19 2025 +0800
+
+    added calendar cold point station
+
+[33mcommit 2627637241cc7fb38da17003f69e1a114a860731[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 03:41:03 2025 +0800
+
+    fix: update icon color behavior on scroll
+
+[33mcommit ea6786b43db749b71fa6264f9ced25f4cca43e32[m
+Merge: 04305e6 08ea543
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 03:14:09 2025 +0800
+
+    Merge branch 'aquabon/develop' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit 04305e6f0d1f018e2158948ee3cd8922b532672b[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon May 5 03:01:05 2025 +0800
+
+    feat: add navbar background color on scroll
+
+[33mcommit 08ea5432fcf9d3d6242e8aabe4c8b99fb52d214d[m
+Author: earl <menionearl22@gmail.com>
+Date:   Mon May 5 02:37:55 2025 +0800
+
+    added font weight
+
+[33mcommit 2868ae09717b306340ad66a30a458f0b2efe849e[m
+Author: earl <menionearl22@gmail.com>
+Date:   Mon May 5 02:35:58 2025 +0800
+
+    added message
+
+[33mcommit 5be2375a005c735b3862192421e718f6a1d34e6a[m[33m ([m[1;31morigin/fixing/feat[m[33m)[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Mon May 5 01:11:18 2025 +0800
+
+    Fix: adding all same content, function and style->Aquasis, ColdPoint, Waterdrops
+
+[33mcommit 8ddc3042f0067696d645f0c4a4b459d46ff0b534[m
+Merge: 87048c3 2935811
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 23:29:49 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into fixing/feat
+
+[33mcommit a0877842f36580d54b95f4b59f4ad234b58215ca[m
+Merge: 827f67a 2935811
+Author: earl <menionearl22@gmail.com>
+Date:   Sun May 4 22:29:51 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into aquabon/develop
+
+[33mcommit 2935811fe3bae67faec9eee68f169fc521c59287[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 19:46:36 2025 +0800
+
+    ...
+
+[33mcommit 87048c33aa1431866282e2c204e55c451a4a9f4f[m
+Merge: 827f67a a131be4
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 19:43:08 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into fixing/feat
+
+[33mcommit 827f67abb9734c0c212e2880bad90f9d04730e5f[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 19:42:44 2025 +0800
+
+    fix: modal in Aquabon
+
+[33mcommit a8acf6c22ea1f99fe11bbf46e5ebc7fd2a7f1974[m
+Merge: a131be4 874d607
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 19:22:11 2025 +0800
+
+    Merge branch 'fixing/feat' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit a131be4ca0296b2e18595ae4e5e2a5d5c7520ed0[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 19:20:37 2025 +0800
+
+    feat: add order notification message on order placement
+
+[33mcommit 874d60748cd0730b4e9fca644c50032018204a42[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 19:04:37 2025 +0800
+
+    fix: Aquabon Style
+
+[33mcommit e2c955a56b712608c8615a15daac5a8364bacb4b[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 18:36:16 2025 +0800
+
+    fix: aquabonView
+
+[33mcommit 81e9fe9759ea104b71e6f75f3ba7355a7500c6c2[m
+Merge: 49c0514 2be0e4a
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 05:17:44 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into fixing/feat
+
+[33mcommit 2be0e4a19956da1c59942bcbab892d1c7fd48630[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 05:15:39 2025 +0800
+
+    gi pull nako ang kay earl
+
+[33mcommit b74dd4f3dc27090fffcadeedee3a72eaaf96041d[m
+Merge: 3cc6f99 082031a
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 05:03:18 2025 +0800
+
+    Merge branch 'ProfileCard' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit 082031a2c616ed8069c125491b271f8ebfbeb06a[m[33m ([m[1;31morigin/ProfileCard[m[33m)[m
+Author: earl <menionearl22@gmail.com>
+Date:   Sun May 4 04:58:00 2025 +0800
+
+    fixed size
+
+[33mcommit 3cc6f99e2d1fda36ca714178fe039162a7b68ab5[m
+Merge: 2d15cca 45c603a
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 04:56:43 2025 +0800
+
+    Merge branch 'fixing/feat' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit 49c051467beade1c1f889c4a9dc9fdc75fb44688[m
+Merge: 45c603a 79ac612
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 04:47:38 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into fixing/feat
+
+[33mcommit 45c603af7f82b8932c43da16e9b1db5b48228a98[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 04:47:07 2025 +0800
+
+    fix: final home view
+
+[33mcommit 2d15ccaa2eaa72092993ee7537a597412abb88ef[m
+Merge: 79ac612 fa2a166
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 04:20:49 2025 +0800
+
+    Merge branch 'fixing/feat' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit aca622985cd7e4e7b9288ac34c2da9ef25b6e03c[m
+Author: earl <menionearl22@gmail.com>
+Date:   Sun May 4 04:16:02 2025 +0800
+
+    added view profile
+
+[33mcommit 79ac612bf06160300e8c7f22adc9a5f4bfc9e7c4[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 04:13:48 2025 +0800
+
+    feat: display saved address in delivery options
+
+[33mcommit eca5b4e9d2fe47c7d5499855baceefeb8d7d9663[m
+Merge: c66a168 1eed783
+Author: earl <menionearl22@gmail.com>
+Date:   Sun May 4 03:39:43 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit 1eed78321dc3a908374dda0d3c2e8b5835289840[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 03:32:51 2025 +0800
+
+    feat: added a left side nav
+
+[33mcommit 121f15d99745498d209f9dab6f92671c8fa3eee5[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun May 4 02:04:30 2025 +0800
+
+    fix: address functionality
+
+[33mcommit fa2a166e99673a64db4a3c8c28c3412969de7ec4[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sun May 4 01:02:53 2025 +0800
+
+    fix: homeView Style
+
+[33mcommit 23230afae14d3dfa413e3c987b34cb915c78a856[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 23:45:53 2025 +0800
+
+    feat: add loading state to order page
+
+[33mcommit c133b0f257e8bece809ed893f786d5deefe8210d[m
+Merge: 99296bd b808c87
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 23:18:35 2025 +0800
+
+    Merge branch 'fixing/feat' of https://github.com/reginehrivera/E-HYDRO into REG-INE
+
+[33mcommit b808c87bd7adaee37100e9e9a90cc92463ecba73[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sat May 3 22:26:11 2025 +0800
+
+    fix: homeview
+
+[33mcommit 99296bd82d6cb0ae9682baf930bc9aa84f3014f9[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 22:25:31 2025 +0800
+
+    fix: resolve order cancellation not updating to CANCELLED status
+
+[33mcommit dc73a791ea1fa425877bb74f81e935328853a91a[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 21:55:13 2025 +0800
+
+    fix(order): remove manual ID assignment to avoid duplicate key errors
+
+[33mcommit cf26d78c6dbfae6c3cb2d3dfc573b860b28d4a70[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 21:41:17 2025 +0800
+
+    fix: add manual ID generation to prevent null insert error
+
+[33mcommit c4c8fe9b01e06351624493313af35964d43e47d2[m
+Merge: 639d41f 9933bc3
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sat May 3 19:59:18 2025 +0800
+
+    Merge branch 'REG-INE' of https://github.com/reginehrivera/E-HYDRO into fixing/feat
+
+[33mcommit 639d41f4797c9b8b41c739ec71034a283ff5b11b[m
+Author: sandrineacibar <sandrineacibar19@gmail.com>
+Date:   Sat May 3 19:47:41 2025 +0800
+
+    fix: home bg
+
+[33mcommit 9933bc354d6c32c414280d99a7a2b6b9b1de1dc9[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 19:44:08 2025 +0800
+
+    fix: function review and orders function
+
+[33mcommit 9f001890c98222c2e2ac5767c8e79eb2532e69da[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat May 3 06:09:20 2025 +0800
+
+    feat: Added RLS policy to allow users to update their own profile
+
+[33mcommit 2ffcaa2fc1a6450e7d51fa1e2cb0f6dd53d0be1b[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu May 1 21:31:25 2025 +0800
+
+    git
+    git commit -m
+
+[33mcommit b6f2ed9d1b2533e9c3d46c5b1c78fa678fc57921[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu May 1 17:59:10 2025 +0800
+
+    fix: display updated user profile info after editing using Pinia store
+
+[33mcommit da5cfe1576303476595b7cdf2efa2a12dfa0be8b[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu May 1 01:15:11 2025 +0800
+
+    feat: add a landing page
+
+[33mcommit bb1ceb7551026c43175339b9b2641cf13a601566[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Tue Apr 29 19:52:16 2025 +0800
+
+    fix: the reviews data will store to the supabase
+
+[33mcommit c66a168e94c4a3166c90299748e4df6e4cf765f6[m
+Author: earl <menionearl22@gmail.com>
+Date:   Tue Apr 29 16:05:59 2025 +0800
+
+    idk
+
+[33mcommit 20b0f9d3aa10f1527e66400ecce7c1ff33333ba4[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon Apr 28 01:41:37 2025 +0800
+
+    feat: fix review order to display new reviews in aquabon page
+
+[33mcommit f79faaf14f5b5f657bbc236c163e44d41cf14c35[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon Apr 28 00:47:43 2025 +0800
+
+    fix: persist ratings and show latest reviews on top
+
+[33mcommit 6a2f6e810697abf17b6764735b9d50b870f53ef4[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 23:19:48 2025 +0800
+
+    feat: add station suggestion dropdown and auto-redirect on click in every serach bar
+
+[33mcommit 9a3f710259cd6e0b0982d97939a742a25e423aab[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 23:05:33 2025 +0800
+
+    feat: add a profile settings or edit profile
+
+[33mcommit 3d771a3444091e27f6bf8cf18a06fda15badce92[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 22:23:54 2025 +0800
+
+    feat: add a rate to OrderPage
+
+[33mcommit c890b6f0e2e0d9b05594266f309790f14d72c75d[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 04:04:13 2025 +0800
+
+    fix: resolve issue with order status filter
+
+[33mcommit d8b7184d339aca116d34883944eab32f0d166f04[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 03:42:29 2025 +0800
+
+    fix: calendar not showing properly
+
+[33mcommit 6b6d7a02d581e0586a77819575b507f8ea1e3ee6[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 02:29:46 2025 +0800
+
+    fix: connect address field to order saving logic
+
+[33mcommit f664c4d4f2c257951e3f2624134200ec6cd38eda[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 01:59:18 2025 +0800
+
+    feat: add payment method selection (Cash on Delivery, GCash)
+
+[33mcommit befb7383e0080574c45fb79ec7dd1c818a45bc9a[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 01:46:35 2025 +0800
+
+    fix: added pinia and supabase to store the data when ordering--when the user click order now all the data will reflect to the orderpage
+
+[33mcommit 62d39d4a2072007448fa102823588e10d293d71c[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sun Apr 27 00:10:10 2025 +0800
+
+    fix: remove the profile, privacy.. in the settings page
+
+[33mcommit ab7cdfa7ea258d89b466c154be1e04366eb2945d[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Sat Apr 26 16:29:58 2025 +0800
+
+    fix: fixing the successful msg in the aquabon page
+
+[33mcommit dee956c9cc62f6d8e75530a2a27a628974608847[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 25 22:28:16 2025 +0800
+
+    fix: add a select for payment method
+
+[33mcommit 38ad4a750bdce87ccb9411d6572cebee76348fcc[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 25 20:17:12 2025 +0800
+
+    feat: add a hamburger menu
+
+[33mcommit 369b5e630fbfdf916a4ecb2492bb6a99f45bde26[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 25 19:26:27 2025 +0800
+
+    fix: add a modal for successful order
+
+[33mcommit e6a425c2593410b9c707a5650d50439a0b25cfc5[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 25 16:17:25 2025 +0800
+
+    fix: add total for new galloon purchase
+
+[33mcommit 572d3c1fed936213778e737cb638697cc7f94828[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 25 12:26:27 2025 +0800
+
+    fix: added a review in the aquabon page only
+
+[33mcommit 73f9418e7231eef216878a1e47065da725fe029e[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 24 16:43:33 2025 +0800
+
+    feat: add OrderSummary page to show order details
+
+[33mcommit f902c757c663accc0889a71379d288a9b6729733[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 24 15:08:52 2025 +0800
+
+    fix: add another container to place another order
+
+[33mcommit ba6613c82614047889747b9d09cedb3f76ec116a[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 24 03:28:48 2025 +0800
+
+    fix: station page and add calendar
+
+[33mcommit 349b6c3685a67c24053da906b938d7dfe0b5cb39[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Wed Apr 23 16:41:19 2025 +0800
+
+    fix: add each page of the station
+
+[33mcommit 7c7bcb588189c4b5179455648421a828a4735f0b[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon Apr 21 01:25:42 2025 +0800
+
+    fix: added lang. preferences in the setings
+
+[33mcommit 76845cd8f206914b6f50ca9660b39d67945dbc34[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Mon Apr 21 01:14:05 2025 +0800
+
+    fix: some changes in the my order page and notif. page and also i started to create SETTINGS page
+
+[33mcommit 8e7463063e49597f825012d6fd01e0639d78b187[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 18 14:44:36 2025 +0800
+
+    fix: add orders page
+
+[33mcommit e8cb2419f6120d8d9681b74d329befcc0db8f54b[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Fri Apr 18 11:23:53 2025 +0800
+
+    fix: notification page
+
+[33mcommit 0faff3fb5cc02614f8b27ab0a652de24a10d1a49[m
+Merge: e56a7ce 6273dbf
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 17 21:46:02 2025 +0800
+
+    git push origin main
+    Merge branch 'REG-INE'
+    :wq
+    :wq
+    :wq
+    :wq
+
+[33mcommit 6273dbfe5f646cd721b2719cf39485e602685d05[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 17 21:44:17 2025 +0800
+
+    added notifications messages
+
+[33mcommit d7712827cf84d1f4450716d636cf389ce758d20b[m[33m ([m[1;31msecond/REG-INE[m[33m)[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Thu Apr 17 18:07:27 2025 +0800
+
+    fix: add a notification toggle
+
+[33mcommit cf55c3ffb6b265cb033475c9abb20311492a7023[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Wed Apr 9 00:48:02 2025 +0800
+
+     fix: added a supabase for database
+
+[33mcommit e56a7ce821032abc448b9f83ee06b83ef3b4faae[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Tue Apr 8 00:59:02 2025 +0800
+
+    fix: adjsut remember me checkbox
+
+[33mcommit ac34eae45dd061ff0fecd70663ca5b77751e49f5[m
+Merge: dd1359f d75f3f2
+Author: Regine <nessagine17@gmail.com>
+Date:   Tue Apr 8 00:40:03 2025 +0800
+
+    Merge branch 'main' into Regine
+
+[33mcommit dd1359fb0e59c8f71002248a776c047c096ee7b9[m
+Author: Regine <nessagine17@gmail.com>
+Date:   Tue Apr 8 00:33:49 2025 +0800
+
+    fix:adjsut slider tabs
