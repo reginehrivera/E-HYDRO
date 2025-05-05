@@ -1387,7 +1387,7 @@ defineExpose({
 } */
 .vrow{
   display: flex;
-  flex-direction: row-reverse;
+
 }
 @media (max-width:1000px) {
   .vrow{
