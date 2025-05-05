@@ -512,7 +512,7 @@ defineExpose({
     <main class="content">
       <div class="vrow">
         <v-col md="3">
- 
+
           <v-card
             hover
             :style="{
@@ -540,13 +540,13 @@ defineExpose({
                 </v-avatar>
 
                 <div class="ms-4 d-flex flex-column justify-start profile-info">
-                  <span class="profile-name text-h6 font-weight-bold text--primary">
-                    {{ userStore.fullname }}
-                  </span>
-                  <span class="profile-email text-caption text--secondary mt-1">
-                    <v-icon small class="mr-1">mdi-email</v-icon>
-                    {{ userStore.email }}
-                  </span>
+                  <span class="profile-name text-subtitle-1 text-md-h6 font-weight-bold text--primary">
+  {{ userStore.fullname }}
+</span>
+<span class="profile-email text-caption text-sm-body-2 mt-1">
+  <v-icon small class="mr-1">mdi-email</v-icon>
+  {{ userStore.email }}
+</span>
                   <v-btn
                     color="primary"
                     variant="outlined"

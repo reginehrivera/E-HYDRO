@@ -30,128 +30,148 @@ const handleAvatarError = (e) => {
 </script>
 
 <template>
-  <NavigationBar />
-  <MyAccountView>
+  <MyAccountView class="flex-container">
     <div class="account-container">
-    <div class="overlay-layout">
-      <v-row>
-        <v-col cols="12">
-          <div class="profile-section pa-6">
-            <div class="profile-wrapper">
-              <v-card class="profile-card" flat>
-                <div class="profile-content">
-                  <!-- Avatar Column (Left) -->
-                  <div class="avatar-column">
-                    <v-avatar
-                      color="deep-purple lighten-3"
-                      size="160"
-                      class="avatar-elevated"
-                    >
-                      <img
-                        v-if="avatarUrl"
-                        :src="avatarUrl"
-                        alt="Avatar"
-                        class="avatar-img"
-                        @error="handleAvatarError"
-                      />
-                      <span v-else class="text-h3 white--text">{{ initials }}</span>
-                    </v-avatar>
-                    <v-btn
-                      color="#0c3b2e"
-                      variant="outlined"
-                      @click="goToMyAccount"
-                      class="action-btn mt-4"
-                    >
-                      <v-icon left>mdi-account-edit</v-icon>
-                      Edit Profile
-                    </v-btn>
-                  </div>
-
-                  <!-- Info Column (Right) -->
-                  <div class="info-column">
-                    <div class="compact-profile-info">
-                      <div class="form-field">
-                        <span class="text-grey-darken-1 field-label">Full Name</span>
-                        <v-text-field
-                          :model-value="userStore.fullname || 'N/A'"
-                          variant="solo"
-                          density="compact"
-                          readonly
-                          hide-details
+      <div class="overlay-layout">
+        <v-row>
+          <v-col cols="12">
+            <div class="profile-section">
+              <div class="profile-wrapper">
+                <v-card class="profile-card">
+                  <div class="profile-content">
+                    <!-- Avatar Column (Left) -->
+                    <div class="avatar-column">
+                      <v-avatar
+                        color="deep-purple lighten-3"
+                        :size="avatarSize"
+                        class="avatar-elevated"
+                      >
+                        <img
+                          v-if="avatarUrl"
+                          :src="avatarUrl"
+                          alt="Avatar"
+                          class="avatar-img"
+                          @error="handleAvatarError"
                         />
+                        <span v-else class="avatar-initials">{{ initials }}</span>
+                      </v-avatar>
+                      <v-btn
+                        color="#0c3b2e"
+                        variant="outlined"
+                        @click="goToMyAccount"
+                        class="action-btn"
+                      >
+                        <v-icon left>mdi-account-edit</v-icon>
+                        Edit Profile
+                      </v-btn>
+                    </div>
+
+                    <!-- Info Column (Right) -->
+                    <div class="info-column">
+                      <div class="profile-text">
+                        <span class="profile-name">{{ userStore.fullname }}</span>
+                        <span class="profile-email">
+                          <v-icon small class="mr-1">mdi-email</v-icon>
+                          {{ userStore.email }}
+                        </span>
                       </div>
 
-                      <div class="form-field">
-                        <span class="text-grey-darken-1 field-label">Mobile Number</span>
-                        <v-text-field
-                          :model-value="userStore.mobile || 'N/A'"
-                          variant="solo"
-                          density="compact"
-                          readonly
-                          hide-details
-                        />
-                      </div>
+                      <div class="compact-profile-info">
+                        <div class="form-field">
+                          <span class="field-label">Mobile Number</span>
+                          <v-text-field
+                            :model-value="userStore.mobile || 'N/A'"
+                            variant="solo"
+                            density="compact"
+                            readonly
+                            hide-details
+                          />
+                        </div>
 
-                      <div class="form-field">
-                        <span class="text-grey-darken-1 field-label">Email</span>
-                        <v-text-field
-                          :model-value="userStore.email || 'N/A'"
-                          variant="solo"
-                          density="compact"
-                          readonly
-                          hide-details
-                        />
+                        <div class="form-field">
+                          <span class="field-label">Additional Info</span>
+                          <v-text-field
+                            :model-value="userStore.additionalInfo || 'N/A'"
+                            variant="solo"
+                            density="compact"
+                            readonly
+                            hide-details
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </v-card>
+                </v-card>
+              </div>
             </div>
-          </div>
-        </v-col>
-      </v-row>
+          </v-col>
+        </v-row>
+      </div>
     </div>
-  </div>
-</MyAccountView>
+  </MyAccountView>
 </template>
 
+<script>
+export default {
+  computed: {
+    avatarSize() {
+      switch (this.$vuetify.display.name) {
+        case 'xs': return 100
+        case 'sm': return 120
+        case 'md': return 140
+        default: return 160
+      }
+    }
+  }
+}
+</script>
+
 <style scoped>
-/* Base container styles */
+/* Base Layout */
+.flex-container {
+  display: flex;
+  min-height: 100vh;
+}
+
 .account-container {
+  flex: 1;
   position: relative;
   width: 100%;
 }
 
 .overlay-layout {
   position: absolute;
-  top: -100px;
-  left: 9rem;
+  top: 0px;
+  left: 50px;
   width: 60%;
+  height: 100%;
   z-index: 10;
 }
 
-/* Profile card layout */
+/* Card Layout */
 .profile-card {
   background-color: rgba(255, 253, 246, 0.95);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(12, 59, 46, 0.15);
   backdrop-filter: blur(5px);
   border: 1px solid rgba(12, 59, 46, 0.1);
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
 .profile-content {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 3vw, 2rem);
   align-items: flex-start;
 }
 
-/* Avatar column */
+/* Avatar Column */
 .avatar-column {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: min(100%, 200px);
 }
 
 .avatar-elevated {
@@ -159,22 +179,53 @@ const handleAvatarError = (e) => {
   border: 3px solid #7E57C2;
   transition: all 0.3s ease;
   margin-bottom: 1rem;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
 }
 
 .avatar-img {
   object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
-/* Info column */
+.avatar-initials {
+  font-size: clamp(2rem, 10vw, 3rem);
+}
+
+/* Info Column */
 .info-column {
-  flex-grow: 1;
+  flex: 1 1 300px;
+  min-width: 0;
 }
 
+.profile-text {
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+
+.profile-name {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: bold;
+  display: block;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.3;
+}
+
+.profile-email {
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Form Fields */
 .compact-profile-info {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: 100%;
+  gap: clamp(0.75rem, 1.5vw, 1rem);
 }
 
 .form-field {
@@ -182,24 +233,22 @@ const handleAvatarError = (e) => {
 }
 
 .field-label {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.8rem);
   color: rgba(0, 0, 0, 0.6);
   margin-bottom: 0.25rem;
+  display: block;
 }
 
+/* Button */
 .action-btn {
   width: 100%;
-  max-width: 160px; /* Matches avatar width */
-  height: 40px;
+  max-width: min(100%, 160px);
+  height: clamp(36px, 5vw, 40px);
+  font-size: clamp(0.75rem, 1.2vw, 0.875rem);
 }
 
-/* Responsive adjustments */
-@media (max-width: 960px) {
-  .overlay-layout {
-    left: 5rem;
-    width: 70%;
-  }
-
+/* Responsive Adjustments */
+@media (max-width: 768px) {
   .profile-content {
     flex-direction: column;
     align-items: center;
@@ -209,25 +258,31 @@ const handleAvatarError = (e) => {
     margin-bottom: 1.5rem;
   }
 
-  .action-btn {
-    max-width: 100%;
+  .profile-text {
+    text-align: center;
+  }
+
+  .profile-email {
+    justify-content: center;
+  }
+
+  .info-column {
+    width: 100%;
   }
 }
 
-@media (max-width: 600px) {
-  .overlay-layout {
-    left: 2rem;
-    width: 85%;
-    top: 4rem;
-  }
-
+@media (max-width: 480px) {
   .profile-card {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .avatar-elevated {
-    width: 120px !important;
-    height: 120px !important;
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .action-btn {
+    max-width: 140px;
   }
 }
 </style>
