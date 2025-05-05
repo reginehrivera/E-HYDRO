@@ -512,6 +512,7 @@ defineExpose({
     <main class="content">
       <div class="vrow">
         <v-col md="3">
+ 
           <v-card
             hover
             :style="{
@@ -942,7 +943,9 @@ defineExpose({
                 </div>
               </v-fade-transition>
         </v-card>
+        <slot></slot>
       </div>
+
     </main>
   </div>
 
@@ -955,6 +958,7 @@ defineExpose({
       </v-card-actions>
     </v-card>
   </v-dialog>
+
 </template>
 
 <style scoped>

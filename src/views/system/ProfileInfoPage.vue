@@ -31,8 +31,9 @@ const handleAvatarError = (e) => {
 
 <template>
   <NavigationBar />
+  <MyAccountView>
   <div class="account-container">
-    <MyAccountView />
+
     <div class="overlay-layout">
       <v-row>
         <v-col cols="12">
@@ -124,6 +125,7 @@ const handleAvatarError = (e) => {
       </v-row>
     </div>
   </div>
+</MyAccountView>
 </template>
 
 <style scoped>
@@ -131,17 +133,16 @@ const handleAvatarError = (e) => {
 .account-container {
   position: relative;
   width: 100%;
-  min-height: 100vh;
 }
-
 .overlay-layout {
   position: absolute;
-  top: 6rem;
+top: -100px;
   left: 9rem;
   width: 60%;
   height: 60%;
   z-index: 10;
 }
+
 
 /* Profile card adjustments */
 .profile-wrapper {
