@@ -60,7 +60,7 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/gif/bg-gif-gif-home-home.gif');
+  background-image: url('@/assets/img/gif/bg-gif-gif.gif'); /*Ilisdi ra ani regine mae ug dako pa ggyud-- bg-gif */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
