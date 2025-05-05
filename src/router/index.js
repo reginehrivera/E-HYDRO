@@ -112,24 +112,30 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
-  // Get current auth status from Supabase
-  const { data } = await supabase.auth.getSession()
-  const isAuthenticated = !!data.session
+  try {
+    const { data, error } = await supabase.auth.getSession()
+    const isAuthenticated = !!data.session
 
-  // Route requires auth but user is not logged in
-  if (requiresAuth && !isAuthenticated) {
-    return { name: 'login' }
+    if (requiresAuth && !isAuthenticated) {
+      // If the route requires login and user is not authenticated
+      return next({ name: 'login' })
+    }
+
+    if (to.name === 'login' && isAuthenticated) {
+      // Prevent logged-in users from accessing login page
+      return next({ name: 'home' })
+    }
+
+    // Allow navigation
+    return next()
+  } catch (e) {
+    console.error('Navigation error:', e)
+    // In case of error (e.g., Supabase fails), redirect to login to be safe
+    return next({ name: 'login' })
   }
-
-  // User is logged in but trying to access login page
-  if (to.name === 'login' && isAuthenticated) {
-    return { name: 'home' }
-  }
-
-  return true
 })
 
 export default router

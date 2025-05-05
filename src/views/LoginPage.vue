@@ -1,4 +1,4 @@
-//loginpage and sign up
+
 
 <template>
   <v-container class="pa-0 fill-height" fluid>
