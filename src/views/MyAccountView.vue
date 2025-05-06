@@ -19,8 +19,7 @@ const profileLinks = [
     icon: 'mdi-account', // Added explicit icon
     children: [
       { route: 'profile', text: 'View Profile' },
-      { route: 'Myaccount', text: 'Edit Profile' },
-      { route: 'addresses', text: 'Delivery Address' },
+      { route: 'addresses', text: 'My Address' },
     ],
   },
 ]
@@ -29,6 +28,32 @@ const openDropdown = ref(null)
 
 const toggleDropdown = (index) => {
   openDropdown.value = openDropdown.value === index ? null : index
+}
+
+const handleLogout = async () => {
+  try {
+    console.log('Logout function triggered')
+
+    // First clear user data from store
+    userStore.clearUserData()
+
+    // Sign out using Supabase
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Error during logout:', error)
+      return
+    }
+
+    console.log('Logged out successfully, redirecting to login page')
+
+    // Important: Use router.push in a timeout to ensure it executes after all state updates
+    setTimeout(() => {
+      router.push('/login')
+    }, 100)
+  } catch (err) {
+    console.error('Logout failed:', err)
+  }
 }
 
 // Profile form data
@@ -505,7 +530,7 @@ defineExpose({
   <div class="layout">
     <v-container fluid class="bg-image">
       <div class="vrow">
-        <!-- Profile Card - Now on the left side -->
+        <!-- Sidebar Section -->
         <v-row
           class="profile-card-wrapper"
           style="
@@ -611,10 +636,28 @@ defineExpose({
                     </router-link>
                   </template>
                 </div>
+                <!-- Logout Button -->
+                <v-divider class="my-3"></v-divider>
+                <div
+                  class="link-item logout-button"
+                  :style="{ animationDelay: `${0.2 + profileLinks.length * 0.1}s` }"
+                >
+                  <div
+                    class="link d-flex align-center"
+                    @click="handleLogout"
+                    style="cursor: pointer"
+                  >
+                    <v-icon small class="mr-2" color="red">mdi-logout</v-icon>
+                    <span style="color: red">Logout</span>
+                    <v-spacer />
+                  </div>
+                </div>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
+        <!--End of Sidebar Section -->
+
         <!-- ....... -->
         <v-col cols="12" md="7" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
           <v-slide-y-transition>
@@ -1903,5 +1946,22 @@ defineExpose({
   margin: 0 auto;
   position: relative !important;
   top: 5rem !important; /* Overrides the -5rem in your existing CSS */
+}
+
+/* Add these styles to your existing CSS */
+.logout-button {
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.logout-button .link {
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 </style>
