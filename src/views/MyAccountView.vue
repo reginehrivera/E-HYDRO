@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import NavigationBar from '@/components/layout/NavigationBar.vue'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase'
 
@@ -12,10 +11,25 @@ const router = useRouter()
 
 // Profile links
 const profileLinks = [
-  { route: 'Myaccount', text: 'Edit Profile' },
-  { route: 'addresses', text: 'Delivery Address' },
+  { route: 'home', text: 'Home' },
+  { route: 'station', text: 'Station' },
   { route: 'order', text: 'My Orders' },
+  {
+    text: 'My Account',
+    icon: 'mdi-account', // Added explicit icon
+    children: [
+      { route: 'profile', text: 'View Profile' },
+      { route: 'Myaccount', text: 'Edit Profile' },
+      { route: 'addresses', text: 'Delivery Address' },
+    ],
+  },
 ]
+
+const openDropdown = ref(null)
+
+const toggleDropdown = (index) => {
+  openDropdown.value = openDropdown.value === index ? null : index
+}
 
 // Profile form data
 const email = ref(userStore.email || '')
@@ -43,6 +57,7 @@ const initials = computed(() => {
     .join('')
     .toUpperCase()
 })
+
 const goToProfile = () => {
   router.push({ name: 'profile' }) // Or whatever your profile route name is
 }
@@ -463,8 +478,8 @@ const goToProfilePage = () => {
 
 const getLinkIcon = (route) => {
   const icons = {
-    Myaccount: 'mdi-account-cog',
-    addresses: 'mdi-map-marker',
+    home: 'mdi-home',
+    station: 'mdi-storefront',
     order: 'mdi-package-variant',
   }
   return icons[route] || 'mdi-link'
@@ -508,91 +523,127 @@ defineExpose({
 
 <template>
   <div class="layout">
-    <NavigationBar />
-    <main class="content">
+    <v-container fluid class="bg-image">
       <div class="vrow">
-        <v-col md="3">
-          <v-card
-            hover
-            :style="{
-              background: 'linear-gradient(145deg, #f0f0f0, #D9D9D9)',
-              borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-            }"
-            class="animated-card profile-card"
-          >
-            <v-card-item class="pa-4">
-              <div class="d-flex mt-3 mb-2 profile-content">
-                <v-avatar
-                  color="deep-purple lighten-3"
-                  size="90"
-                  class="avatar-animate"
-                  :style="{
-                    border: '3px solid #7E57C2',
-                    boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
-                  }"
-                >
-                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                  <span v-else class="text-h5 initials-animate white--text">{{
-                    initials || '??'
-                  }}</span>
-                </v-avatar>
-
-                <div class="ms-4 d-flex flex-column justify-start profile-info">
-                  <span class="profile-name text-h6 font-weight-bold text--primary">
-                    {{ userStore.fullname }}
-                  </span>
-                  <span class="profile-email text-caption text--secondary mt-1">
-                    <v-icon small class="mr-1">mdi-email</v-icon>
-                    {{ userStore.email }}
-                  </span>
-                  <v-btn
-                    color="primary"
-                    variant="outlined"
-                    size="small"
-                    class="mt-2 view-profile-btn"
-                    @click="goToProfile"
+        <!-- Profile Card - Now on the left side -->
+        <v-row
+          class="profile-card-wrapper"
+          style="
+            position: fixed;
+            top: 80px;
+            left: 0;
+            height: 100vh;
+            margin: 0;
+            z-index: 10;
+            width: 250px;
+          "
+        >
+          <v-col style="padding: 0">
+            <v-card
+              hover
+              :style="{
+                background: '#FFFFFF',
+                borderRadius: '0',
+                boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
+                height: '100%',
+              }"
+              class="animated-card profile-card"
+            >
+              <v-card-item class="pa-4">
+                <div class="d-flex flex-column align-center mt-3 mb-2 profile-content">
+                  <v-avatar
+                    color="deep-purple lighten-3"
+                    size="115"
+                    class="avatar-animate mb-3"
+                    :style="{
+                      border: '3px solid #7E57C2',
+                      boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                    }"
                   >
-                    <v-icon small class="mr-1">mdi-account</v-icon>
-                    View Profile
-                  </v-btn>
-                </div>
-              </div>
-            </v-card-item>
+                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                    <span v-else class="text-h5 initials-animate white--text">{{
+                      initials || '??'
+                    }}</span>
+                  </v-avatar>
 
-            <v-card-text class="pt-0 pb-4">
-              <v-divider class="mb-3"></v-divider>
-              <div
-                v-for="(link, index) in profileLinks"
-                :key="link.route"
-                class="link-item"
-                :style="{
-                  animationDelay: `${0.2 + index * 0.1}s`,
-                }"
-              >
-                <router-link
-                  :to="{ name: link.route }"
-                  class="link d-flex align-center"
-                  :class="{ 'active-link': $route.name === link.route }"
+                  <div class="d-flex flex-column align-center profile-info text-center">
+                    <span class="profile-name text-h6 font-weight-bold text--primary">
+                      {{ userStore.fullname }}
+                    </span>
+                    <span class="profile-email text-caption text--secondary mt-1">
+                      <v-icon small class="mr-1">mdi-email</v-icon>
+                      {{ userStore.email }}
+                    </span>
+                  </div>
+                </div>
+              </v-card-item>
+
+              <v-card-text class="pt-0 pb-4">
+                <v-divider class="mb-3"></v-divider>
+                <!-- Loop through each navigation item -->
+                <div
+                  v-for="(link, index) in profileLinks"
+                  :key="index"
+                  class="link-item"
+                  :style="{ animationDelay: `${0.2 + index * 0.1}s` }"
                 >
-                  <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
-                  <span>{{ link.text }}</span>
-                  <v-spacer />
-                  <v-icon small>mdi-chevron-right</v-icon>
-                </router-link>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <!-- Left side: Profile Form -->
-        <v-col cols="12" md="8" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
+                  <!-- Dropdown item (My Account) -->
+                  <template v-if="link.children">
+                    <div class="link d-flex align-center" @click="toggleDropdown(index)">
+                      <v-icon small class="mr-2">{{ link.icon || 'mdi-account' }}</v-icon>
+                      <span>{{ link.text }}</span>
+                      <v-spacer />
+                      <v-icon small>
+                        {{ openDropdown === index ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                      </v-icon>
+                    </div>
+
+                    <!-- Dropdown children -->
+                    <div
+                      v-if="openDropdown === index"
+                      class="ml-4 mt-1"
+                      style="transition: all 0.3s ease"
+                    >
+                      <router-link
+                        v-for="sublink in link.children"
+                        :key="sublink.route"
+                        :to="{ name: sublink.route }"
+                        class="link d-flex align-center"
+                        :class="{ 'active-link': $route.name === sublink.route }"
+                      >
+                        <v-icon small class="mr-2">mdi-chevron-right</v-icon>
+                        {{ sublink.text }}
+                      </router-link>
+                    </div>
+                  </template>
+
+                  <!-- Regular menu item -->
+                  <template v-else>
+                    <router-link
+                      :to="{ name: link.route }"
+                      class="link d-flex align-center"
+                      :class="{ 'active-link': $route.name === link.route }"
+                    >
+                      <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
+                      <span>{{ link.text }}</span>
+                      <v-spacer />
+                      <v-icon small>mdi-chevron-right</v-icon>
+                    </router-link>
+                  </template>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+        <!-- ....... -->
+        <v-col cols="12" md="7" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
           <v-slide-y-transition>
             <v-card
               class="w-100 profile-edit-card"
-              max-width="900"
+              max-width="700"
               hover
               elevation="6"
-              :style="{ background: '#D9D9D9' }"
+              :style="{ background: '#D9D9D9', height: 'auto' }"
             >
               <span class="text-h5 font-weight-medium d-flex justify-center my-4 profile-title">
                 Edit Profile
@@ -663,7 +714,7 @@ defineExpose({
                         class="pa-0 ma-1"
                       />
                     </v-col>
-                    <v-col cols="12" sm="6" class="form-field animate-field-2">
+                    <v-col cols="10" sm="6" class="form-field animate-field-2">
                       <span class="text-grey-darken-1 field-label">Last Name</span>
                       <v-text-field
                         v-model="lastname"
@@ -944,7 +995,7 @@ defineExpose({
           </container>
         </v-card>
       </div>
-    </main>
+    </v-container>
   </div>
 
   <v-dialog v-model="dialogVisible" persistent max-width="400px">
@@ -959,18 +1010,15 @@ defineExpose({
 </template>
 
 <style scoped>
-.content {
-  background-image: url('/src/assets/img/bg-home-no-gallon.png');
+.bg-image {
+  background-image: url('@/assets/img/bg-home-no-gallon.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   min-height: 100vh;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding-top: 12rem;
+  position: relative;
+  margin-top: 0;
 }
 .row {
   margin-left: 2rem;
@@ -1067,9 +1115,19 @@ defineExpose({
 }
 
 .link-item {
+  animation: fadeIn 0.5s ease forwards;
   opacity: 0;
-  transform: translateX(-10px);
-  animation: fadeInRight 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .link {
@@ -1199,9 +1257,13 @@ defineExpose({
 
 /* Component Animations */
 .profile-edit-card {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.6s ease-out forwards;
+  transform: scale(0.85);
+  transform-origin: top center;
+  padding: 4px !important;
+  max-width: 700px !important;
+  max-height: 90vh !important;
+  left: 24rem;
+  margin-top: 10rem;
 }
 
 .profile-title {
@@ -1282,6 +1344,7 @@ defineExpose({
 }
 
 .save-button-container {
+  margin-top: 15px;
   opacity: 0;
   animation: fadeIn 0.5s ease-out forwards 1.1s;
 }
@@ -1388,7 +1451,7 @@ defineExpose({
 } */
 .vrow {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 @media (max-width: 1000px) {
   .vrow {
