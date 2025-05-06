@@ -1,7 +1,7 @@
 /*==========STATIONS STYLE==========*/
 
 .station-container {
-  background-color: #bee1ed7e;
+  background-color: #c0e2eeee;
   margin-top: 2rem;
 }
 .top-style {
@@ -56,7 +56,7 @@
   width: 84%;
 }
 .description p {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Familjen Grotesk', sans-serif;
   font-size: 15px;
   font-weight: 600;
 }
@@ -68,6 +68,11 @@
 .description h3 {
   font-size: 22px;
   font-weight: 600;
+}
+.description h5 {
+  font-family: 'faustina', 'Courier New', Courier, monospace;
+  color: green;
+  font-size: 14px;
 }
 .description h4 {
   font-size: 21px;
@@ -94,6 +99,8 @@
   border-radius: 15px;
   transition: background-position 0.5s ease;
   width: 90%;
+  margin-top: -.30rem !important;
+  margin-bottom: 20px;
 }
 .contact-btn:hover {
   background-position: right center;

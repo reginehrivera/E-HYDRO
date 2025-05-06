@@ -474,7 +474,7 @@ onMounted(async () => {
     orderType: r.order_type || 'Refill Only',
     status: r.status,
     deliveryAddress: r.address || '—',
-    deliveryDate: new Date(year, month , day ).toLocaleDateString(),
+    deliveryDate: new Date(year, month - 1 , day ).toLocaleDateString(),
     router: '/aquabon',
   }
 })

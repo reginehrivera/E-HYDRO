@@ -30,10 +30,30 @@
                       />
                     </v-col>
                   </v-row>
+                  <!--Description-->
+                  <v-container class="description-card">
+                    <v-row class="description-row">
+                      <v-col cols="12" md="7" sm="7" class="description shrink-line">
+                        <p class="shrink-line">
+                          <v-icon class="blue-color">mdi-map-marker</v-icon>P1-B, Ampayon, Butuan City, Agusan Del Norte
+                        </p>
+                        <h5 class="pt-3"><v-icon>mdi-moped-outline</v-icon> For Delivery/Pick-up Call</h5>
+                      </v-col>
+                      <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
+                        <h3 class="blue-color"><b>₱20.00</b></h3>
+                        <p class="blue-color">per gallon</p><br />
+                      </v-col>
+                    </v-row>
+                  </v-container>
                   <v-container class="contact-btn text-center mt-4">
                         <v-row>
                           <v-col cols="12" sm="6" class="d-flex justify-center ">
-                            <router-link to="" class="no-underline w-100">
+                            <a
+                              href="https://www.facebook.com/profile.php?id=100066738818523"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="no-underline w-100"
+                            >
                               <v-btn
                                 class="social-contact w-100"
                                 rounded="0"
@@ -41,11 +61,9 @@
                                 prepend-icon="mdi-facebook-messenger"
                               >
                                 <span class="text-center">Messenger</span>
-                                <v-tooltip activator="parent" location="bottom"
-                                  >Madam Bertud</v-tooltip
-                                >
+                                <v-tooltip activator="parent" location="bottom"> Message Water Drops </v-tooltip>
                               </v-btn>
-                            </router-link>
+                            </a>
                           </v-col>
                           <v-col cols="12" sm="6" class="d-flex justify-center">
                             <router-link to="" class="no-underline w-100">
@@ -63,31 +81,14 @@
                             </router-link>
                           </v-col>
                         </v-row>
-                      </v-container>
-                  <!--Description-->
-                  <v-container class="description-card">
-                    <v-row class="description-row">
-                      <v-col cols="12" md="7" sm="7" class="description shrink-line">
-                        <p class="shrink-line">
-                          <v-icon class="blue-color">mdi-map-marker</v-icon>P1-B, Ampayon, Butuan City, Agusan Del Norte
-                        </p>
-                      </v-col>
-                      <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
-                        <h3 class="blue-color"><b>₱20.00</b></h3>
-                        <p class="blue-color">per gallon</p><br />
-                        <span>For Delivery/</span><br>
-                        <span>Pick-up Call</span>
-                      </v-col>
-                    </v-row>
                   </v-container>
-
 
                   <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
                   <p class="review-style pl-8 pt-2">
                     {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
                     ({{ actualReviews.length }})
-                    <v-tooltip activator="parent" location="right"
+                    <v-tooltip activator="parent" location="bottom"
                       >Scroll down to view more reviews!</v-tooltip
                     >
                   </p>

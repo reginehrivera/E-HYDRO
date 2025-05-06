@@ -58,9 +58,9 @@ const initials = computed(() => {
     .toUpperCase()
 })
 
-const goToProfile = () => {
+/*const goToProfile = () => {
   router.push({ name: 'profile' }) // Or whatever your profile route name is
-}
+}*/
 const isMyAccountPage = computed(() => route.name === 'Myaccount')
 const SelectedPage = computed(() => route.name === 'addresses')
 
@@ -195,7 +195,7 @@ const deleteSubmission = async (index) => {
   try {
     submissions.value[index].isDeleting = true
 
-    setTimeout(async () => {
+   /* setTimeout(async () => {
       const addressToDelete = submissions.value[index]
       submissions.value.splice(index, 1)
 
@@ -217,7 +217,7 @@ const deleteSubmission = async (index) => {
       if (error) {
         console.error('Error deleting address:', error)
       }
-    }, 300)
+    }, 300)*/
   } catch (error) {
     console.error('Error in deleteSubmission:', error)
   }
