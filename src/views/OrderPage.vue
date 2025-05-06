@@ -44,7 +44,7 @@
             <div class="empty-state-content">
               <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
               <h3>No Orders Found</h3>
-              <p>You haven't placed any orders yet.</p>
+              <p>You haven't placed any orders</p>
               <router-link to="/aquabon" class="btn-primary no-underline"> Order Now </router-link>
             </div>
           </div>
@@ -62,7 +62,9 @@
                 <p><strong>Water Refilling Station:</strong> {{ order.station }}</p>
                 <p><strong>Date:</strong> {{ order.date }}</p>
                 <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
-                <p><strong>Total:</strong> ₱{{ order.total.toFixed(2) }}</p>
+                <p>
+                  <strong>Total: </strong> ₱{{ order.total.toFixed(2) }}
+                </p>
               </div>
               <div class="order-actions">
                 <div class="action-buttons" v-if="order.status === 'To Deliver'">
@@ -101,8 +103,8 @@
               <button
                 style="
                   position: absolute;
-                  top: 10px;
-                  right: 10px;
+                  top: 23px;
+                  right: 30px;
                   background: none;
                   border: none;
                   font-size: 18px;
@@ -145,8 +147,9 @@
                   </tbody>
                 </table>
                 <p>Subtotal: ₱{{ selectedOrder?.total.toFixed(2) }}</p>
-                <p>Delivery Fee: ₱50.00</p>
-                <p><strong>Total:</strong> ₱{{ (selectedOrder?.total + 50).toFixed(2) }}</p>
+                <!--<p>Delivery Fee: ₱50.00</p>-->
+                <v-divider :thickness="2" class="mt-3 mb-2"></v-divider>
+                <h4><strong>Total: ₱{{ (selectedOrder?.total).toFixed(2) }}</strong> </h4>
               </div>
               <div class="info-box">
                 <h4><strong>Delivery Info</strong></h4>
@@ -264,11 +267,11 @@ const feedbacks = reactive({
 const stationId = 'station-123'
 
 // User data
-const currentUser = reactive({
+/*const currentUser = reactive({
   username: '',
   email: '',
   profilePhoto: '',
-})
+})*/
 
 // Filter orders by status
 const filterOrders = (status) => {
@@ -303,7 +306,7 @@ async function cancelOrder() {
     }
 
     // Update order status in Supabase first
-    const { data, error } = await supabase
+    const { error } = await supabase //data
       .from('orders')
       .update({ status: 'Cancelled' })
       .eq('id', targetOrder.id)
@@ -456,22 +459,26 @@ onMounted(async () => {
       return
     }
 
-    const mapped = rows.map((r) => ({
-      id: r.id,
-      date: new Date(r.created_at).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      station: r.station || 'Aquabon',
-      quantity: r.quantity,
-      total: r.total_price,
-      orderType: r.order_type || 'Refill Only',
-      status: r.status,
-      deliveryAddress: r.address || '—',
-      deliveryDate: new Date(r.calendar).toLocaleDateString(),
-      router: '/aquabon',
-    }))
+    const mapped = rows.map((r) => {
+  const [year, month, day] = r.calendar.split('-')
+  return {
+    id: r.id,
+    date: new Date(r.created_at).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    station: r.station || 'Aquabon',
+    quantity: r.quantity,
+    total: r.total_price,
+    orderType: r.order_type || 'Refill Only',
+    status: r.status,
+    deliveryAddress: r.address || '—',
+    deliveryDate: new Date(year, month , day ).toLocaleDateString(),
+    router: '/aquabon',
+  }
+})
+
 
     orderStore.setOrders(mapped)
   } catch (error) {

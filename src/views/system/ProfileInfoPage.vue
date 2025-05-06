@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref} from 'vue' //onMounted
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'

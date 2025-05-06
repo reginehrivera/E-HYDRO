@@ -7,7 +7,7 @@
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>{{ station.name }}</h2>
+                <h2>{{ station.name }}  <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -160,7 +160,6 @@
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
                     <v-btn
                       @click="confirmDateSelection"
-                      href="#station-right-container-content"
                       color="green"
                       text
                       >Confirm</v-btn
@@ -751,8 +750,8 @@ function handleIncompleteOrderOk() {
 
 const reviewStore = useReviewStore()
 
-const stationId = 'station-123' // Should be dynamic (from route param maybe)
-const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
+//const stationId = 'station-123' // Should be dynamic (from route param maybe)
+//const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 const averageRating = computed(() => {
   if (actualReviews.value.length === 0) return 0
