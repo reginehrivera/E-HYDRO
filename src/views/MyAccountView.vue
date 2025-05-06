@@ -129,47 +129,50 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    // Create a new address object with individual components
-    const newAddress = {
-      id: Date.now().toString(),
-      address: address.value,
-      barangay: barangay.value,
-      city: city.value,
-    }
+    // Get current user
+    const { data: userData, error: userError } = await supabase.auth.getUser()
 
-    // Add to submissions array
-    addSubmission(newAddress)
-
-    const { data: userData } = await supabase.auth.getUser()
-
-    if (!userData?.user) {
+    if (userError || !userData?.user) {
       throw new Error('User not authenticated')
     }
 
-    // Get the first address from submissions and format it
-    const formattedAddress = `${submissions.value[0].address}, ${submissions.value[0].barangay}, ${submissions.value[0].city}`
+    const userId = userData.user.id
 
-    // Update the profile with just the formatted address string (not an array)
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        address: formattedAddress, // Store as plain string, no JSON.stringify needed
-        updated_at: new Date(),
+    // Format the full address for the formatted_address field
+    const formattedAddress = `${address.value}, ${barangay.value}, ${city.value}`
+
+    // Insert into addresses table
+    const { data: newAddress, error: insertError } = await supabase
+      .from('addresses')
+      .insert({
+        user_id: userId,
+        street_address: address.value,
+        barangay: barangay.value,
+        city: city.value,
+        formatted_address: formattedAddress,
       })
-      .eq('id', userData.user.id)
+      .select()
 
-    if (error) throw error
+    if (insertError) throw insertError
 
-    // Update the local userStore with the new address
+    // Add to local submissions array with the returned database ID
+    const addressToAdd = {
+      id: newAddress?.[0]?.id || Date.now().toString(),
+      address: address.value,
+      barangay: barangay.value,
+      city: city.value,
+      formattedAddress: formattedAddress,
+    }
+
+    addSubmission(addressToAdd)
+
+    // Also update the userStore if needed with the primary address
     userStore.address = formattedAddress
-
-    if (error) throw error
 
     closeOverlay()
   } catch (error) {
     console.error('Error saving address:', error)
     formWarning.value = error.message || 'Failed to save address'
-    submissions.value.pop()
   } finally {
     isSubmitting.value = false
   }
@@ -193,29 +196,23 @@ const addSubmission = (submission) => {
 
 const deleteSubmission = async (index) => {
   try {
+    const addressToDelete = submissions.value[index]
     submissions.value[index].isDeleting = true
 
     setTimeout(async () => {
-      const addressToDelete = submissions.value[index]
+      // Remove from UI
       submissions.value.splice(index, 1)
 
-      const { data: userData } = await supabase.auth.getUser()
+      // Delete from database if it has a valid UUID (meaning it's stored in DB)
+      if (
+        addressToDelete.id &&
+        addressToDelete.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      ) {
+        const { error } = await supabase.from('addresses').delete().eq('id', addressToDelete.id)
 
-      if (!userData?.user) {
-        console.error('No authenticated user found')
-        return
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          address: JSON.stringify(submissions.value),
-          updated_at: new Date(),
-        })
-        .eq('id', userData.user.id)
-
-      if (error) {
-        console.error('Error deleting address:', error)
+        if (error) {
+          console.error('Error deleting address from database:', error)
+        }
       }
     }, 300)
   } catch (error) {
@@ -229,62 +226,45 @@ const isNewlyAdded = (submission) => {
 
 const fetchAddresses = async () => {
   try {
-    const { data: userData } = await supabase.auth.getUser()
+    const { data: userData, error: userError } = await supabase.auth.getUser()
 
-    if (!userData?.user) {
+    if (userError || !userData?.user) {
       console.error('No authenticated user found')
       return
     }
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, address')
-      .eq('id', userData.user.id)
-      .single()
+    const userId = userData.user.id
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError)
+    // Fetch addresses from the addresses table
+    const { data: addressesData, error: addressesError } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (addressesError) {
+      console.error('Error fetching addresses:', addressesError)
       return
     }
 
-    console.log('Fetched profile data:', profileData) // Debug log
+    console.log('Fetched addresses data:', addressesData) // Debug log
 
-    if (profileData?.address) {
-      // Update the userStore with the address from the database
-      userStore.address = profileData.address
+    if (addressesData && addressesData.length > 0) {
+      // Map the database fields to the format expected by the UI
+      submissions.value = addressesData.map((addr) => ({
+        id: addr.id,
+        address: addr.street_address,
+        barangay: addr.barangay,
+        city: addr.city,
+        formattedAddress: addr.formatted_address,
+      }))
 
-      try {
-        if (profileData.address.startsWith('[') && profileData.address.endsWith(']')) {
-          submissions.value = JSON.parse(profileData.address)
-        } else if (typeof profileData.address === 'string') {
-          const addressParts = profileData.address.split(',').map((part) => part.trim())
-          if (addressParts.length >= 3) {
-            submissions.value = [
-              {
-                id: Date.now().toString(),
-                address: addressParts[0],
-                barangay: addressParts[1],
-                city: addressParts[2],
-              },
-            ]
-          }
-        }
-      } catch (err) {
-        console.error('Error parsing address data:', err)
-        if (typeof profileData.address === 'string') {
-          const parts = profileData.address.split(',').map((part) => part.trim())
-          if (parts.length >= 3) {
-            submissions.value = [
-              {
-                id: Date.now().toString(),
-                address: parts[0],
-                barangay: parts[1],
-                city: parts[2],
-              },
-            ]
-          }
-        }
+      // Update the userStore with the primary address (most recent one)
+      if (addressesData[0]) {
+        userStore.address = addressesData[0].formatted_address
       }
+    } else {
+      submissions.value = []
     }
   } catch (error) {
     console.error('Error in fetchAddresses:', error)
@@ -801,199 +781,201 @@ defineExpose({
         </v-col>
 
         <!-- Address Section -->
-        <v-card
-          min-height="500"
-          max-width="900"
-          hover
-          :style="{ background: '#D9D9D9' }"
-          v-if="SelectedPage"
-          class="shrink"
-        >
-          <div class="d-flex justify-end">
-            <v-btn
-              class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg add-button"
-              :style="{ backgroundColor: '#64B5F6' }"
-              @click="triggerAddAddress"
-              v-ripple
-            >
-              <v-icon class="add-icon mr-1">mdi-plus</v-icon>
-              Add Address
-            </v-btn>
+        <div class="card-container">
+          <v-card
+            min-height="500"
+            max-width="900"
+            hover
+            :style="{ background: '#D9D9D9' }"
+            v-if="SelectedPage"
+            class="shrink"
+          >
+            <div class="d-flex justify-end">
+              <v-btn
+                class="btn text-white w-full sm:w-auto text-sm sm:text-base md:text-lg add-button"
+                :style="{ backgroundColor: '#64B5F6' }"
+                @click="triggerAddAddress"
+                v-ripple
+              >
+                <v-icon class="add-icon mr-1">mdi-plus</v-icon>
+                Add Address
+              </v-btn>
 
-            <!-- Fixed Address Overlay Dialog -->
-            <v-dialog
-              v-model="overlay"
-              transition="dialog-bottom-transition"
-              max-width="500px"
-              :retain-focus="false"
-            >
-              <v-card ref="form" class="pa-4 form-card">
-                <v-card-title class="text-h5 mb-2">
-                  Add New Address
-                  <v-btn icon class="float-right" @click="closeOverlay">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </v-card-title>
+              <!-- Fixed Address Overlay Dialog -->
+              <v-dialog
+                v-model="overlay"
+                transition="dialog-bottom-transition"
+                max-width="450px"
+                :retain-focus="false"
+              >
+                <v-card ref="form" class="pa-4 form-card">
+                  <v-card-title class="text-h5 mb-2">
+                    Add New Address
+                    <v-btn icon class="float-right" @click="closeOverlay">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-card-title>
 
-                <v-card-text>
-                  <v-expand-transition>
-                    <v-alert v-if="formWarning" type="error" variant="tonal" class="mb-4">
-                      {{ formWarning }}
-                    </v-alert>
-                  </v-expand-transition>
+                  <v-card-text>
+                    <v-expand-transition>
+                      <v-alert v-if="formWarning" type="error" variant="tonal" class="mb-4">
+                        {{ formWarning }}
+                      </v-alert>
+                    </v-expand-transition>
 
-                  <v-text-field
-                    ref="addressRef"
-                    v-model="address"
-                    :error-messages="addressErrorMessages"
-                    :rules="[() => !!address || 'This field is required']"
-                    label="Street Name, Building, House No."
-                    placeholder="1234 Main Street"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-map-marker"
-                    class="form-field mb-3"
-                  />
+                    <v-text-field
+                      ref="addressRef"
+                      v-model="address"
+                      :error-messages="addressErrorMessages"
+                      :rules="[() => !!address || 'This field is required']"
+                      label="Street Name, Building, House No."
+                      placeholder="1234 Main Street"
+                      required
+                      variant="outlined"
+                      prepend-inner-icon="mdi-map-marker"
+                      class="form-field mb-3"
+                    />
 
-                  <v-text-field
-                    ref="barangayRef"
-                    v-model="barangay"
-                    :error-messages="barangayErrorMessages"
-                    :rules="[() => !!barangay || 'This field is required']"
-                    label="Barangay"
-                    placeholder="Ampayon"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-home"
-                    class="form-field mb-3"
-                  />
+                    <v-text-field
+                      ref="barangayRef"
+                      v-model="barangay"
+                      :error-messages="barangayErrorMessages"
+                      :rules="[() => !!barangay || 'This field is required']"
+                      label="Barangay"
+                      placeholder="Ampayon"
+                      required
+                      variant="outlined"
+                      prepend-inner-icon="mdi-home"
+                      class="form-field mb-3"
+                    />
 
-                  <v-text-field
-                    ref="cityRef"
-                    v-model="city"
-                    :error-messages="cityErrorMessages"
-                    :rules="[() => !!city || 'This field is required']"
-                    label="City"
-                    placeholder="Butuan City"
-                    required
-                    variant="outlined"
-                    prepend-inner-icon="mdi-city"
-                    class="form-field mb-3"
-                  />
-                </v-card-text>
+                    <v-text-field
+                      ref="cityRef"
+                      v-model="city"
+                      :error-messages="cityErrorMessages"
+                      :rules="[() => !!city || 'This field is required']"
+                      label="City"
+                      placeholder="Butuan City"
+                      required
+                      variant="outlined"
+                      prepend-inner-icon="mdi-city"
+                      class="form-field mb-3"
+                    />
+                  </v-card-text>
 
-                <v-divider class="my-3" />
+                  <v-divider class="my-3" />
 
-                <v-card-actions>
-                  <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
-                  <v-spacer />
-                  <v-btn
-                    color="primary"
-                    @click="submit"
-                    class="submit-btn"
-                    :loading="isSubmitting"
-                    :disabled="isSubmitting"
-                  >
-                    Submit
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </div>
-
-          <container>
-            <v-col>
-              <div class="d-flex align-center section-header">
-                <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
-                <span class="text-h6">My Addresses</span>
-              </div>
-              <v-divider :color="'black'" :thickness="2" class="mb-4"></v-divider>
-            </v-col>
-
-            <div class="scrollable-content">
-              <transition-group name="address-list" tag="div" class="flex-container">
-                <v-col
-                  v-for="(submission, index) in submissions"
-                  :key="submission.id || index"
-                  cols="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                  class="address-item"
-                >
-                  <v-card
-                    class="address-card"
-                    variant="outlined"
-                    v-ripple
-                    elevation="2"
-                    :class="{
-                      'animate-pulse': isNewlyAdded(submission),
-                      isDeleting: submission.isDeleting,
-                    }"
-                  >
-                    <v-card-text class="card-content mt-14">
-                      <div class="card-header">
-                        <div class="d-flex align-center">
-                          <v-badge
-                            color="deep-purple"
-                            :content="index + 1"
-                            inline
-                            class="mr-2"
-                          ></v-badge>
-                          <strong class="address-title">Address</strong>
-                        </div>
-                        <v-btn
-                          density="comfortable"
-                          size="small"
-                          color="red"
-                          variant="tonal"
-                          class="delete-btn"
-                          @click.stop="deleteSubmission(index)"
-                        >
-                          <v-icon class="mr-1 delete-icon">mdi-delete</v-icon>
-                          <span class="btn-text">Delete</span>
-                        </v-btn>
-                      </div>
-
-                      <div class="text-body-2 address-content">
-                        <div class="d-flex mb-1 address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
-                          <span><strong>Street Name:</strong> {{ submission.address }}</span>
-                        </div>
-                        <div class="d-flex mb-1 address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
-                          <span
-                            ><strong>Barangay:</strong>
-                            {{ submission.barangay || submission.city }}</span
-                          >
-                        </div>
-                        <div class="d-flex address-line">
-                          <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
-                          <span><strong>City:</strong> {{ submission.city }}</span>
-                        </div>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </transition-group>
-
-              <v-fade-transition>
-                <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
-                  <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
-                  <p class="text-body-1">No addresses added yet</p>
-                  <v-btn
-                    color="primary"
-                    variant="text"
-                    class="mt-3 empty-add-btn"
-                    @click="triggerAddAddress"
-                  >
-                    Add your first address
-                  </v-btn>
-                </div>
-              </v-fade-transition>
+                  <v-card-actions>
+                    <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
+                    <v-spacer />
+                    <v-btn
+                      color="primary"
+                      @click="submit"
+                      class="submit-btn"
+                      :loading="isSubmitting"
+                      :disabled="isSubmitting"
+                    >
+                      Submit
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </div>
-          </container>
-        </v-card>
+
+            <container>
+              <v-col>
+                <div class="d-flex align-center section-header">
+                  <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
+                  <span class="text-h6">My Addresses</span>
+                </div>
+                <v-divider :color="'black'" :thickness="2" class="mb-4"></v-divider>
+              </v-col>
+
+              <div class="scrollable-content">
+                <transition-group name="address-list" tag="div" class="flex-container">
+                  <v-col
+                    v-for="(submission, index) in submissions"
+                    :key="submission.id || index"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    class="address-item"
+                  >
+                    <v-card
+                      class="address-card"
+                      variant="outlined"
+                      v-ripple
+                      elevation="2"
+                      :class="{
+                        'animate-pulse': isNewlyAdded(submission),
+                        isDeleting: submission.isDeleting,
+                      }"
+                    >
+                      <v-card-text class="card-content mt-14">
+                        <div class="card-header">
+                          <div class="d-flex align-center">
+                            <v-badge
+                              color="deep-purple"
+                              :content="index + 1"
+                              inline
+                              class="mr-2"
+                            ></v-badge>
+                            <strong class="address-title">Address</strong>
+                          </div>
+                          <v-btn
+                            density="comfortable"
+                            size="small"
+                            color="red"
+                            variant="tonal"
+                            class="delete-btn"
+                            @click.stop="deleteSubmission(index)"
+                          >
+                            <v-icon class="mr-1 delete-icon">mdi-delete</v-icon>
+                            <span class="btn-text">Delete</span>
+                          </v-btn>
+                        </div>
+
+                        <div class="text-body-2 address-content">
+                          <div class="d-flex mb-1 address-line">
+                            <v-icon size="small" class="mr-2 info-icon">mdi-home</v-icon>
+                            <span><strong>Street Name:</strong> {{ submission.address }}</span>
+                          </div>
+                          <div class="d-flex mb-1 address-line">
+                            <v-icon size="small" class="mr-2 info-icon">mdi-city</v-icon>
+                            <span
+                              ><strong>Barangay:</strong>
+                              {{ submission.barangay || submission.city }}</span
+                            >
+                          </div>
+                          <div class="d-flex address-line">
+                            <v-icon size="small" class="mr-2 info-icon">mdi-earth</v-icon>
+                            <span><strong>City:</strong> {{ submission.city }}</span>
+                          </div>
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </transition-group>
+
+                <v-fade-transition>
+                  <div v-if="submissions.length === 0" class="empty-state text-center pa-6">
+                    <v-icon size="64" color="grey" class="mb-2">mdi-map-marker-off</v-icon>
+                    <p class="text-body-1">No addresses added yet</p>
+                    <v-btn
+                      color="primary"
+                      variant="text"
+                      class="mt-3 empty-add-btn"
+                      @click="triggerAddAddress"
+                    >
+                      Add your first address
+                    </v-btn>
+                  </div>
+                </v-fade-transition>
+              </div>
+            </container>
+          </v-card>
+        </div>
       </div>
     </v-container>
   </div>
@@ -1896,5 +1878,30 @@ defineExpose({
 .view-profile-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  width: 70%;
+  margin-top: 10rem;
+  margin-left: 19rem;
+}
+
+/* Apply to your v-card to override existing positioning */
+.centered-card {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  margin: 0 auto; /* Alternative centering method */
+  transform: translateY(5rem); /* Another way to move down, can be adjusted */
+}
+
+/* If you specifically need to target the card in your code */
+.v-card.min-height-500 {
+  margin: 0 auto;
+  position: relative !important;
+  top: 5rem !important; /* Overrides the -5rem in your existing CSS */
 }
 </style>
