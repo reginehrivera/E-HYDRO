@@ -713,7 +713,9 @@ async function placeOrder() {
     status: 'To Deliver',
     user_id: userId,
     created_at: new Date().toISOString(),
-    calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
+    calendar: selectedDate.value
+      ? `${selectedDate.value.getFullYear()}-${String(selectedDate.value.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.value.getDate()).padStart(2, '0')}`
+      : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
     payment_method: paymentMethod.value,
     station_name: station.value.name,
     options: order.selected.join(', '),
