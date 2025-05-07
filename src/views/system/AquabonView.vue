@@ -7,7 +7,7 @@
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>{{ station.name }}</h2>
+                <h2>{{ station.name }}  <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -52,19 +52,22 @@
                       <v-container class="contact-btn text-center">
                         <v-row>
                           <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
-                            <router-link to="" class="no-underline w-100">
-                              <v-btn
-                                class="social-contact w-100"
-                                rounded="0"
-                                variant="flat"
-                                prepend-icon="mdi-facebook-messenger"
+                            <a
+                                href="https://www.facebook.com/aquaxbone"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="no-underline w-100"
                               >
-                                <span class="text-center">Messenger</span>
-                                <v-tooltip activator="parent" location="bottom"
-                                  >Madam Bertud</v-tooltip
+                                <v-btn
+                                  class="social-contact w-100"
+                                  rounded="0"
+                                  variant="flat"
+                                  prepend-icon="mdi-facebook-messenger"
                                 >
-                              </v-btn>
-                            </router-link>
+                                  <span class="text-center">Messenger</span>
+                                  <v-tooltip activator="parent" location="bottom">Message Aquabon</v-tooltip>
+                                </v-btn>
+                              </a>
                           </v-col>
                           <v-col cols="12" sm="6" class="d-flex justify-center">
                             <router-link to="" class="no-underline w-100">
@@ -88,20 +91,36 @@
 
                   <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                  <p class="review-style pl-8 pt-2">
-                    {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
-                    ({{ actualReviews.length }})
-                    <v-tooltip activator="parent" location="right"
-                      >Scroll down to view more reviews!</v-tooltip
-                    >
-                  </p>
-                  <v-container id="review-section" class="modal-content">
+                      <p class="review-style pl-8 pt-2">
+                        {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
+                        ({{ actualReviews.length }})
+                        <v-tooltip activator="parent" location="right"
+                          >Scroll down to view more reviews!</v-tooltip
+                        >
+                      </p>
+                  <v-container id="review-section" class="modal-content" >
                     <v-card
                       v-for="(review, index) in actualReviews"
                       :key="index"
                       class="mb-1 pl-5 pr-5 review-card"
                     >
                       <v-card-title class="d-flex align-center pt-2">
+                        <v-btn
+                          class="expand-btn"
+                          style="
+                            position: absolute;
+                            top: 20px;
+                            right: 20px;
+                            background: none;
+                            border: none;
+                            font-size: 15px;
+                            cursor: pointer;
+                            color: #04448d;
+                          "
+                          @click="showReviewModal = true"
+                        >
+                          <v-icon>mdi-arrow-expand</v-icon>
+                        </v-btn>
                         <v-row>
                           <v-col cols="12" md="2" class="">
                             <v-avatar color="deep-purple lighten-3" size="50">
@@ -139,7 +158,65 @@
                     </v-card>
                   </v-container>
 
-                  <!----->
+                 <!-- Review Modal -->
+                  <v-dialog v-model="showReviewModal" max-width="900" class="">
+                    <v-card class="station-review-card pb-5">
+                      <v-card-title class="text-h6 text-center station-review-title pt-6"><v-icon>mdi-message-draw</v-icon> Customer Reviews</v-card-title>
+                      <v-card-text class="review-modal-body">
+                        <v-container id="review-section" class="">
+                          <v-card
+                            v-for="(review, index) in actualReviews"
+                            :key="index"
+                            class="mb-3 pl-5 pr-5 review-card"
+                          >
+                            <v-card-title class="d-flex align-center pt-2">
+                              <v-row>
+                                <v-col cols="12" md="2">
+                                  <v-avatar color="deep-purple lighten-3" size="50">
+                                    <img
+                                      v-if="review.avatar_url"
+                                      :src="review.avatar_url"
+                                      alt="Avatar"
+                                      class="avatar-img"
+                                    />
+                                    <span v-else class="text-h5">
+                                      {{ review.full_name?.charAt(0).toUpperCase() || '?' }}
+                                    </span>
+                                  </v-avatar>
+                                </v-col>
+                                <v-col cols="12" md="10">
+                                  <div>
+                                    <p class="profile-name-style">{{ review.full_name }}</p>
+                                  </div>
+                                  <div class="text-caption">
+                                    <p class="profile-email-style">{{ review.email }}</p>
+                                  </div>
+                                </v-col>
+                              </v-row>
+                            </v-card-title>
+
+                            <v-rating
+                              :model-value="review.rating"
+                              density="compact"
+                              readonly
+                              color="yellow darken"
+                              class="review-star pl-4"
+                            />
+                            <v-card-text>
+                              <p class="review-comment pl-2">{{ review.comment }}</p>
+                            </v-card-text>
+                          </v-card>
+                        </v-container>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="showReviewModal = false" class="mr-11 mt-4 close-review-btn">Close</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+
+                  <!--END RATING AND COMMENT--->
                 </v-container>
               </v-col>
               <!--End Left Column-->
@@ -160,7 +237,6 @@
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
                     <v-btn
                       @click="confirmDateSelection"
-                      href="#station-right-container-content"
                       color="green"
                       text
                       >Confirm</v-btn
@@ -459,6 +535,7 @@
 </template>
 
 <script setup>
+const showReviewModal = ref(false)
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
@@ -753,8 +830,8 @@ function handleIncompleteOrderOk() {
 
 const reviewStore = useReviewStore()
 
-const stationId = 'station-123' // Should be dynamic (from route param maybe)
-const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
+//const stationId = 'station-123' // Should be dynamic (from route param maybe)
+//const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
 
 const averageRating = computed(() => {
   if (actualReviews.value.length === 0) return 0
@@ -1110,4 +1187,56 @@ h3 {
   color: #02adef;
   text-transform: none;
 }
+
+/**===========STATION REVIEW MODAL STYLE======== */
+.expand-btn{
+  border-radius: 7px !important;
+  border: #000 1px solid !important;
+  padding: 0% !important;
+  width: 10% !important ;
+}
+.station-review-modal{
+  background-color: #00000085;
+  border-radius: 20px !important;
+}
+.sation-review-card{
+  background-color: #dee8ef !important;
+}
+.station-review-modal .v-container {
+  max-height: 80vh; /* Taller modal */
+  overflow-y: auto;
+  border-radius: 20px !important;
+}
+
+/* Optional: taller card and spacing */
+.review-modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.review-card {
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.74);
+}
+
+.station-review-title {
+  margin-bottom: 8px;
+  font-family: 'Inter', Courier, monospace;
+  color: #04448d;
+}
+.close-review-btn{
+  text-transform: none;
+  background-color: #0296d1;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', Courier, monospace;
+  width: 10%;
+}
+.close-review-btn:hover{
+  background-color: #0557b6;
+}
+
 </style>
