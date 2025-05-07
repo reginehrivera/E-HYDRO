@@ -91,25 +91,25 @@
 
                   <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                      <p class="review-style pl-8 pt-2">
+                      <p class="review-style pl-10 pt-2">
                         {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
                         ({{ actualReviews.length }})
                         <v-tooltip activator="parent" location="right"
                           >Scroll down to view more reviews!</v-tooltip
                         >
                       </p>
-                  <v-container id="review-section" class="modal-content" >
+                  <v-container id="review-section" class="review-content" >
                     <v-card
                       v-for="(review, index) in actualReviews"
                       :key="index"
-                      class="mb-1 pl-5 pr-5 review-card"
+                      class="mb-2 pl-1 pr-1 review-card"
                     >
                       <v-card-title class="d-flex align-center pt-2">
-                        <v-btn
+                        <button
                           class="expand-btn"
                           style="
                             position: absolute;
-                            top: 20px;
+                            top: 13px;
                             right: 20px;
                             background: none;
                             border: none;
@@ -120,7 +120,7 @@
                           @click="showReviewModal = true"
                         >
                           <v-icon>mdi-arrow-expand</v-icon>
-                        </v-btn>
+                        </button>
                         <v-row>
                           <v-col cols="12" md="2" class="">
                             <v-avatar color="deep-purple lighten-3" size="50">
@@ -159,7 +159,7 @@
                   </v-container>
 
                  <!-- Review Modal -->
-                  <v-dialog v-model="showReviewModal" max-width="900" class="">
+                  <v-dialog v-model="showReviewModal" max-width="900" class="station-review-modal">
                     <v-card class="station-review-card pb-5">
                       <v-card-title class="text-h6 text-center station-review-title pt-6"><v-icon>mdi-message-draw</v-icon> Customer Reviews</v-card-title>
                       <v-card-text class="review-modal-body">
@@ -167,11 +167,11 @@
                           <v-card
                             v-for="(review, index) in actualReviews"
                             :key="index"
-                            class="mb-3 pl-5 pr-5 review-card"
+                            class="mb-3 pl-5 pr-5 review-card-modal"
                           >
                             <v-card-title class="d-flex align-center pt-2">
                               <v-row>
-                                <v-col cols="12" md="2">
+                                <v-col cols="12" md="1">
                                   <v-avatar color="deep-purple lighten-3" size="50">
                                     <img
                                       v-if="review.avatar_url"
@@ -184,12 +184,12 @@
                                     </span>
                                   </v-avatar>
                                 </v-col>
-                                <v-col cols="12" md="10">
+                                <v-col cols="12" md="11">
                                   <div>
-                                    <p class="profile-name-style">{{ review.full_name }}</p>
+                                    <p class="profile-name-style-modal">{{ review.full_name }}</p>
                                   </div>
                                   <div class="text-caption">
-                                    <p class="profile-email-style">{{ review.email }}</p>
+                                    <p class="profile-email-style-modal">{{ review.email }}</p>
                                   </div>
                                 </v-col>
                               </v-row>
@@ -203,7 +203,7 @@
                               class="review-star pl-4"
                             />
                             <v-card-text>
-                              <p class="review-comment pl-2">{{ review.comment }}</p>
+                              <p class="comment-modal pl-2">{{ review.comment }}</p>
                             </v-card-text>
                           </v-card>
                         </v-container>
@@ -936,10 +936,7 @@ function placeOrderButton() {
   padding-top: 0%;
   margin-top: -0.5rem;
 }
-.review-card {
-  border: #0557b6 1px solid;
-  background-color: #dee8ef;
-}
+
 .review-comment {
   font-family: 'Familjen Grotesk', Times, serif;
   font-size: 13px;
@@ -950,31 +947,7 @@ function placeOrderButton() {
   overflow-y: auto;
   padding-right: 8px;
 }
-/*----Total Details Style */
-.stable-select {
-  width: 210px; /* enough for longest option */
-  height: 42px !important;
-}
 
-.stable-select .v-input__control {
-  height: 42px !important;
-  min-height: 42px !important;
-}
-
-.stable-select .v-field__input {
-  height: 42px !important;
-  line-height: 42px !important;
-  font-size: 14px !important;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-.text-left h4 {
-  font-family: 'Inter', Times, serif !important;
-  color: #04448d;
-}
 .text-right h4,
 h3 {
   font-family: 'Inter', Times, serif;
@@ -1008,17 +981,6 @@ h3 {
 /* Optional: tweak day cells */
 .custom-calendar .v-btn {
   border-radius: 15px;
-}
-
-.modal-content {
-  border-radius: 10px;
-  width: 100%;
-  max-width: 400px;
-  max-height: 30vh;
-  overflow-y: auto;
-}
-.modal-content::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
 }
 
 .avatar-img {
@@ -1189,42 +1151,46 @@ h3 {
 }
 
 /**===========STATION REVIEW MODAL STYLE======== */
-.expand-btn{
-  border-radius: 7px !important;
-  border: #000 1px solid !important;
-  padding: 0% !important;
-  width: 10% !important ;
+.expand-btn {
+  border-radius: 5px;
+  padding: 3px !important;
+  width: 11% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.651);
+  transition: transform 0.3s ease, background-position 0.3s ease;
+}
+.expand-btn:hover {
+  background-color: #0296d1c9 !important;
+  color: rgba(255, 255, 255, 0.774) !important;
+  transform: scale(1.1);
+  box-shadow: none;
 }
 .station-review-modal{
-  background-color: #00000085;
-  border-radius: 20px !important;
+  background-color: #00000096;
 }
-.sation-review-card{
+.station-review-card{
   background-color: #dee8ef !important;
+  border-radius: 10px !important;
 }
-.station-review-modal .v-container {
-  max-height: 80vh; /* Taller modal */
-  overflow-y: auto;
-  border-radius: 20px !important;
-}
-
-/* Optional: taller card and spacing */
 .review-modal-body {
-  max-height: 60vh;
+  max-height: 100vh;
   overflow-y: auto;
-  padding: 16px;
 }
-
-.review-card {
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.74);
+.review-card-modal {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.644);
 }
-
 .station-review-title {
   margin-bottom: 8px;
   font-family: 'Inter', Courier, monospace;
   color: #04448d;
+}
+.profile-name-style-modal, .profile-email-style-modal{
+  font-family: 'Familjen Grotesk', Courier, monospace;
+  color: #04448d;
+}
+.comment-modal{
+  font-size: 15px;
+  font-family: 'Inter', Courier, monospace;
+  font-weight: 500;
 }
 .close-review-btn{
   text-transform: none;

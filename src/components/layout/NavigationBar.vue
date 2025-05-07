@@ -165,7 +165,7 @@
 
 <script setup>
 // Fix for the navigation bar component
-import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue' //watch
 import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/orders' // Import the order store
 import { supabase } from '@/supabase' // adjust path if needed
@@ -343,14 +343,14 @@ function setupOrderStatusListener(userId) {
 }
 
 // Add a manual method to trigger cancel notification (for testing)
-function testCancelNotification(orderId = Math.floor(Math.random() * 10000)) {
+/*function testCancelNotification(orderId = Math.floor(Math.random() * 10000)) {
   addNotification(
     'cancelled',
     'Order Cancelled',
     `Your order #${orderId} has been cancelled. Please contact customer support for assistance.`,
   )
   console.log('Manual cancel notification triggered for order:', orderId)
-}
+}*/
 
 // Add to onMounted to test functionality
 onMounted(async () => {
@@ -423,7 +423,7 @@ async function fetchInitialNotifications() {
 }
 
 // Check if there are in-progress orders
-const hasInProgressOrders = computed(() => {
+/*const hasInProgressOrders = computed(() => {
   // Return true if there are any orders with status "To Deliver" or "Processing"
   return (
     orderStore.inProgressOrdersCount > 0 ||
@@ -454,7 +454,7 @@ function addTestNotification(type) {
       `Your order #${orderId} has been successfully delivered. Thank you for using E-HYDRO!`,
     )
   }
-}
+}*/
 
 // Fetch authenticated user and check for in-progress orders on mount
 onMounted(async () => {
@@ -662,31 +662,31 @@ header {
   width: 100%;
   z-index: 99;
   transition: all 0.5s ease;
-  /* Initially transparent background */
   background-color: transparent;
   height: 80px;
 }
 
-/* When scrolled, apply the background color */
 header.scrolled-nav {
   background: linear-gradient(120deg, #0557b6, #011c3a, #0557b6);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   height: 75px;
 }
 
-/* Ensure navigation remains centered when scrolled */
 header.scrolled-nav nav {
-  padding: 0; /* Remove vertical padding when scrolled */
-  height: 100%; /* Take full height of header */
+  padding: 0; 
+  height: 100%; 
   display: flex;
-  align-items: center; /* Center items vertically */
+  align-items: center;
 }
 
 header.scrolled-nav .first-word,
 header.scrolled-nav .second-word {
   font-size: 35px;
 }
-
+header nav .navigation .router-link-exact-active {
+  color: #02adef !important;
+  border-bottom: 1px solid #02adef;
+}
 nav {
   display: flex;
   flex-direction: row;

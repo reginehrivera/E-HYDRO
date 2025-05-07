@@ -93,7 +93,7 @@
                       >Scroll down to view more reviews!</v-tooltip
                     >
                   </p>
-                  <v-container id="review-section" class="modal-content">
+                  <v-container id="review-section" class="review-content">
                     <v-card
                       v-for="(review, index) in actualReviews"
                       :key="index"

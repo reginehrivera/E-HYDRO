@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router' //import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase'
 
 // User data
 const userStore = useUserStore()
-const route = useRoute()
+//const route = useRoute()
 const router = useRouter()
 
 // Responsive sidebar control
@@ -175,11 +175,11 @@ defineExpose({
         class="animated-card profile-card"
       >
         <v-card-item class="pa-4">
-          <div class="d-flex flex-column align-center mt-3 mb-2 profile-content">
+          <div class="d-flex flex-column align-center mt-3 profile-content">
             <v-avatar
               color="#0a8fe7"
               size="115"
-              class="avatar-animate mb-3"
+              class="avatar-animate mb-1"
               :style="{
                 border: '3px solid #0a8fe7',
                 boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
@@ -191,16 +191,16 @@ defineExpose({
                 alt="Avatar"
                 class="avatar-img"
               />
-              <span v-else class="text-h5 initials-animate white--text">{{
+              <p v-else class="text-h5 initials-animate">{{
                 initials || '??'
-              }}</span>
+              }}</p>
             </v-avatar>
 
             <div class="d-flex flex-column align-center profile-info text-center">
-              <span class="profile-name text-h6 font-weight-bold text--primary">
+              <span class="profile-name text-h6 font-weight-bold">
                 {{ userStore.fullname }}
               </span>
-              <span class="profile-email text-caption text--secondary mt-1">
+              <span class="profile-email text-caption mb-3">
                 <v-icon small class="mr-1">mdi-email</v-icon>
                 {{ userStore.email }}
               </span>
@@ -268,8 +268,8 @@ defineExpose({
             :style="{ animationDelay: `${0.2 + profileLinks.length * 0.1}s` }"
           >
             <div class="link d-flex align-center" @click="handleLogout" style="cursor: pointer">
-              <v-icon small class="mr-2" color="red">mdi-logout</v-icon>
-              <span style="color: red">Logout</span>
+              <v-icon small class="mr-2" >mdi-logout</v-icon>
+              <span>Logout</span>
               <v-spacer />
             </div>
           </div>
@@ -295,28 +295,44 @@ defineExpose({
 }
 
 .profile-card {
-  transition: all 0.3s ease-in-out;
+  /*transition: all 0.3s ease-in-out;*/
+  background-color: #DEE8EF !important;
 }
-
+.profile-name, .profile-email{
+  font-family: 'Inter', sans-serif;
+}
+.profile-name{
+  padding-bottom: 0% ;
+  font-size: 21px !important;
+  color: #0a8fe7;
+}
+.profile-email{
+  font-size: 11px !important;
+}
 .link-item {
   opacity: 0;
   animation: fadeInLeft 0.5s forwards;
 }
-
+.link-item{
+  font-family: 'Inter', Courier, monospace;
+  font-size: 15px;
+  font-weight: 500;
+}
 .link {
   padding: 10px;
   margin: 5px 0;
   border-radius: 8px;
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.87);
+  color: #000;
   transition: all 0.2s ease;
 }
-
 .link:hover {
   background-color: rgba(10, 143, 231, 0.1);
   color: #0a8fe7;
 }
-
+.link .v-icon{
+  color: #04448d;
+}
 .active-link {
   background-color: rgba(10, 143, 231, 0.1);
   color: #0a8fe7;
@@ -333,7 +349,6 @@ defineExpose({
   opacity: 0;
   animation: fadeIn 0.5s forwards 0.2s;
 }
-
 @keyframes fadeInScale {
   from {
     opacity: 0;

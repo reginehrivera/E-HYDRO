@@ -125,11 +125,12 @@
 }
 .review-card {
   border: #0557b6 1px solid;
+  border-bottom: 4px solid #0255ef !important ;
   background-color: #dee8ef;
 }
 .review-comment {
-  font-family: 'Familjen Grotesk', Times, serif;
-  font-size: 13px;
+  font-family: 'Inter', Times, serif !important;
+  font-size: 12px !important;
   margin-top: -0.5rem;
 }
 .scrollable-content {
@@ -137,14 +138,14 @@
   overflow-y: auto;
   padding-right: 8px;
 }
-.modal-content {
+.review-content {
   border-radius: 10px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   max-height: 30vh;
   overflow-y: auto;
 }
-.modal-content::-webkit-scrollbar {
+.review-content::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
 
@@ -286,6 +287,11 @@
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+
+.stable-select .v-select__selection-text {
+  padding-left: 9px !important;
+  padding-top: 3px;
+}  
 .text-left h4{
   font-family: 'Inter', Times, serif !important;
   color: #04448d;

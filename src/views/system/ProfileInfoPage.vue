@@ -155,7 +155,7 @@ const handleAvatarError = (e) => {
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/bg-home-no-gallon.png');
+  background-image: url('@/assets/img/bg-plain.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -170,6 +170,7 @@ const handleAvatarError = (e) => {
   position: relative;
   width: 100%;
   min-height: 100vh;
+  background-color: #b5c0c757;
 }
 
 .overlay-layout {
@@ -188,9 +189,9 @@ const handleAvatarError = (e) => {
 }
 
 .profile-card {
-  background-color: rgba(255, 253, 246, 0.95);
+  background-color: #DEE8EF;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(12, 59, 46, 0.15);
+  box-shadow: 0 10px 30px rgba(32, 32, 32, 0.267);
   width: 100%;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(12, 59, 46, 0.1);

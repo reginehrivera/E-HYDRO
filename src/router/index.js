@@ -3,7 +3,7 @@ import { supabase } from '@/supabase'
 import LoginPage from '@/views/LoginPage.vue'
 import HomeView from '@/views/HomeView.vue'
 import StationView from '@/views/StationView.vue'
-import Notification from '@/views/Notification.vue'
+import Notification from '@/views/NotificationView.vue'
 import AquasisView from '@/views/system/AquasisView.vue'
 import AquabonView from '@/views/system/AquabonView.vue'
 import ColdpointView from '@/views/system/ColdpointView.vue'
@@ -116,7 +116,7 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
   try {
-    const { data, error } = await supabase.auth.getSession()
+    const { data } = await supabase.auth.getSession() //{ data, error }
     const isAuthenticated = !!data.session
 
     if (requiresAuth && !isAuthenticated) {
