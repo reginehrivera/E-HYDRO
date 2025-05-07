@@ -1,60 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase'
+import ProfileSidebar from '@/components/layout/ProfileSidebar.vue'
 
 // User data
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
-
-// Profile links
-const profileLinks = [
-  { route: 'home', text: 'Home' },
-  { route: 'station', text: 'Station' },
-  { route: 'order', text: 'My Orders' },
-  {
-    text: 'My Account',
-    icon: 'mdi-account', // Added explicit icon
-    children: [
-      { route: 'profile', text: 'View Profile' },
-      { route: 'addresses', text: 'My Address' },
-    ],
-  },
-]
-
-const openDropdown = ref(null)
-
-const toggleDropdown = (index) => {
-  openDropdown.value = openDropdown.value === index ? null : index
-}
-
-const handleLogout = async () => {
-  try {
-    console.log('Logout function triggered')
-
-    // First clear user data from store
-    userStore.clearUserData()
-
-    // Sign out using Supabase
-    const { error } = await supabase.auth.signOut()
-
-    if (error) {
-      console.error('Error during logout:', error)
-      return
-    }
-
-    console.log('Logged out successfully, redirecting to login page')
-
-    // Important: Use router.push in a timeout to ensure it executes after all state updates
-    setTimeout(() => {
-      router.push('/login')
-    }, 100)
-  } catch (err) {
-    console.error('Logout failed:', err)
-  }
-}
 
 // Profile form data
 const email = ref(userStore.email || '')
@@ -74,19 +28,7 @@ const isUploading = ref(false)
 const uploadError = ref('')
 
 // Computed
-const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
-  return names
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-})
-
-const goToProfile = () => {
-  router.push({ name: 'profile' }) // Or whatever your profile route name is
-}
-const isMyAccountPage = computed(() => route.name === 'Myaccount')
+const isMyAccountPage = computed(() => route.name === 'Myaccount' || route.name === 'profile')
 const SelectedPage = computed(() => route.name === 'addresses')
 
 // Address management
@@ -221,23 +163,39 @@ const addSubmission = (submission) => {
 
 const deleteSubmission = async (index) => {
   try {
+    if (index < 0 || index >= submissions.value.length) {
+      console.error('Invalid index for deletion:', index)
+      return
+    }
+
     const addressToDelete = submissions.value[index]
-    submissions.value[index].isDeleting = true
+
+    // Set the deleting flag
+    // Create a new array with the updated item to maintain reactivity
+    submissions.value = submissions.value.map((item, i) =>
+      i === index ? { ...item, isDeleting: true } : item,
+    )
 
     setTimeout(async () => {
-      // Remove from UI
-      submissions.value.splice(index, 1)
+      try {
+        // Delete from database if it has a valid UUID (meaning it's stored in DB)
+        if (
+          addressToDelete.id &&
+          addressToDelete.id.match(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+          )
+        ) {
+          const { error } = await supabase.from('addresses').delete().eq('id', addressToDelete.id)
 
-      // Delete from database if it has a valid UUID (meaning it's stored in DB)
-      if (
-        addressToDelete.id &&
-        addressToDelete.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-      ) {
-        const { error } = await supabase.from('addresses').delete().eq('id', addressToDelete.id)
-
-        if (error) {
-          console.error('Error deleting address from database:', error)
+          if (error) {
+            console.error('Error deleting address from database:', error)
+          }
         }
+
+        // Remove from local array
+        submissions.value = submissions.value.filter((_, i) => i !== index)
+      } catch (err) {
+        console.error('Error during deletion timeout:', err)
       }
     }, 300)
   } catch (error) {
@@ -246,7 +204,7 @@ const deleteSubmission = async (index) => {
 }
 
 const isNewlyAdded = (submission) => {
-  return submission.id && newlyAddedIds.value.includes(submission.id)
+  return submission && submission.id && newlyAddedIds.value.includes(submission.id)
 }
 
 const fetchAddresses = async () => {
@@ -298,7 +256,11 @@ const fetchAddresses = async () => {
 
 // Profile methods
 const triggerFileUpload = () => {
-  fileInput.value.click()
+  if (fileInput.value) {
+    fileInput.value.click()
+  } else {
+    console.error('File input element not found')
+  }
 }
 
 const handleFileUpload = async (event) => {
@@ -322,9 +284,14 @@ const handleFileUpload = async (event) => {
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
     const filePath = `avatars/${fileName}`
 
-    const { data: bucket } = await supabase.storage.getBucket('avatars')
-    if (!bucket) {
-      console.warn('Avatar bucket may not exist')
+    // Check if bucket exists
+    try {
+      const { data: bucket } = await supabase.storage.getBucket('avatars')
+      if (!bucket) {
+        console.warn('Avatar bucket may not exist, attempting upload anyway')
+      }
+    } catch (bucketError) {
+      console.warn('Error checking bucket, attempting upload anyway:', bucketError)
     }
 
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
@@ -419,11 +386,16 @@ const saveProfile = async () => {
       }
     }
 
-    const { data: existingProfile } = await supabase
+    // Check if profile exists
+    const { data: existingProfile, error: profileQueryError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
+
+    if (profileQueryError && profileQueryError.code !== 'PGRST116') {
+      console.error('Error checking profile:', profileQueryError)
+    }
 
     let profileResult
 
@@ -481,17 +453,9 @@ const goToProfilePage = () => {
   router.push('/profile')
 }
 
-const getLinkIcon = (route) => {
-  const icons = {
-    home: 'mdi-home',
-    station: 'mdi-storefront',
-    order: 'mdi-package-variant',
-  }
-  return icons[route] || 'mdi-link'
-}
-
 // Lifecycle hooks
 onMounted(() => {
+  // Fill form data from store
   if (userStore.fullname) {
     const names = userStore.fullname.split(' ')
     firstname.value = names[0] || ''
@@ -510,12 +474,25 @@ onMounted(() => {
     avatarUrl.value = userStore.avatar_url
   }
 
-  fetchAddresses()
+  // Fetch addresses on component mount
+  if (SelectedPage.value) {
+    fetchAddresses()
+  }
 })
 
 watch([firstname, lastname, email, phone], () => {
   validateForm()
 })
+
+// Re-fetch addresses when route changes to addresses page
+watch(
+  () => route.name,
+  (newRouteName) => {
+    if (newRouteName === 'addresses') {
+      fetchAddresses()
+    }
+  },
+)
 
 defineExpose({
   addSubmission,
@@ -530,140 +507,13 @@ defineExpose({
   <div class="layout">
     <v-container fluid class="bg-image">
       <div class="vrow">
-        <!-- Sidebar Section -->
-        <v-row
-          class="profile-card-wrapper"
-          style="
-            position: fixed;
-            top: 80px;
-            left: 0;
-            height: 100vh;
-            margin: 0;
-            z-index: 10;
-            width: 250px;
-          "
-        >
-          <v-col style="padding: 0">
-            <v-card
-              hover
-              :style="{
-                background: '#FFFFFF',
-                borderRadius: '0',
-                boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
-                height: '100%',
-              }"
-              class="animated-card profile-card"
-            >
-              <v-card-item class="pa-4">
-                <div class="d-flex flex-column align-center mt-3 mb-2 profile-content">
-                  <v-avatar
-                    color="deep-purple lighten-3"
-                    size="115"
-                    class="avatar-animate mb-3"
-                    :style="{
-                      border: '3px solid #7E57C2',
-                      boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
-                    }"
-                  >
-                    <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
-                    <span v-else class="text-h5 initials-animate white--text">{{
-                      initials || '??'
-                    }}</span>
-                  </v-avatar>
-
-                  <div class="d-flex flex-column align-center profile-info text-center">
-                    <span class="profile-name text-h6 font-weight-bold text--primary">
-                      {{ userStore.fullname }}
-                    </span>
-                    <span class="profile-email text-caption text--secondary mt-1">
-                      <v-icon small class="mr-1">mdi-email</v-icon>
-                      {{ userStore.email }}
-                    </span>
-                  </div>
-                </div>
-              </v-card-item>
-
-              <v-card-text class="pt-0 pb-4">
-                <v-divider class="mb-3"></v-divider>
-                <!-- Loop through each navigation item -->
-                <div
-                  v-for="(link, index) in profileLinks"
-                  :key="index"
-                  class="link-item"
-                  :style="{ animationDelay: `${0.2 + index * 0.1}s` }"
-                >
-                  <!-- Dropdown item (My Account) -->
-                  <template v-if="link.children">
-                    <div class="link d-flex align-center" @click="toggleDropdown(index)">
-                      <v-icon small class="mr-2">{{ link.icon || 'mdi-account' }}</v-icon>
-                      <span>{{ link.text }}</span>
-                      <v-spacer />
-                      <v-icon small>
-                        {{ openDropdown === index ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-                      </v-icon>
-                    </div>
-
-                    <!-- Dropdown children -->
-                    <div
-                      v-if="openDropdown === index"
-                      class="ml-4 mt-1"
-                      style="transition: all 0.3s ease"
-                    >
-                      <router-link
-                        v-for="sublink in link.children"
-                        :key="sublink.route"
-                        :to="{ name: sublink.route }"
-                        class="link d-flex align-center"
-                        :class="{ 'active-link': $route.name === sublink.route }"
-                      >
-                        <v-icon small class="mr-2">mdi-chevron-right</v-icon>
-                        {{ sublink.text }}
-                      </router-link>
-                    </div>
-                  </template>
-
-                  <!-- Regular menu item -->
-                  <template v-else>
-                    <router-link
-                      :to="{ name: link.route }"
-                      class="link d-flex align-center"
-                      :class="{ 'active-link': $route.name === link.route }"
-                    >
-                      <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
-                      <span>{{ link.text }}</span>
-                      <v-spacer />
-                      <v-icon small>mdi-chevron-right</v-icon>
-                    </router-link>
-                  </template>
-                </div>
-                <!-- Logout Button -->
-                <v-divider class="my-3"></v-divider>
-                <div
-                  class="link-item logout-button"
-                  :style="{ animationDelay: `${0.2 + profileLinks.length * 0.1}s` }"
-                >
-                  <div
-                    class="link d-flex align-center"
-                    @click="handleLogout"
-                    style="cursor: pointer"
-                  >
-                    <v-icon small class="mr-2" color="red">mdi-logout</v-icon>
-                    <span style="color: red">Logout</span>
-                    <v-spacer />
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-        <!--End of Sidebar Section -->
-
-        <!-- ....... -->
+        <ProfileSidebar />
+        <!-- My Account Section -->
         <v-col cols="12" md="7" class="card-v2 d-flex justify-center" v-if="isMyAccountPage">
           <v-slide-y-transition>
             <v-card
               class="w-100 profile-edit-card"
-              max-width="700"
+              max-width="900"
               hover
               elevation="6"
               :style="{ background: '#D9D9D9', height: 'auto' }"
@@ -676,10 +526,10 @@ defineExpose({
                 <div class="avatar-wrapper">
                   <v-avatar
                     size="120"
-                    color="deep-purple lighten-3"
+                    color="#0a8fe7"
                     class="profile-avatar"
                     :style="{
-                      border: '3px solid #7E57C2',
+                      border: '3px solid #0a8fe7',
                       boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
                     }"
                   >
@@ -696,6 +546,7 @@ defineExpose({
                     mdi-square-edit-outline
                   </v-icon>
                 </div>
+
                 <input
                   ref="fileInput"
                   type="file"
@@ -726,8 +577,9 @@ defineExpose({
 
               <v-form @submit.prevent="saveProfile" v-model="valid" class="profile-form">
                 <v-container fluid>
+                  <!-- First Name & Last Name Row -->
                   <v-row no-gutters>
-                    <v-col class="form-field animate-field-1">
+                    <v-col cols="12" sm="6" class="form-field animate-field-1">
                       <span class="text-grey-darken-1 field-label">First Name</span>
                       <v-text-field
                         v-model="firstname"
@@ -737,7 +589,7 @@ defineExpose({
                         class="pa-0 ma-1"
                       />
                     </v-col>
-                    <v-col cols="10" sm="6" class="form-field animate-field-2">
+                    <v-col cols="12" sm="6" class="form-field animate-field-2">
                       <span class="text-grey-darken-1 field-label">Last Name</span>
                       <v-text-field
                         v-model="lastname"
@@ -749,8 +601,9 @@ defineExpose({
                     </v-col>
                   </v-row>
 
+                  <!-- Email & Phone Row -->
                   <v-row no-gutters>
-                    <v-col class="form-field animate-field-3">
+                    <v-col cols="12" sm="6" class="form-field animate-field-3">
                       <span class="text-grey-darken-1 field-label">Email</span>
                       <v-text-field
                         v-model="email"
@@ -760,7 +613,7 @@ defineExpose({
                         class="pa-0 ma-1"
                       />
                     </v-col>
-                    <v-col class="form-field animate-field-4">
+                    <v-col cols="12" sm="6" class="form-field animate-field-4">
                       <span class="text-grey-darken-1 field-label">Phone Number</span>
                       <v-text-field
                         v-model="phone"
@@ -776,8 +629,9 @@ defineExpose({
                     </v-col>
                   </v-row>
 
+                  <!-- Password Fields Row -->
                   <v-row no-gutters>
-                    <v-col class="form-field animate-field-5">
+                    <v-col cols="12" sm="6" class="form-field animate-field-5">
                       <span class="text-grey-darken-1 field-label">New Password</span>
                       <v-text-field
                         v-model="newPassword"
@@ -788,7 +642,7 @@ defineExpose({
                         class="pa-0 ma-1"
                       />
                     </v-col>
-                    <v-col class="form-field animate-field-6">
+                    <v-col cols="12" sm="6" class="form-field animate-field-6">
                       <span class="text-grey-darken-1 field-label">Confirm Password</span>
                       <v-text-field
                         v-model="confirmPassword"
@@ -801,11 +655,12 @@ defineExpose({
                     </v-col>
                   </v-row>
 
+                  <!-- Save Button -->
                   <v-row justify="center" no-gutters>
                     <v-col cols="12" sm="8" md="4" class="save-button-container">
                       <v-btn
-                        :style="{ backgroundColor: '#022650', color: 'white' }"
-                        rounded="lg"
+                        color="#0a8fe7"
+                        variant="outlined"
                         block
                         class="transition-all"
                         type="submit"
@@ -925,7 +780,7 @@ defineExpose({
               </v-dialog>
             </div>
 
-            <container>
+            <v-container>
               <v-col>
                 <div class="d-flex align-center section-header">
                   <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
@@ -950,6 +805,7 @@ defineExpose({
                       variant="outlined"
                       v-ripple
                       elevation="2"
+                      :style="{ width: '100%' }"
                       :class="{
                         'animate-pulse': isNewlyAdded(submission),
                         isDeleting: submission.isDeleting,
@@ -1016,7 +872,7 @@ defineExpose({
                   </div>
                 </v-fade-transition>
               </div>
-            </container>
+            </v-container>
           </v-card>
         </div>
       </div>
@@ -1280,6 +1136,19 @@ defineExpose({
   }
 }
 
+.transition-all {
+  border-radius: 8px;
+  padding: 0 20px;
+  height: 40px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+.transition-all:hover {
+  background-color: rgba(12, 38, 59, 0.1);
+  color: #0d3a96;
+}
+
 /* Component Animations */
 .profile-edit-card {
   transform: scale(0.85);
@@ -1289,6 +1158,13 @@ defineExpose({
   max-height: 90vh !important;
   left: 24rem;
   margin-top: 10rem;
+}
+
+@media (max-width: 960px) {
+  .profile-edit-card {
+    max-height: 140vh !important;
+    left: 0;
+  }
 }
 
 .profile-title {
@@ -1403,7 +1279,7 @@ defineExpose({
 .address-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  border-left: 3px solid #673ab7;
+  border-left: 3px solid #0a8fe7;
 }
 
 .delete-btn {
@@ -1443,7 +1319,7 @@ defineExpose({
 /* Pulse animation for newly added items */
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(103, 58, 183, 0.7);
+    box-shadow: 0 0 0 0 rgba(8, 73, 170, 0.7);
   }
   70% {
     box-shadow: 0 0 0 10px rgba(103, 58, 183, 0);
@@ -1510,7 +1386,7 @@ defineExpose({
 .address-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15) !important;
-  border-left: 3px solid #673ab7;
+  border-left: 3px solid #0a8fe7;
 }
 
 /* Button container - ensures it never gets squeezed */
@@ -1623,7 +1499,7 @@ defineExpose({
 /* Pulse animation for newly added items */
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(103, 58, 183, 0.7);
+    box-shadow: 0 0 0 0 rgba(34, 91, 175, 0.7);
   }
   70% {
     box-shadow: 0 0 0 10px rgba(103, 58, 183, 0);
@@ -1820,7 +1696,7 @@ defineExpose({
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(103, 58, 183, 0.7);
+    box-shadow: 0 0 0 0 rgba(47, 83, 184, 0.7);
   }
   70% {
     box-shadow: 0 0 0 10px rgba(103, 58, 183, 0);
@@ -1848,7 +1724,7 @@ defineExpose({
 
 .profile-card:hover .avatar-animate {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(126, 87, 194, 0.7);
+  box-shadow: 0 0 20px rgba(87, 107, 194, 0.7);
 }
 
 /* Link styling */
@@ -1868,12 +1744,12 @@ defineExpose({
 
 .active-link {
   background: rgba(126, 87, 194, 0.1) !important;
-  color: #673ab7 !important;
+  color: #0a8fe7 !important;
   font-weight: 500;
 }
 
 .active-link .v-icon {
-  color: #673ab7 !important;
+  color: #0a8fe7 !important;
 }
 
 /* Profile name animation */
@@ -1889,7 +1765,7 @@ defineExpose({
   left: 0;
   width: 0;
   height: 2px;
-  background: #7e57c2;
+  background: #0a8fe7;
   transition: width 0.3s ease;
 }
 
@@ -1931,6 +1807,13 @@ defineExpose({
   margin-left: 19rem;
 }
 
+@media screen and (max-width: 960px) {
+  .card-container {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 /* Apply to your v-card to override existing positioning */
 .centered-card {
   position: relative !important;
@@ -1946,22 +1829,5 @@ defineExpose({
   margin: 0 auto;
   position: relative !important;
   top: 5rem !important; /* Overrides the -5rem in your existing CSS */
-}
-
-/* Add these styles to your existing CSS */
-.logout-button {
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
-
-.logout-button:hover {
-  background-color: rgba(255, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.logout-button .link {
-  padding: 8px 16px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
 }
 </style>

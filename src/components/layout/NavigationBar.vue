@@ -49,7 +49,19 @@
           </div>
         </li>
         <li class="profile-wrapper">
-          <v-icon class="last" @click="toggleProfileDropdown">mdi-account-circle</v-icon>
+          <v-avatar
+            size="45"
+            color="deep-purple lighten-3"
+            class="profile-initials last"
+            @click="toggleProfileDropdown"
+          >
+            <template v-if="avatarUrl">
+              <img :src="avatarUrl" alt="User Image" class="profile-img" />
+            </template>
+            <template v-else>
+              <span class="white--text text-subtitle-2">{{ initials || '??' }}</span>
+            </template>
+          </v-avatar>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
               <v-avatar size="70" color="deep-purple lighten-3" class="profile-initials">
@@ -844,7 +856,7 @@ li {
 .notification-dropdown {
   position: absolute;
   right: 0;
-  top: 60px;
+  top: 58px;
   width: 350px;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -863,7 +875,7 @@ li {
   content: '';
   position: absolute;
   top: -10px;
-  right: 21px;
+  right: 30px;
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
@@ -973,7 +985,7 @@ li {
 .profile-dropdown {
   position: absolute;
   right: 0;
-  top: 60px;
+  top: 70px;
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -986,7 +998,7 @@ li {
   content: '';
   position: absolute;
   top: -10px;
-  right: 31px;
+  right: 30px;
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
@@ -1086,8 +1098,18 @@ li {
   justify-content: center;
   font-weight: bold;
   font-size: 1.2rem;
-  border: 3px solid #7e57c2;
+  border: 2px solid #0a8fe7;
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-initials:hover {
+  transform: scale(0.95);
+}
+
+.profile-initials:active {
+  transform: scale(0.9);
 }
 
 .notification-badge {
