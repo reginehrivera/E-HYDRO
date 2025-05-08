@@ -535,7 +535,7 @@ defineExpose({
               max-width="900"
               hover
               elevation="6"
-              :style="{ background: '#D9D9D9', height: 'auto' }"
+              :style="{ background: '#dee8ef', height: 'auto' }"
             >
               <span class="text-h5 font-weight-medium d-flex justify-center my-4 profile-title">
                 Edit Profile
@@ -545,11 +545,10 @@ defineExpose({
                 <div class="avatar-wrapper">
                   <v-avatar
                     size="120"
-                    color="#0a8fe7"
+                    color="#dbdbdb"
                     class="profile-avatar"
                     :style="{
                       border: '3px solid #0a8fe7',
-                      boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
                     }"
                   >
                     <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />

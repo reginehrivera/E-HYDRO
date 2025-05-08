@@ -45,7 +45,7 @@
                         </h5>
                       </v-col>
                       <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
-                        <h3 class="blue-color"><b>₱25.00</b></h3>
+                        <h3 class="blue-color"><b>₱20.00</b></h3>
                         <p class="blue-color">per gallon</p>
                         <br />
                         <span>No Delivery Fee</span>
@@ -372,7 +372,7 @@
                           </v-row>
                           <v-row>
                             <v-col cols="12" md="6">
-                              <p class="text-h6 pt-0">₱ 25.00 per gallon</p>
+                              <p class="text-h6 pt-0">₱ 20.00 per gallon</p>
                             </v-col>
                             <v-col cols="12" md="6">
                               <v-container d-flex align-center class="btn-group">
@@ -674,7 +674,7 @@ onMounted(() => {
 })
 
 function getSubtotal(order) {
-  const base = order.quantity * 25
+  const base = order.quantity * 20
   const hasNewGallon = order.selected.includes('Buy with New Gallon (₱100)')
   const addon = hasNewGallon ? order.quantity * 100 : 0
   return base + addon
