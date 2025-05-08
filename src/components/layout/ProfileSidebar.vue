@@ -232,12 +232,11 @@ defineExpose({
         <v-card-item class="pa-4">
           <div class="d-flex flex-column align-center mt-3 profile-content">
             <v-avatar
-              color="#0a8fe7"
+              color="#dbdbdb"
               size="115"
               class="avatar-animate mb-1"
               :style="{
                 border: '3px solid #0a8fe7',
-                boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
               }"
             >
               <img

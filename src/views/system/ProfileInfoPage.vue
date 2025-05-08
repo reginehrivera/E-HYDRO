@@ -88,7 +88,7 @@ const handleAvatarError = (e) => {
                     <!-- Left side - Avatar -->
                     <div class="avatar-container mr-6">
                       <v-avatar
-                        color="#0a8fe7"
+                        color="#dbdbdb"
                         size="250"
                         class="avatar-elevated"
                         @click="showAvatarModal = true"
@@ -115,7 +115,7 @@ const handleAvatarError = (e) => {
                         </v-btn>
 
                         <!-- Avatar Image or Initials -->
-                        <v-avatar size="400" color="#0a8fe7" class="mx-auto avatar-dialog-img">
+                        <v-avatar size="400" color="#dbdbdb" class="mx-auto avatar-dialog-img">
                           <img
                             v-if="avatarUrl"
                             :src="avatarUrl"
@@ -300,7 +300,7 @@ const handleAvatarError = (e) => {
 /* Avatar adjustments */
 .avatar-elevated {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  border: 3px solid white;
+  border: 3px solid #0a8fe7;
   cursor: pointer;
   transition: transform 0.2s ease;
 }

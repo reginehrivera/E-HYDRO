@@ -51,7 +51,7 @@
         <li class="profile-wrapper">
           <v-avatar
             size="45"
-            color="deep-purple lighten-3"
+            color="#dbdbdb"
             class="profile-initials last"
             @click="toggleProfileDropdown"
           >
@@ -64,7 +64,7 @@
           </v-avatar>
           <div v-if="showProfileDropdown" class="profile-dropdown">
             <div class="profile-info">
-              <v-avatar size="70" color="deep-purple lighten-3" class="profile-initials">
+              <v-avatar size="70" color="#dbdbdb" class="profile-initials">
                 <template v-if="avatarUrl">
                   <img :src="avatarUrl" alt="User Image" class="profile-img" />
                 </template>
