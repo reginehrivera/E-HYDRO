@@ -22,7 +22,7 @@
                   <v-row class="img-row">
                     <v-col cols="12" class="img-style d-flex">
                       <img
-                        src="@/assets/img/aquabon-img.jpg"
+                        src="@/assets/img/waterdrops-img1.png"
                         height="250"
                         width="380"
                         class="responsive-img mx-auto"
@@ -69,7 +69,7 @@
                               >
                                 <span class="text-center">Messenger</span>
                                 <v-tooltip activator="parent" location="bottom"
-                                  >Message Aquabon</v-tooltip
+                                  >Message Water Drops</v-tooltip
                                 >
                               </v-btn>
                             </a>
