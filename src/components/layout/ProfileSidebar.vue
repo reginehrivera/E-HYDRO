@@ -1,15 +1,17 @@
-//profile sidebar component
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router' //import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase'
+import LoadingPage from '@/components/layout/LoadingPage.vue'
 
 // User data
 const userStore = useUserStore()
 //const route = useRoute()
 const router = useRouter()
+
+// Loading state
+const isLoading = ref(false)
 
 // Responsive sidebar control
 const isMobileMenuOpen = ref(false)
@@ -60,11 +62,22 @@ const toggleDropdown = (index) => {
   openDropdown.value = openDropdown.value === index ? null : index
 }
 
+// Handle loading completion
+const onLoadingComplete = () => {
+  // This will be triggered when the loading animation completes
+}
+
 const handleLogout = async () => {
   try {
     console.log('Logout function triggered')
 
-    // First clear user data from store
+    // Show the loading animation
+    isLoading.value = true
+
+    // Create a promise that will resolve after 3 seconds
+    const loadingPromise = new Promise((resolve) => setTimeout(resolve, 3000))
+
+    // Clear user data from store
     userStore.clearUserData()
 
     // Sign out using Supabase
@@ -72,17 +85,20 @@ const handleLogout = async () => {
 
     if (error) {
       console.error('Error during logout:', error)
+      isLoading.value = false
       return
     }
 
-    console.log('Logged out successfully, redirecting to login page')
+    console.log('Logged out successfully, waiting for loading animation')
 
-    // Important: Use router.push in a timeout to ensure it executes after all state updates
-    setTimeout(() => {
-      router.push('/login')
-    }, 100)
+    // Wait for the loading animation to complete (3 seconds)
+    await loadingPromise
+
+    // Redirect to login page
+    router.push('/login')
   } catch (err) {
     console.error('Logout failed:', err)
+    isLoading.value = false
   }
 }
 
@@ -130,6 +146,9 @@ defineExpose({
 </script>
 
 <template>
+  <!-- Custom Loading Animation -->
+  <loading-page v-if="isLoading" :show="isLoading" @loading-complete="onLoadingComplete" />
+
   <!-- Hamburger menu for mobile view -->
   <div
     class="hamburger-container"
