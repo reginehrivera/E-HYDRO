@@ -254,6 +254,17 @@ const fetchAddresses = async () => {
   }
 }
 
+// Compute initials from fullname
+const initials = computed(() => {
+  if (!userStore.fullname) return ''
+
+  return userStore.fullname
+    .split(' ')
+    .map((name) => name.charAt(0).toUpperCase())
+    .join('')
+    .substring(0, 2) // Limit to 2 characters
+})
+
 // Profile methods
 const triggerFileUpload = () => {
   if (fileInput.value) {
@@ -431,7 +442,7 @@ const saveProfile = async () => {
     }
 
     userStore.setUserData({
-      fullname: updatedFullName,
+      full_name: updatedFullName,
       email: updatedEmail,
       mobile: updatedPhone,
       avatar_url: avatarUrl.value || '',

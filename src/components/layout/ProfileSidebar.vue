@@ -12,6 +12,7 @@ const router = useRouter()
 
 // Loading state
 const isLoading = ref(false)
+const fullName = ref('') // Add ref for full_name from profiles table
 
 // Responsive sidebar control
 const isMobileMenuOpen = ref(false)
@@ -51,7 +52,6 @@ const profileLinks = [
     icon: 'mdi-account', // Added explicit icon
     children: [
       { route: 'profile', text: 'View Profile' },
-
       { route: 'addresses', text: 'My Address' },
     ],
   },
@@ -66,6 +66,34 @@ const toggleDropdown = (index) => {
 // Handle loading completion
 const onLoadingComplete = () => {
   // This will be triggered when the loading animation completes
+}
+
+// Fetch user profile data
+const fetchUserProfile = async () => {
+  try {
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      // Fetch profile data from the profiles table
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single()
+
+      if (error) throw error
+
+      if (profile) {
+        // Set the full_name for initials
+        fullName.value = profile.full_name || ''
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+  }
 }
 
 const handleLogout = async () => {
@@ -103,10 +131,10 @@ const handleLogout = async () => {
   }
 }
 
-// Computed
+// Updated computed property to use the fetched full_name
 const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
+  if (!fullName.value) return ''
+  const names = fullName.value.trim().split(' ')
   return names
     .map((n) => n[0])
     .join('')
@@ -126,9 +154,12 @@ const getLinkIcon = (route) => {
 }
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
   // Set up window resize event listener
   window.addEventListener('resize', handleResize)
+
+  // Fetch user profile data
+  await fetchUserProfile()
 })
 
 onMounted(() => {
@@ -220,7 +251,7 @@ defineExpose({
 
             <div class="d-flex flex-column align-center profile-info text-center">
               <span class="profile-name text-h6 font-weight-bold">
-                {{ userStore.fullname }}
+                {{ fullName }}
               </span>
               <span class="profile-email text-caption mb-3">
                 <v-icon small class="mr-1">mdi-email</v-icon>

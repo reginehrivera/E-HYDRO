@@ -1,23 +1,67 @@
 <script setup>
-import { computed, ref } from 'vue' //onMounted
+import { computed, ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import ProfileSidebar from '@/components/layout/ProfileSidebar.vue'
+import { supabase } from '@/supabase'
 
 const userStore = useUserStore()
 const showAvatarModal = ref(false)
 
 const formAction = ref({ formProcess: false })
-const isLoadingUser = ref(false)
+const isLoadingUser = ref(true)
 const router = useRouter()
 const avatarUrl = computed(() => userStore.avatar_url)
+const fullName = ref('')
+
+// Compute initials from the correctly fetched full_name
 const initials = computed(() => {
-  if (!userStore.fullname) return ''
-  const names = userStore.fullname.trim().split(' ')
+  if (!fullName.value) return ''
+  const names = fullName.value.trim().split(' ')
   return names
     .map((n) => n[0])
     .join('')
     .toUpperCase()
+})
+
+// Fetch user profile data on mount
+onMounted(async () => {
+  try {
+    isLoadingUser.value = true
+
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      // Fetch profile data from the profiles table
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('full_name, contact_number, email, avatar_url')
+        .eq('id', user.id)
+        .single()
+
+      if (error) throw error
+
+      if (profile) {
+        // Set the full_name for initials
+        fullName.value = profile.full_name || ''
+
+        // Update the user store
+        userStore.setUserData({
+          email: profile.email,
+          fullname: profile.full_name,
+          mobile: profile.contact_number,
+          avatar_url: profile.avatar_url || '',
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+  } finally {
+    isLoadingUser.value = false
+  }
 })
 
 const goToMyAccount = () => {
@@ -88,7 +132,7 @@ const handleAvatarError = (e) => {
                       <div class="form-field">
                         <span class="text-grey-darken-1 field-label">Full Name</span>
                         <v-text-field
-                          :model-value="userStore.fullname || 'N/A'"
+                          :model-value="fullName || 'N/A'"
                           variant="solo"
                           density="compact"
                           readonly
