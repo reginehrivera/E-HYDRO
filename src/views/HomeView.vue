@@ -1,6 +1,5 @@
 <template>
   <NavigationBar>
-    <LoadingPage v-if="isLoading" />
     <template #content>
       <v-app>
         <v-container fluid class="bg-image pb-0">
@@ -48,19 +47,11 @@ import firstIcon from '@/assets/img/first-icon.png'
 import secondIcon from '@/assets/img/second-icon.png'
 import thirdIcon from '@/assets/img/third-icon.png'
 import fourthIcon from '@/assets/img/fourth-icon.png'
-import LoadingPage from '@/components/layout/LoadingPage.vue'
+
 /*export default {
   name: 'HomeView',
   components: {},
 }*/
-const isLoading = ref(true)
-
-onMounted(() => {
-  // Simulate loading (3 seconds)
-  setTimeout(() => {
-    isLoading.value = false
-  }, 3000)
-})
 </script>
 
 <style scoped>

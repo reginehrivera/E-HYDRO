@@ -1,26 +1,13 @@
-<script setup>
-import LoadingPage from '@/components/layout/LoadingPage.vue'
-const isLoading = ref(true)
-
-function onLoadingComplete() {
-  // This will be triggered when the loading animation is complete
-  isLoading.value = false
-}
-</script>
+<script setup></script>
 
 <template>
-  <div>
-    <LoadingPage v-if="isLoading" @loading-complete="onLoadingComplete" />
-    <div v-else>
-      <v-container fluid class="fill-height bg-image d-flex align-center justify-center">
-        <div class="button-wrapper">
-          <RouterLink to="/login">
-            <v-btn class="custom-btn">Get Started</v-btn>
-          </RouterLink>
-        </div>
-      </v-container>
+  <v-container fluid class="fill-height bg-image d-flex align-center justify-center">
+    <div class="button-wrapper">
+      <RouterLink to="/login">
+        <v-btn class="custom-btn">Get Started</v-btn>
+      </RouterLink>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <style scoped>

@@ -6,9 +6,9 @@
         <span class="second-word">-HYDRO</span>
       </div>
       <ul v-show="!mobile" class="navigation">
-        <li><router-link class="link" :to="{ name: 'home' }">Home</router-link></li>
-        <li><router-link class="link" :to="{ name: 'station' }">Station</router-link></li>
-        <li><router-link class="link" :to="{ name: 'order' }">My Order</router-link></li>
+        <li><router-link class="nav-link" :to="{ name: 'home' }">Home</router-link></li>
+        <li><router-link class="nav-link" :to="{ name: 'station' }">Station</router-link></li>
+        <li><router-link class="nav-link" :to="{ name: 'order' }">My Order</router-link></li>
         <li class="notification-wrapper">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
           <!-- Show notification badge if there are notifications -->
@@ -80,19 +80,19 @@
 
             <ul>
               <li>
-                <router-link class="link" to="/MyAccount">
+                <router-link class="profile-link" to="/MyAccount">
                   <v-icon class="edit-icon small-icon">mdi-account</v-icon>
                   Edit Profile
                 </router-link>
               </li>
               <li>
-                <router-link class="link" to="/addresses">
+                <router-link class="profile-link" to="/addresses">
                   <v-icon class="address-icon small-icon">mdi-map-marker</v-icon> Delivery Address
                 </router-link>
               </li>
 
               <li>
-                <a href="#" class="link" @click.prevent="handleLogout">
+                <a href="#" class="profile-link" @click.prevent="handleLogout">
                   <v-icon class="logout-icon small-icon">mdi-logout</v-icon> Logout
                 </a>
               </li>
@@ -100,53 +100,154 @@
           </div>
         </li>
       </ul>
-      <!-- Mobile Nav Icon and Mobile Dropdown -->
-      <v-icon
-        class="icon-style"
-        @click="toggleMobileNav"
-        v-show="mobile"
-        :class="{ 'icon-active': mobileNav }"
-        >mdi-menu</v-icon
-      >
 
-      <transition name="mobile-nav">
-        <ul v-show="mobile && mobileNav" class="dropdown-nav">
-          <li>
-            <div class="branding">
-              <span class="first-word">E</span>
-              <span class="second-word">-HYDRO</span>
-            </div>
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'home' }"
-              ><v-icon>mdi-home</v-icon>Home</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'station' }"
-              ><v-icon>mdi-water</v-icon>Station</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'order' }"
-              ><v-icon>mdi-cart</v-icon>My Order</router-link
-            >
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'notification' }"
-              ><v-icon>mdi-bell</v-icon> Notification
-              <span v-if="hasNotifications" class="mobile-notification-badge">{{
-                notificationCount
-              }}</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link class="link" :to="{ name: 'profile' }"
-              ><v-icon>mdi-account</v-icon> Profile</router-link
-            >
-          </li>
-        </ul>
-      </transition>
+      <!-- Mobile Hamburger Menu - Using Sidebar Style -->
+      <div
+        class="hamburger-container"
+        v-if="mobile"
+        style="position: absolute; top: 10px; right: 10px; z-index: 100"
+      >
+        <v-btn
+          icon
+          :color="isMobileMenuOpen ? 'red darken-2' : 'primary'"
+          @click="toggleMobileMenu"
+          class="hamburger-btn"
+          aria-label="Toggle menu"
+        >
+          <v-icon large>{{ isMobileMenuOpen ? 'mdi-close' : 'mdi-menu' }}</v-icon>
+        </v-btn>
+      </div>
+
+      <!-- Overlay for mobile menu -->
+      <div v-if="mobile && isMobileMenuOpen" class="mobile-overlay" @click="closeMobileMenu"></div>
+
+      <!-- Mobile Sidebar Menu -->
+      <v-row
+        class="profile-card-wrapper"
+        :class="{ 'mobile-menu-open': isMobileMenuOpen }"
+        :style="{
+          position: 'fixed',
+          top: '0',
+          left: 0,
+          height: '100vh',
+          margin: 0,
+          zIndex: 100,
+          width: '250px',
+          transform: mobile && !isMobileMenuOpen ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'transform 0.3s ease-in-out',
+        }"
+        v-if="mobile"
+      >
+        <v-col style="padding: 0">
+          <v-card
+            hover
+            :style="{
+              background: '#FFFFFF',
+              borderRadius: '0',
+              boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
+              height: '100%',
+            }"
+            class="animated-card profile-card"
+          >
+            <v-card-item class="pa-4">
+              <div class="d-flex flex-column align-center mt-3 profile-content">
+                <v-avatar
+                  color="#0a8fe7"
+                  size="115"
+                  class="avatar-animate mb-1"
+                  :style="{
+                    border: '3px solid #0a8fe7',
+                    boxShadow: '0 0 15px rgba(126, 87, 194, 0.5)',
+                  }"
+                >
+                  <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-img" />
+                  <p v-else class="text-h5 initials-animate">{{ initials || '??' }}</p>
+                </v-avatar>
+
+                <div class="d-flex flex-column align-center profile-info text-center">
+                  <span class="profile-name text-h6 font-weight-bold">
+                    {{ fullname }}
+                  </span>
+                  <span class="profile-email text-caption mb-3">
+                    <v-icon small class="mr-1">mdi-email</v-icon>
+                    {{ userStore.email }}
+                  </span>
+                </div>
+              </div>
+            </v-card-item>
+
+            <v-card-text class="pt-0 pb-4">
+              <!-- Loop through each navigation item -->
+              <div
+                v-for="(link, index) in profileLinks"
+                :key="index"
+                class="link-item"
+                :style="{ animationDelay: `${0.2 + index * 0.1}s` }"
+              >
+                <!-- Dropdown item (My Account) -->
+                <template v-if="link.children">
+                  <div class="sidebar-link d-flex align-center" @click="toggleDropdown(index)">
+                    <v-icon small class="mr-2">{{ link.icon || 'mdi-account' }}</v-icon>
+                    <span>{{ link.text }}</span>
+                    <v-spacer />
+                    <v-icon small>
+                      {{ openDropdown === index ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                    </v-icon>
+                  </div>
+
+                  <!-- Dropdown children -->
+                  <div
+                    v-if="openDropdown === index"
+                    class="ml-4 mt-1"
+                    style="transition: all 0.3s ease"
+                  >
+                    <router-link
+                      v-for="sublink in link.children"
+                      :key="sublink.route"
+                      :to="{ name: sublink.route }"
+                      class="sidebar-link d-flex align-center"
+                      :class="{ 'active-sidebar-link': $route.name === sublink.route }"
+                    >
+                      <v-icon small class="mr-2">mdi-chevron-right</v-icon>
+                      {{ sublink.text }}
+                    </router-link>
+                  </div>
+                </template>
+
+                <!-- Regular menu item -->
+                <template v-else>
+                  <router-link
+                    :to="{ name: link.route }"
+                    class="sidebar-link d-flex align-center"
+                    :class="{ 'active-sidebar-link': $route.name === link.route }"
+                  >
+                    <v-icon small class="mr-2">{{ getLinkIcon(link.route) }}</v-icon>
+                    <span>{{ link.text }}</span>
+                    <v-spacer />
+                    <v-icon small>mdi-chevron-right</v-icon>
+                  </router-link>
+                </template>
+              </div>
+              <!-- Logout Button -->
+              <v-divider class="my-3"></v-divider>
+              <div
+                class="link-item logout-button"
+                :style="{ animationDelay: `${0.2 + profileLinks.length * 0.1}s` }"
+              >
+                <div
+                  class="sidebar-link d-flex align-center"
+                  @click="handleLogout"
+                  style="cursor: pointer"
+                >
+                  <v-icon small class="mr-2">mdi-logout</v-icon>
+                  <span>Logout</span>
+                  <v-spacer />
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </nav>
   </header>
   <slot name="content"></slot>
@@ -164,27 +265,26 @@
 </template>
 
 <script setup>
-// Fix for the navigation bar component
-import { onMounted, onUnmounted, ref, computed } from 'vue' //watch
+// Combined imports from both components
+import { onMounted, onUnmounted, ref, computed, provide } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { useOrderStore } from '@/stores/orders' // Import the order store
-import { supabase } from '@/supabase' // adjust path if needed
+import { useOrderStore } from '@/stores/orders'
+import { supabase } from '@/supabase'
 import { useRouter } from 'vue-router'
-const userStore = useUserStore()
-const orderStore = useOrderStore() // Use the order store
 
-// Fix: Use avatar_url (to match your store) instead of avatarUrl
-const avatarUrl = computed(() => {
-  return userStore.avatar_url || authUser.value?.user_metadata?.avatar_url || ''
-})
+const userStore = useUserStore()
+const orderStore = useOrderStore()
+const router = useRouter()
 
 // --- Refs ---
-
 const mobile = ref(null)
-const mobileNav = ref(null)
 const windowWidth = ref(window.innerWidth)
 const showNotifications = ref(false)
 const showProfileDropdown = ref(false)
+
+// New mobile menu refs from sidebar component
+const isMobileMenuOpen = ref(false)
+const openDropdown = ref(null)
 
 // --- Auth User Data ---
 const authUser = ref(null)
@@ -204,6 +304,10 @@ const fullname = computed(() => {
   return userStore.fullname || authUser.value?.user_metadata?.full_name || 'User'
 })
 
+const avatarUrl = computed(() => {
+  return userStore.avatar_url || authUser.value?.user_metadata?.avatar_url || ''
+})
+
 // --- Notification System ---
 const orderNotifications = ref([])
 const notificationCount = computed(() => orderNotifications.value.filter((n) => n.isNew).length)
@@ -212,9 +316,82 @@ const hasNotifications = computed(() => notificationCount.value > 0)
 // Toast notification system
 const showToast = ref(false)
 const toastMessage = ref('')
-const toastType = ref('info') // Can be info, success, warning, error
+const toastType = ref('info')
 const toastIcon = ref('mdi-information')
 const toastTimeout = ref(null)
+
+// Profile links from sidebar
+const profileLinks = [
+  { route: 'home', text: 'Home' },
+  { route: 'station', text: 'Station' },
+  { route: 'order', text: 'My Orders' },
+  {
+    text: 'My Account',
+    icon: 'mdi-account',
+    children: [
+      { route: 'profile', text: 'View Profile' },
+      { route: 'notification', text: 'Notifications' },
+      { route: 'addresses', text: 'My Address' },
+    ],
+  },
+]
+
+// For notifications
+const MAX_NAVBAR_NOTIFICATIONS = 7
+const allNotifications = ref([])
+
+// Computed property to return only the first few notifications for the navbar
+const limitedNotifications = computed(() => {
+  return orderNotifications.value.slice(0, MAX_NAVBAR_NOTIFICATIONS)
+})
+
+// Scroll position ref to track whether we've scrolled
+const scrollPosition = ref(false)
+
+// --- Methods ---
+
+// Toggle mobile menu (from sidebar)
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+// Close mobile menu when clicking outside (from sidebar)
+const closeMobileMenu = () => {
+  if (mobile.value && isMobileMenuOpen.value) {
+    isMobileMenuOpen.value = false
+  }
+}
+
+// Toggle dropdown for sidebar menu
+const toggleDropdown = (index) => {
+  openDropdown.value = openDropdown.value === index ? null : index
+}
+
+function checkScreen() {
+  windowWidth.value = window.innerWidth
+  mobile.value = windowWidth.value <= 750
+  if (!mobile.value) {
+    isMobileMenuOpen.value = false
+  }
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  showProfileDropdown.value = false
+
+  // Mark notifications as read when opened
+  if (showNotifications.value) {
+    orderNotifications.value = orderNotifications.value.map((notif) => ({
+      ...notif,
+      isNew: false,
+    }))
+  }
+}
+
+function toggleProfileDropdown() {
+  showProfileDropdown.value = !showProfileDropdown.value
+  showNotifications.value = false
+}
 
 // Function to show toast notification
 function showStatusToast(message, type = 'info') {
@@ -263,6 +440,18 @@ function getNotificationIcon(type) {
   }
 }
 
+// Get icon for sidebar links
+const getLinkIcon = (route) => {
+  const icons = {
+    home: 'mdi-home',
+    station: 'mdi-storefront',
+    order: 'mdi-package-variant',
+    profile: 'mdi-account',
+    addresses: 'mdi-map-marker',
+  }
+  return icons[route] || 'mdi-link'
+}
+
 // For real-time order status updates
 let orderSubscription = null
 
@@ -285,7 +474,7 @@ function setupOrderStatusListener(userId) {
         filter: `user_id=eq.${userId}`,
       },
       (payload) => {
-        console.log('Order status change detected:', payload) // Add logging to check payload
+        console.log('Order status change detected:', payload)
 
         // Handle different events
         if (payload.eventType === 'INSERT') {
@@ -338,28 +527,9 @@ function setupOrderStatusListener(userId) {
       console.log('Subscription status:', status)
     })
 
-  // Test the notification system immediately
   console.log('Order status subscription established for user:', userId)
 }
 
-// Add a manual method to trigger cancel notification (for testing)
-/*function testCancelNotification(orderId = Math.floor(Math.random() * 10000)) {
-  addNotification(
-    'cancelled',
-    'Order Cancelled',
-    `Your order #${orderId} has been cancelled. Please contact customer support for assistance.`,
-  )
-  console.log('Manual cancel notification triggered for order:', orderId)
-}*/
-
-// Add to onMounted to test functionality
-onMounted(async () => {
-  // ... existing code ...
-  // For testing - uncomment to test cancel notification functionality
-  // setTimeout(() => {
-  //   testCancelNotification()
-  // }, 5000)
-})
 // Fetch initial order notifications and set up listener
 async function fetchInitialNotifications() {
   try {
@@ -422,83 +592,6 @@ async function fetchInitialNotifications() {
   }
 }
 
-// Check if there are in-progress orders
-/*const hasInProgressOrders = computed(() => {
-  // Return true if there are any orders with status "To Deliver" or "Processing"
-  return (
-    orderStore.inProgressOrdersCount > 0 ||
-    orderNotifications.value.some((n) => n.type === 'progress' && n.isNew)
-  )
-})
-
-// For demo purposes - add some test notifications
-function addTestNotification(type) {
-  const orderId = Math.floor(Math.random() * 10000)
-
-  if (type === 'progress') {
-    addNotification(
-      'progress',
-      'Order In Progress',
-      `Your order #${orderId} is being processed. We'll update you when it's ready for delivery.`,
-    )
-  } else if (type === 'cancelled') {
-    addNotification(
-      'cancelled',
-      'Order Cancelled',
-      `Your order #${orderId} has been cancelled. Please contact customer support for assistance.`,
-    )
-  } else if (type === 'completed') {
-    addNotification(
-      'completed',
-      'Order Completed',
-      `Your order #${orderId} has been successfully delivered. Thank you for using E-HYDRO!`,
-    )
-  }
-}*/
-
-// Fetch authenticated user and check for in-progress orders on mount
-onMounted(async () => {
-  window.addEventListener('resize', checkScreen)
-  checkScreen()
-
-  const { data, error } = await supabase.auth.getUser()
-  if (data?.user) {
-    authUser.value = data.user
-    console.log('Auth User:', data.user)
-
-    // Try to fetch user profile if not already loaded
-    if (!userStore.fullname || !userStore.avatar_url) {
-      userStore.fetchUserProfile()
-    }
-
-    // Fetch in-progress orders
-    await fetchInProgressOrders(data.user.id)
-
-    // Fetch initial notifications
-    await fetchInitialNotifications()
-
-    // For demo purposes, can be removed in production
-    // Simulate some notifications coming in
-    // setTimeout(() => addTestNotification('progress'), 3000)
-    // setTimeout(() => addTestNotification('completed'), 10000)
-    // setTimeout(() => addTestNotification('cancelled'), 15000)
-  } else {
-    console.error('Auth error:', error)
-  }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkScreen)
-  // Clean up Supabase subscription
-  if (orderSubscription) {
-    orderSubscription.unsubscribe()
-  }
-  // Clear any toast timeout
-  if (toastTimeout.value) {
-    clearTimeout(toastTimeout.value)
-  }
-})
-
 // Fetch in-progress orders for the current user
 async function fetchInProgressOrders(userId) {
   try {
@@ -520,50 +613,11 @@ async function fetchInProgressOrders(userId) {
   }
 }
 
-// --- Methods ---
-function checkScreen() {
-  windowWidth.value = window.innerWidth
-  mobile.value = windowWidth.value <= 750
-  if (!mobile.value) {
-    mobileNav.value = false
-  }
+// Update scroll position based on window scroll
+function updateScroll() {
+  // If scrolled more than 50px, set scrollPosition to true
+  scrollPosition.value = window.scrollY > 50
 }
-
-function toggleMobileNav() {
-  mobileNav.value = !mobileNav.value
-}
-
-function toggleNotifications() {
-  showNotifications.value = !showNotifications.value
-  showProfileDropdown.value = false
-
-  // Mark notifications as read when opened
-  if (showNotifications.value) {
-    // Fixed: There was a single 'a' character here that would cause an error
-    orderNotifications.value = orderNotifications.value.map((notif) => ({
-      ...notif,
-      isNew: false,
-    }))
-  }
-}
-function toggleProfileDropdown() {
-  showProfileDropdown.value = !showProfileDropdown.value
-  showNotifications.value = false
-}
-
-import { provide } from 'vue'
-
-const MAX_NAVBAR_NOTIFICATIONS = 7
-const allNotifications = ref([]) // Store all notifications
-
-// Computed property to return only the first 6 notifications for the navbar
-const limitedNotifications = computed(() => {
-  return orderNotifications.value.slice(0, MAX_NAVBAR_NOTIFICATIONS)
-})
-
-// Provide notifications to other components
-provide('allNotifications', allNotifications)
-provide('orderNotifications', orderNotifications)
 
 // Modified addNotification function
 function addNotification(type, title, message) {
@@ -601,32 +655,6 @@ function addNotification(type, title, message) {
   showStatusToast(`${title}: ${message}`, toastType)
 }
 
-// Scroll position ref to track whether we've scrolled
-const scrollPosition = ref(false)
-
-// Update scroll position based on window scroll
-function updateScroll() {
-  // If scrolled more than 50px, set scrollPosition to true
-  scrollPosition.value = window.scrollY > 50
-}
-
-// Add scroll event listener on mount
-onMounted(() => {
-  window.addEventListener('scroll', updateScroll)
-  window.addEventListener('resize', checkScreen)
-  // Initial check in case page loads already scrolled
-  updateScroll()
-  checkScreen()
-})
-
-// Remove scroll event listener on unmount
-onUnmounted(() => {
-  window.removeEventListener('scroll', updateScroll)
-  window.removeEventListener('resize', checkScreen)
-})
-
-const router = useRouter()
-
 async function handleLogout() {
   try {
     console.log('Logout function triggered')
@@ -652,6 +680,52 @@ async function handleLogout() {
     console.error('Logout failed:', err)
   }
 }
+
+// Provide notifications to other components
+provide('allNotifications', allNotifications)
+provide('orderNotifications', orderNotifications)
+
+// Lifecycle hooks
+onMounted(async () => {
+  window.addEventListener('resize', checkScreen)
+  window.addEventListener('scroll', updateScroll)
+  checkScreen()
+  updateScroll()
+
+  const { data, error } = await supabase.auth.getUser()
+  if (data?.user) {
+    authUser.value = data.user
+    console.log('Auth User:', data.user)
+
+    // Try to fetch user profile if not already loaded
+    if (!userStore.fullname || !userStore.avatar_url) {
+      userStore.fetchUserProfile()
+    }
+
+    // Fetch in-progress orders
+    await fetchInProgressOrders(data.user.id)
+
+    // Fetch initial notifications
+    await fetchInitialNotifications()
+  } else {
+    console.error('Auth error:', error)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreen)
+  window.removeEventListener('scroll', updateScroll)
+
+  // Clean up Supabase subscription
+  if (orderSubscription) {
+    orderSubscription.unsubscribe()
+  }
+
+  // Clear any toast timeout
+  if (toastTimeout.value) {
+    clearTimeout(toastTimeout.value)
+  }
+})
 </script>
 
 <style scoped>
@@ -683,10 +757,12 @@ header.scrolled-nav .first-word,
 header.scrolled-nav .second-word {
   font-size: 35px;
 }
+
 header nav .navigation .router-link-exact-active {
   color: #02adef !important;
   border-bottom: 1px solid #02adef;
 }
+
 nav {
   display: flex;
   flex-direction: row;
@@ -751,40 +827,77 @@ nav {
   animation-delay: 0s;
 }
 
-ul,
-.link {
+ul {
   font-weight: 400;
   font-family: 'Inter', sans-serif;
   color: #04448d;
   list-style: none;
+}
+
+/* Main navigation link style */
+.nav-link {
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  color: #04448d;
   text-decoration: none;
+  font-size: 18px;
+  transition: 0.5s ease all;
+  border-bottom: 1px solid transparent;
+  margin-right: 20px;
+}
+
+.nav-link:hover {
+  color: #02adef;
+  border-color: #02adef;
+}
+
+/* Mobile sidebar link style */
+.sidebar-link {
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(10, 143, 231, 0.1);
+  color: #0a8fe7;
+}
+
+/* Profile dropdown link style */
+.profile-link {
+  color: #04448d !important;
+  font-size: 16px;
+  transition: 0.3s ease all;
+  text-decoration: none;
+}
+
+.profile-link:hover {
+  color: #02adef !important;
 }
 
 li {
   padding: 15px;
   margin-left: 27px;
 }
+
 .last,
 .second-last {
   margin-left: -2.7rem !important;
 }
+
 .last {
   font-size: 36px;
   border-style: none;
 }
+
 .second-last {
   font-size: 32px;
   border-style: none;
-}
-
-.link {
-  font-size: 18px;
-  transition: 0.5s ease all;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    color: #02adef;
-    border-color: #02adef;
-  }
 }
 
 .branding {
@@ -799,9 +912,11 @@ li {
   transition: 0.5s ease all;
   font-family: 'Antonio', sans-serif;
 }
+
 .first-word {
   color: #02adef;
 }
+
 .second-word {
   color: #04448d;
 }
@@ -845,12 +960,11 @@ li {
   top: 0;
   margin: auto;
   padding: 12px 0;
-  li {
-    .link {
-      color: #04448d;
-      font-size: 18px;
-    }
-  }
+}
+
+.dropdown-nav li .nav-link {
+  color: #04448d;
+  font-size: 18px;
 }
 
 .notification-dropdown {
@@ -978,7 +1092,7 @@ li {
   border-bottom: none;
 }
 
-.profile-dropdown .link:hover {
+.profile-dropdown .profile-link:hover {
   color: #02adef;
 }
 
@@ -1076,15 +1190,6 @@ li {
 
 .small-icon {
   font-size: 20px;
-}
-
-/* Ensure underline only appears on text */
-.link {
-  font-size: 18px;
-  transition: 0.5s ease all;
-  border-bottom: 1px solid transparent;
-  display: inline-block;
-  margin-right: 15px;
 }
 
 .profile-initials {
@@ -1247,7 +1352,7 @@ li {
   color: #ffffff;
 }
 
-.scrolled-nav .navigation li .link {
+.scrolled-nav .navigation li .nav-link {
   color: #ffffff;
 }
 
@@ -1255,14 +1360,115 @@ li {
   color: #04448d !important;
 }
 
-.profile-dropdown .link {
+.profile-dropdown .profile-link {
   color: #04448d !important;
 }
 
-/* Red hover animation for icon and nav links */
+/* Hover animation for icon and nav links when scrolled */
 .scrolled-nav .navigation li a:hover,
 .scrolled-nav .v-icon:hover {
-  color: #02adef !important; /* Red on hover */
+  color: #02adef !important;
   transition: color 0.3s ease;
+}
+
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 5;
+}
+
+.profile-card-wrapper {
+  max-width: 250px;
+}
+
+.profile-card {
+  /*transition: all 0.3s ease-in-out;*/
+  background-color: #dee8ef !important;
+}
+.profile-name,
+.profile-email {
+  font-family: 'Inter', sans-serif;
+}
+.profile-name {
+  padding-bottom: 0%;
+  font-size: 20px !important;
+  color: #0a8fe7;
+}
+.profile-email {
+  font-size: 12px !important;
+}
+.link-item {
+  opacity: 0;
+  animation: fadeInLeft 0.5s forwards;
+}
+.link-item {
+  font-family: 'Inter', Courier, monospace;
+  font-size: 15px;
+  font-weight: 500;
+}
+.sidebar-link {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #000;
+  transition: all 0.2s ease;
+}
+.sidebar-link:hover {
+  background-color: rgba(10, 143, 231, 0.1);
+  color: #0a8fe7;
+}
+.sidebar-link .v-icon {
+  color: #04448d;
+}
+.active-sidebar-link {
+  background-color: rgba(10, 143, 231, 0.1);
+  color: #0a8fe7;
+  font-weight: 500;
+}
+
+.avatar-animate {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: fadeInScale 0.5s forwards 0.1s;
+}
+
+.initials-animate {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards 0.2s;
+}
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>

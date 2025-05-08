@@ -1,111 +1,106 @@
 <template>
-  <div>
-    <LoadingPage v-if="isLoading" @loading-complete="onLoadingComplete" />
-    <div v-else>
-      <NavigationBar>
-        <template #content>
-          <v-container fluid class="bg-image">
-            <!-- First Row -->
-            <v-row>
-              <v-col cols="12" md="6">
-                <div class="title-phrase">
-                  <h4 class="first-phrase">
-                    Stay hydrated <v-icon class="icon-style">mdi-water</v-icon>
-                  </h4>
-                </div>
-              </v-col>
+  <NavigationBar>
+    <template #content>
+      <v-container fluid class="bg-image">
+        <!-- First Row -->
+        <v-row>
+          <v-col cols="12" md="6">
+            <div class="title-phrase">
+              <h4 class="first-phrase">
+                Stay hydrated <v-icon class="icon-style">mdi-water</v-icon>
+              </h4>
+            </div>
+          </v-col>
 
-              <!-- Search Bar Area -->
-              <v-col cols="12" md="6" class="search-bar">
-                <v-form class="search-form" role="search" @submit="handleSearch">
-                  <v-row no-gutters>
-                    <v-col cols="9" class="search-input">
-                      <v-text-field
-                        v-model="searchInput"
-                        variant="outlined"
-                        placeholder="Search for water stations nearby..."
-                        density="comfortable"
-                        hide-details
-                        class="fst-italic"
-                        prepend-inner-icon="mdi-magnify"
-                        aria-label="Search"
-                      ></v-text-field>
+          <!-- Search Bar Area -->
+          <v-col cols="12" md="6" class="search-bar">
+            <v-form class="search-form" role="search" @submit="handleSearch">
+              <v-row no-gutters>
+                <v-col cols="9" class="search-input">
+                  <v-text-field
+                    v-model="searchInput"
+                    variant="outlined"
+                    placeholder="Search for water stations nearby..."
+                    density="comfortable"
+                    hide-details
+                    class="fst-italic"
+                    prepend-inner-icon="mdi-magnify"
+                    aria-label="Search"
+                  ></v-text-field>
 
-                      <!-- Suggestions Dropdown -->
-                      <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
-                        <li
-                          v-for="(suggestion, index) in filteredSuggestions"
-                          :key="index"
-                          @click="selectSuggestion(suggestion)"
-                        >
-                          {{ suggestion }}
-                        </li>
-                      </ul>
-                    </v-col>
-                    <v-col cols="3">
-                      <v-btn type="submit" class="search-btn" block>
-                        <span>Search</span>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-form>
-              </v-col>
-            </v-row>
-            <!-- End First Row -->
+                  <!-- Suggestions Dropdown -->
+                  <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
+                    <li
+                      v-for="(suggestion, index) in filteredSuggestions"
+                      :key="index"
+                      @click="selectSuggestion(suggestion)"
+                    >
+                      {{ suggestion }}
+                    </li>
+                  </ul>
+                </v-col>
+                <v-col cols="3">
+                  <v-btn type="submit" class="search-btn" block>
+                    <span>Search</span>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-col>
+        </v-row>
+        <!-- End First Row -->
 
-            <!-- Second Row -->
-            <v-row>
-              <v-col class="d-flex justify-center" cols="12">
-                <v-card class="mx-auto station-card" max-width="85%" elevation="24">
-                  <v-card-title class="text-center pt-10">
-                    <h2 class="text-h5">Available Water Refilling Stations</h2>
-                    <h4 class="second-phrase">
-                      Place your order here <v-icon class="cart-run">mdi-cart-variant</v-icon>
-                    </h4>
-                    <v-slide-group v-model="model" class="pa-1" show-arrows>
-                      <v-slide-group-item
-                        v-for="(img, index) in images"
-                        :key="index"
-                        v-slot="{ toggle, selectedClass }"
+        <!-- Second Row -->
+        <v-row>
+          <v-col class="d-flex justify-center" cols="12">
+            <v-card class="mx-auto station-card" max-width="85%" elevation="24">
+              <v-card-title class="text-center pt-10">
+                <h2 class="text-h5">Available Water Refilling Stations</h2>
+                <h4 class="second-phrase">
+                  Place your order here <v-icon class="cart-run">mdi-cart-variant</v-icon>
+                </h4>
+                <v-slide-group v-model="model" class="pa-1" show-arrows>
+                  <v-slide-group-item
+                    v-for="(img, index) in images"
+                    :key="index"
+                    v-slot="{ toggle, selectedClass }"
+                  >
+                    <router-link :to="img.route" class="no-underline">
+                      <v-card
+                        :class="['ma-2', selectedClass]"
+                        height="480"
+                        width="300"
+                        @click="toggle"
+                        class="slide-group-style"
                       >
-                        <router-link :to="img.route" class="no-underline">
-                          <v-card
-                            :class="['ma-2', selectedClass]"
-                            height="480"
-                            width="300"
-                            @click="toggle"
-                            class="slide-group-style"
-                          >
-                            <v-card elevation="0" class="image-card">
-                              <v-img :src="img.src" class="mb-1 images"></v-img>
-                              <h4 class="pb-1 text-white order-now-text">Order Now!</h4>
-                            </v-card>
-                            <v-card-title class="text-wrap text-start text-title">
-                              {{ img.title }}
-                            </v-card-title>
-                            <v-card-text class="text-subtitle-2 text-start text-description">
-                              <v-icon>mdi-map-marker</v-icon> {{ img.description }}
-                            </v-card-text>
-                            <v-card-text class="text-subtitle-2 text-start text-price">
-                              {{ img.price }}
-                            </v-card-text>
-                            <v-footer class="text-subtitle-2 text-start text-available">
-                              <v-icon class="text-success">mdi-circle</v-icon> Available
-                            </v-footer>
-                          </v-card>
-                        </router-link>
-                      </v-slide-group-item>
-                    </v-slide-group>
-                  </v-card-title>
-                </v-card>
-              </v-col>
-            </v-row>
-            <!-- End Second Row -->
-          </v-container>
-        </template>
-      </NavigationBar>
-    </div>
-  </div>
+                        <v-card elevation="0" class="image-card">
+                          <v-img :src="img.src" class="mb-1 images"></v-img>
+                          <h4 class="pb-1 text-white order-now-text">Order Now!</h4>
+                        </v-card>
+                        <v-card-title class="text-wrap text-start text-title">
+                          {{ img.title }}
+                        </v-card-title>
+                        <v-card-text class="text-subtitle-2 text-start text-description">
+                          <v-icon>mdi-map-marker</v-icon> {{ img.description }}
+                        </v-card-text>
+                        <v-card-text class="text-subtitle-2 text-start text-price">
+                          {{ img.price }}
+                        </v-card-text>
+                        <v-footer class="text-subtitle-2 text-start text-available">
+                          <v-icon class="text-success">mdi-circle</v-icon> Available
+                        </v-footer>
+                      </v-card>
+                    </router-link>
+                  </v-slide-group-item>
+                </v-slide-group>
+              </v-card-title>
+            </v-card>
+          </v-col>
+        </v-row>
+        <!-- End Second Row -->
+      </v-container>
+    </template>
+  </NavigationBar>
 </template>
 
 <script setup>
@@ -116,7 +111,6 @@ import WaterDrops from '@/assets/img/waterdrops-shop.png'
 import AquaSis from '@/assets/img/Aquasis-shop.jpg'
 import Aquabon from '@/assets/img/Aquabon-shop.png'
 import ColdPoint from '@/assets/img/coldpoint-shop.jpg'
-import LoadingPage from '@/components/layout/LoadingPage.vue'
 
 const model = ref(0)
 const searchInput = ref('')
@@ -154,13 +148,6 @@ const selectSuggestion = (station) => {
   } else {
     alert('Station not found.')
   }
-}
-
-const isLoading = ref(true)
-
-function onLoadingComplete() {
-  // This will be triggered when the loading animation is complete
-  isLoading.value = false
 }
 
 const images = ref([

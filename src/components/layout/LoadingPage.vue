@@ -1,15 +1,19 @@
 <template>
   <transition name="fade">
     <div v-if="show" class="loading-screen">
-      <div class="loading-text">
-        <span
-          v-for="(letter, index) in letters"
-          :key="index"
-          class="letter"
-          :style="{ animationDelay: `${index * 0.15}s` }"
-        >
-          {{ letter }}
-        </span>
+      <div class="loading-content">
+        <div class="loading-text">
+          <span
+            v-for="(letter, index) in letters"
+            :key="index"
+            class="letter"
+            :style="{ animationDelay: `${index * 0.15}s` }"
+          >
+            {{ letter }}
+          </span>
+        </div>
+        <!-- Water icon (Unicode emoji) -->
+        <div class="water-icon">💧</div>
       </div>
     </div>
   </transition>
@@ -21,15 +25,13 @@ import { ref, onMounted } from 'vue'
 const letters = ['E', '-', 'H', 'Y', 'D', 'R', 'O']
 const show = ref(true)
 
-// Emit an event when loading is complete
 const emit = defineEmits(['loading-complete'])
 
 onMounted(() => {
-  // Simulate loading time, then hide and emit event
   setTimeout(() => {
     show.value = false
     emit('loading-complete')
-  }, 3000) // 3 seconds loading time
+  }, 3000)
 })
 </script>
 
@@ -80,5 +82,28 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.water-icon {
+  font-size: 36px;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+/* Bounce animation for water icon */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 </style>

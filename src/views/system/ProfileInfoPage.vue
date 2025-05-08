@@ -155,7 +155,7 @@ const handleAvatarError = (e) => {
 
 <style scoped>
 .bg-image {
-  background-image: url('@/assets/img/bg-plain.png');
+  background-image: url('@/assets/img/bg-plain-two.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

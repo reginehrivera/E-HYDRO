@@ -1,3 +1,5 @@
+//profile sidebar component
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router' //import { useRoute, useRouter } from 'vue-router'
@@ -330,6 +332,12 @@ defineExpose({
   background-color: rgba(10, 143, 231, 0.1);
   color: #0a8fe7;
 }
+
+.router-link-exact-active {
+  color: #02adef;
+  border-bottom: 1px solid #02adef;
+}
+
 .link .v-icon {
   color: #04448d;
 }
