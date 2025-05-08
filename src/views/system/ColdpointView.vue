@@ -35,9 +35,10 @@
                     <v-row class="description-row">
                       <v-col cols="12" md="7" sm="7" class="description shrink-line">
                         <p class="shrink-line">
-                          <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
-                          Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
+                          <v-icon class="blue-color">mdi-map-marker</v-icon>P-6, Villa Kananga,
+                          Butuan City, Philippines
                         </p>
+
                         <h5 class="pt-3">
                           <v-icon>mdi-moped-outline</v-icon> For Delivery/Pick-up Call
                         </h5>
@@ -84,7 +85,7 @@
                               >
                                 <span class="text-center">Phone Number</span>
                                 <v-tooltip activator="parent" location="bottom"
-                                  >09517978870</v-tooltip
+                                  >0920 974 6133</v-tooltip
                                 >
                               </v-btn>
                             </router-link>
