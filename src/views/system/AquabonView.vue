@@ -1,3 +1,5 @@
+//isa sa station page namo
+
 <template>
   <NavigationBar>
     <template #content>
@@ -38,6 +40,9 @@
                           <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
                           Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
                         </p>
+                        <h5 class="pt-3">
+                          <v-icon>mdi-moped-outline</v-icon> For Delivery/Pick-up Call
+                        </h5>
                       </v-col>
                       <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
                         <h3 class="blue-color"><b>₱25.00</b></h3>
@@ -625,11 +630,6 @@ async function fetchUserAddresses() {
   }
 }
 
-// Function to go to address management page
-function goToAddressPage() {
-  router.push('/addresses') // Adjust to match your route for the address management page
-}
-
 // Call fetchUserAddresses when component mounts
 onMounted(() => {
   fetchUserAddresses()
@@ -816,6 +816,13 @@ async function placeOrder() {
     orders.value = [{ selected: [], address: '', quantity: 0 }]
     updateTotals()
   }
+}
+
+// Function to go to address management page
+function goToAddressPage() {
+  // Save current path to localStorage before navigating
+  localStorage.setItem('previousPath', router.currentRoute.value.fullPath)
+  router.push('/addresses') // Navigate to addresses page
 }
 
 function handleDialogOk() {

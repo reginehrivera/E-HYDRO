@@ -59,7 +59,7 @@
                     {{ order.status }}
                   </span>
                 </div>
-                <p><strong>Water Refilling Station:</strong> {{ order.station }}</p>
+                <p><strong>Station:</strong> {{ order.station_name }}</p>
                 <p><strong>Date:</strong> {{ order.date }}</p>
                 <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
                 <p><strong>Total: </strong> ₱{{ order.total.toFixed(2) }}</p>
@@ -115,7 +115,7 @@
               <h3>Order #{{ selectedOrder?.id }}</h3>
               <div class="info-box">
                 <h4><strong>Order Summary</strong></h4>
-                <h5>{{ selectedOrder?.station }} Water Refilling Station</h5>
+                <h5>{{ selectedOrder?.station_name }}</h5>
                 <p><strong>Order Date:</strong> {{ selectedOrder?.date }}</p>
                 <p>
                   <strong>Status:</strong>
@@ -436,6 +436,7 @@ const closeSuccessModal = () => {
 }
 
 // Load orders on component mount
+// Update the mapping function to use station_name consistently
 onMounted(async () => {
   // Set loading state to true at the beginning
   isLoading.value = true
@@ -468,7 +469,7 @@ onMounted(async () => {
           day: 'numeric',
           year: 'numeric',
         }),
-        station: r.station || 'Aquabon',
+        station_name: r.station_name, // Use exact station name from database
         quantity: r.quantity,
         total: r.total_price,
         orderType: r.order_type || 'Refill Only',

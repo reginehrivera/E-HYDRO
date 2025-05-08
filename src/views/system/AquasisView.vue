@@ -7,7 +7,7 @@
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>{{ station.name }}  <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
+                <h2>{{ station.name }} <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -22,7 +22,7 @@
                   <v-row class="img-row">
                     <v-col cols="12" class="img-style d-flex">
                       <img
-                        src="@/assets/img/aquasis-img.jpg"
+                        src="@/assets/img/aquabon-img.jpg"
                         height="250"
                         width="380"
                         class="responsive-img mx-auto"
@@ -35,21 +35,28 @@
                     <v-row class="description-row">
                       <v-col cols="12" md="7" sm="7" class="description shrink-line">
                         <p class="shrink-line">
-                          <v-icon class="blue-color">mdi-map-marker</v-icon>P-6, Villa Kananga, Butuan City, Philippines
+                          <v-icon class="blue-color">mdi-map-marker</v-icon>177 Cancer St. Montilla
+                          Blvd Highway, Guingona Subdivision Brgy JP Rizal, Butuan City, Philippines
                         </p>
-                        <h5 class="pt-3"><v-icon>mdi-moped-outline</v-icon> For Delivery/Pick-up Call</h5>
+                        <h5 class="pt-3">
+                          <v-icon>mdi-moped-outline</v-icon> For Delivery/Pick-up Call
+                        </h5>
                       </v-col>
                       <v-col cols="12" md="5" sm="5" class="description text-end shrink-line">
-                        <h3 class="blue-color"><b>₱20.00</b></h3>
-                        <p class="blue-color">per gallon</p><br />
+                        <h3 class="blue-color"><b>₱25.00</b></h3>
+                        <p class="blue-color">per gallon</p>
+                        <br />
+                        <span>No Delivery Fee</span>
                       </v-col>
                     </v-row>
                   </v-container>
-                  <v-container class="contact-btn text-center mt-4">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-container class="contact-btn text-center">
                         <v-row>
-                          <v-col cols="12" sm="6" class="d-flex justify-center ">
+                          <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
                             <a
-                              href="https://www.facebook.com/aquasiswater"
+                              href="https://www.facebook.com/aquaxbone"
                               target="_blank"
                               rel="noopener noreferrer"
                               class="no-underline w-100"
@@ -61,10 +68,11 @@
                                 prepend-icon="mdi-facebook-messenger"
                               >
                                 <span class="text-center">Messenger</span>
-                                <v-tooltip activator="parent" location="bottom">Message Aquasis</v-tooltip>
+                                <v-tooltip activator="parent" location="bottom"
+                                  >Message Aquabon</v-tooltip
+                                >
                               </v-btn>
                             </a>
-
                           </v-col>
                           <v-col cols="12" sm="6" class="d-flex justify-center">
                             <router-link to="" class="no-underline w-100">
@@ -82,14 +90,16 @@
                             </router-link>
                           </v-col>
                         </v-row>
-                  </v-container>
+                      </v-container>
+                    </v-col>
+                  </v-row>
 
                   <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                  <p class="review-style pl-8 pt-2">
+                  <p class="review-style pl-10 pt-2">
                     {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
                     ({{ actualReviews.length }})
-                    <v-tooltip activator="parent" location="bottom"
+                    <v-tooltip activator="parent" location="right"
                       >Scroll down to view more reviews!</v-tooltip
                     >
                   </p>
@@ -97,9 +107,25 @@
                     <v-card
                       v-for="(review, index) in actualReviews"
                       :key="index"
-                      class="mb-1 pl-5 pr-5 review-card"
+                      class="mb-2 pl-1 pr-1 review-card"
                     >
                       <v-card-title class="d-flex align-center pt-2">
+                        <button
+                          class="expand-btn"
+                          style="
+                            position: absolute;
+                            top: 13px;
+                            right: 20px;
+                            background: none;
+                            border: none;
+                            font-size: 15px;
+                            cursor: pointer;
+                            color: #04448d;
+                          "
+                          @click="showReviewModal = true"
+                        >
+                          <v-icon>mdi-arrow-expand</v-icon>
+                        </button>
                         <v-row>
                           <v-col cols="12" md="2" class="">
                             <v-avatar color="deep-purple lighten-3" size="50">
@@ -137,14 +163,79 @@
                     </v-card>
                   </v-container>
 
-                  <!----->
+                  <!-- Review Modal -->
+                  <v-dialog v-model="showReviewModal" max-width="900" class="station-review-modal">
+                    <v-card class="station-review-card pb-5">
+                      <v-card-title class="text-h6 text-center station-review-title pt-6"
+                        ><v-icon>mdi-message-draw</v-icon> Customer Reviews</v-card-title
+                      >
+                      <v-card-text class="review-modal-body">
+                        <v-container id="review-section" class="">
+                          <v-card
+                            v-for="(review, index) in actualReviews"
+                            :key="index"
+                            class="mb-3 pl-5 pr-5 review-card-modal"
+                          >
+                            <v-card-title class="d-flex align-center pt-2">
+                              <v-row>
+                                <v-col cols="12" md="1">
+                                  <v-avatar color="deep-purple lighten-3" size="50">
+                                    <img
+                                      v-if="review.avatar_url"
+                                      :src="review.avatar_url"
+                                      alt="Avatar"
+                                      class="avatar-img"
+                                    />
+                                    <span v-else class="text-h5">
+                                      {{ review.full_name?.charAt(0).toUpperCase() || '?' }}
+                                    </span>
+                                  </v-avatar>
+                                </v-col>
+                                <v-col cols="12" md="11">
+                                  <div>
+                                    <p class="profile-name-style-modal">{{ review.full_name }}</p>
+                                  </div>
+                                  <div class="text-caption">
+                                    <p class="profile-email-style-modal">{{ review.email }}</p>
+                                  </div>
+                                </v-col>
+                              </v-row>
+                            </v-card-title>
+
+                            <v-rating
+                              :model-value="review.rating"
+                              density="compact"
+                              readonly
+                              color="yellow darken"
+                              class="review-star pl-4"
+                            />
+                            <v-card-text>
+                              <p class="comment-modal pl-2">{{ review.comment }}</p>
+                            </v-card-text>
+                          </v-card>
+                        </v-container>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          @click="showReviewModal = false"
+                          class="mr-11 mt-4 close-review-btn"
+                          >Close</v-btn
+                        >
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+
+                  <!--END RATING AND COMMENT--->
                 </v-container>
               </v-col>
               <!--End Left Column-->
               <!--Right Column-->
               <v-col cols="12" md="7" class="d-flex flex-column align-center">
                 <v-date-picker
-                v-if="showCalendar"
+                  v-if="showCalendar"
                   v-model="selectedDate"
                   :min="new Date().toISOString().substr(0, 10)"
                   show-adjacent-months
@@ -156,9 +247,17 @@
                   >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
-                    <v-btn @click="confirmDateSelection" href="#station-right-container-content" color="green" text>Confirm</v-btn>
+                    <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
                   </template>
                 </v-date-picker>
+
+                <span v-if="showDateInput" class="delivery-date">
+                  <v-icon color="green" size="20" style="top: -2px">mdi-check-circle</v-icon>
+                  Your delivery is set for <span class="blue-text">{{ formattedDate }}</span
+                  >.<br />
+                  Please provide the other details to proceed.
+                </span>
+
                 <!-- Updated template section with fixes for order card stability -->
                 <!-- Add data-order-index attributes to order containers -->
                 <v-container class="right-container" ref="ordersContainer">
@@ -171,7 +270,9 @@
                     >
                       <v-row class="first-row">
                         <v-col cols="6" class="grp-checkbox">
-                          <h4 class="blue-color" id="station-right-container-content">Order Option</h4>
+                          <h4 class="blue-color" id="station-right-container-content">
+                            Order Option
+                          </h4>
                           <div class="checkboxes">
                             <div class="checkbox-one">
                               <v-checkbox
@@ -255,7 +356,7 @@
                       <v-row class="second-row">
                         <v-col cols="12" md="2">
                           <v-card class="text-center card-img" width="95">
-                            <img src="@/assets/img/gallon-aquasis.png" />
+                            <img src="@/assets/img/gallon-aquabon.png" />
                           </v-card>
                         </v-col>
                         <v-col cols="12" md="10" class="pl-6">
@@ -263,13 +364,13 @@
                             <v-col cols="12" class="pt-3">
                               <h5 class="blue-color pt-0 mt-0">{{ station.name }}</h5>
                               <h6>
-                                Location: P-6, Villa Kananga, Butuan City
+                                Location: 177 Cancer St., Montilla Blvd Highway, Brgy JP Rizal
                               </h6>
                             </v-col>
                           </v-row>
                           <v-row>
                             <v-col cols="12" md="6">
-                              <p class="text-h6 pt-0">₱ 20.00 per gallon</p>
+                              <p class="text-h6 pt-0">₱ 25.00 per gallon</p>
                             </v-col>
                             <v-col cols="12" md="6">
                               <v-container d-flex align-center class="btn-group">
@@ -361,8 +462,13 @@
                   </div>
 
                   <div col="12" md="6" class="text-end">
-                      <v-btn variant="none" class="order-btn" @click="placeOrder">Place Order <v-tooltip activator="parent" location="left">Click to confirm order </v-tooltip></v-btn>
-                    </div>
+                    <v-btn variant="none" class="order-btn" @click="placeOrder"
+                      >Place Order
+                      <v-tooltip activator="parent" location="left"
+                        >Click to confirm order
+                      </v-tooltip></v-btn
+                    >
+                  </div>
                 </v-container>
 
                 <!-- Fixed Bottom Action Buttons - This is always shown at the bottom -->
@@ -373,7 +479,8 @@
                         variant="none"
                         class="full-btn"
                         :class="{ 'clicked-btn': clickedButton === 'calendar' }"
-                        @click="toggleCalendar">
+                        @click="toggleCalendar"
+                      >
                         <div>
                           <h3 class="set"><v-icon>mdi-calendar</v-icon> Set a delivery</h3>
                           <h3>schedule</h3>
@@ -385,8 +492,9 @@
                         variant="none"
                         class="full-btn"
                         :class="{ 'clicked-btn': clickedButton === 'order' }"
-                        @click="placeOrderButton">
-                        <div >
+                        @click="placeOrderButton"
+                      >
+                        <div>
                           <h5>Deliver Water Now</h5>
                           <h3>₱20 per gallon</h3>
                         </div>
@@ -411,7 +519,7 @@
       <v-card-title class="text-h6 success-style">Order Successful</v-card-title>
       <v-card-text class="">{{ successMessage }}</v-card-text>
       <v-card-actions class="">
-        <router-link to="/station" class=" pl-7 text-start">
+        <router-link to="/station" class="pl-7 text-start">
           <v-btn class="custom-exit-btn"> Exit </v-btn>
         </router-link>
         <v-btn class="custom-okay-btn text-end" @click="handleDialogOk"> Check Orders </v-btn>
@@ -434,6 +542,7 @@
 </template>
 
 <script setup>
+const showReviewModal = ref(false)
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
@@ -447,7 +556,6 @@ import { useReviewStore } from '@/stores/reviewStore'
 const router = useRouter()
 //const orderStore = useOrderStore()
 const userStore = useUserStore()
-const reviewStore = useReviewStore()
 
 // Calendar and Reviews
 const showCalendar = ref(false)
@@ -458,7 +566,8 @@ const ordersContainer = ref(null)
 const userAddresses = ref([])
 const isLoadingAddresses = ref(false)
 const hasNoAddresses = ref(false)
-
+const showDateInput = ref(false)
+const formattedDate = ref('')
 const submissions = ref([]) // Placeholder for existing submissions data
 // Function to fetch user addresses from Supabase
 async function fetchUserAddresses() {
@@ -545,7 +654,16 @@ const station = ref({
 })
 
 function confirmDateSelection() {
-  showCalendar.value = true
+  console.log('Confirming date:', selectedDate.value) // Debug log
+  if (selectedDate.value) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    formattedDate.value = new Date(selectedDate.value).toLocaleDateString('en-US', options)
+    showDateInput.value = true
+    showCalendar.value = false
+    console.log('Date confirmed:', formattedDate.value) // Debug log
+  } else {
+    console.warn('No date selected!') // Debug log
+  }
 }
 
 const avatarUrl = ref('')
@@ -679,7 +797,9 @@ async function placeOrder() {
     status: 'To Deliver',
     user_id: userId,
     created_at: new Date().toISOString(),
-    calendar: selectedDate.value || new Date().toISOString().substr(0, 10),
+    calendar: selectedDate.value
+      ? `${selectedDate.value.getFullYear()}-${String(selectedDate.value.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.value.getDate()).padStart(2, '0')}`
+      : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
     payment_method: paymentMethod.value,
     station_name: station.value.name,
     options: order.selected.join(', '),
@@ -714,6 +834,12 @@ function handleDialogOk() {
 function handleIncompleteOrderOk() {
   showIncompleteOrderDialog.value = false
 }
+
+const reviewStore = useReviewStore()
+
+//const stationId = 'station-123' // Should be dynamic (from route param maybe)
+//const reviews = computed(() => reviewStore.getReviewsByStation(stationId))
+
 const averageRating = computed(() => {
   if (actualReviews.value.length === 0) return 0
   const total = actualReviews.value.reduce((sum, review) => sum + review.rating, 0)
@@ -777,20 +903,20 @@ async function fetchReviews() {
 }
 
 //========Bottom buttton colored when hover and clicked logic====//
-const clickedButton = ref(''); // For tracking which button was clicked
+const clickedButton = ref('') // For tracking which button was clicked
 
 function toggleCalendar() {
-  showCalendar.value = true;
-  clickedButton.value = 'calendar';
+  showCalendar.value = true
+  clickedButton.value = 'calendar'
 }
 
 function placeOrderButton() {
-  showCalendar.value = false;
-  clickedButton.value = 'order';
+  showCalendar.value = false
+  clickedButton.value = 'order'
 }
 </script>
 
-<style scope>
+<style scoped>
 .v-divider {
   background-color: #000;
   color: #1c238b;
@@ -799,5 +925,293 @@ function placeOrderButton() {
 .v-card {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.review-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+.profile-name-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+.profile-email-style {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 13px;
+  font-weight: 400;
+  padding-top: 0%;
+  margin-top: -0.5rem;
+}
+
+.review-comment {
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 13px;
+  margin-top: -0.5rem;
+}
+.scrollable-content {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.text-right h4,
+h3 {
+  font-family: 'Inter', Times, serif;
+}
+.text-right h4 {
+  font-size: 15px;
+}
+.text-right h3 {
+  font-size: 18px;
+}
+.discount-text {
+  color: red;
+  font-size: 15px;
+}
+
+/*--------------Calendar Style ------------*/
+.custom-calendar {
+  background-color: #dee8efc2;
+  color: #000;
+  border-radius: 12px;
+  border: 3px solid #0557b6;
+  padding: 1rem;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 17px !important;
+}
+
+/*.custom-calendar .v-date-picker-header {
+  background-color: #2e2545 !important;
+}*/
+
+/* Optional: tweak day cells */
+.custom-calendar .v-btn {
+  border-radius: 15px;
+}
+
+.avatar-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.address-empty-state {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.5);
+}
+
+.v-select :deep(.v-field__append-inner) {
+  padding-top: 8px;
+}
+
+.v-select :deep(.v-select__selection) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.blue-text {
+  color: blue;
+}
+.delivery-date {
+  max-width: 600px;
+  width: 100%; /* Make the container take full width */
+  text-align: center;
+  background-color: #dee8ef; /* Background color */
+  border: 2px solid #0557b6; /* Full border */
+  border-radius: 12px;
+  color: #333;
+  padding: 16px; /* Space inside the box */
+  margin: 16px 0;
+  margin: 1rem auto;
+  font-weight: 500;
+}
+
+@media (max-width: 1288px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 450px;
+  }
+}
+@media (max-width: 950px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+
+    width: 100%;
+  }
+}
+@media (max-width: 700px) {
+  .delivery-date {
+    font-size: 0.875rem; /* slightly smaller text */
+    padding: 0.75rem;
+    width: 90%;
+  }
+}
+/* Animation for empty state */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.v-progress-circular {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.clicked-btn {
+  color: white !important;
+}
+
+/**Bottom Btn Colored when hover or clicked MAIN CSS*/
+.full-btn {
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Hover effect */
+.full-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  color: white;
+  h3 {
+    color: white;
+  }
+  h5 {
+    color: white;
+  }
+}
+
+/* Clicked (active) effect */
+.clicked-btn {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  transition: background-position 0.5s ease;
+  h3 {
+    color: white;
+  }
+  h5 {
+    color: white;
+  }
+}
+.order-btn {
+  text-transform: none;
+  font-family: 'Inter' sans-serif;
+  font-weight: 600;
+  background: #0557b6;
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+  border-radius: 20px;
+  text-transform: none;
+  transition: background-position 0.5s ease;
+  margin-right: 0.2rem;
+}
+.order-btn:hover {
+  background: linear-gradient(120deg, #0557b6, #011327, #0557b6);
+  background-size: 200% auto;
+  background-position: left center;
+  color: white;
+}
+
+/**========Modal Style============ */
+.modal-message-style {
+  border-radius: 20px !important;
+  padding: 10px;
+  font-family: 'Familjen Grotesk', Times, serif;
+}
+.success-style {
+  color: #0557b6;
+  font-family: 'Familjen Grotesk', Times, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+.custom-okay-btn {
+  background-color: #02adef;
+  color: white;
+  text-transform: none;
+}
+.custom-exit-btn {
+  text-transform: none;
+  border: 1px solid #02adef;
+  color: #02adef;
+}
+
+.custom-okay-btn:hover {
+  background-color: #0296d1;
+}
+.modal-message-style .incomplete-style {
+  color: red;
+}
+.custom-incomplete-btn {
+  border: 1px solid #02adef !important;
+  color: #02adef;
+  text-transform: none;
+}
+
+/**===========STATION REVIEW MODAL STYLE======== */
+.expand-btn {
+  border-radius: 5px;
+  padding: 3px !important;
+  width: 11% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.651);
+  transition:
+    transform 0.3s ease,
+    background-position 0.3s ease;
+}
+.expand-btn:hover {
+  background-color: #0296d1c9 !important;
+  color: rgba(255, 255, 255, 0.774) !important;
+  transform: scale(1.1);
+  box-shadow: none;
+}
+.station-review-modal {
+  background-color: #00000096;
+}
+.station-review-card {
+  background-color: #dee8ef !important;
+  border-radius: 10px !important;
+}
+.review-modal-body {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+.review-card-modal {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.644);
+}
+.station-review-title {
+  margin-bottom: 8px;
+  font-family: 'Inter', Courier, monospace;
+  color: #04448d;
+}
+.profile-name-style-modal,
+.profile-email-style-modal {
+  font-family: 'Familjen Grotesk', Courier, monospace;
+  color: #04448d;
+}
+.comment-modal {
+  font-size: 15px;
+  font-family: 'Inter', Courier, monospace;
+  font-weight: 500;
+}
+.close-review-btn {
+  text-transform: none;
+  background-color: #0296d1;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', Courier, monospace;
+  width: 10%;
+}
+.close-review-btn:hover {
+  background-color: #0557b6;
 }
 </style>

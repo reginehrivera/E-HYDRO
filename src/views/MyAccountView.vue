@@ -1,3 +1,5 @@
+//naa diria tong part nga mag add ug address
+
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -137,6 +139,12 @@ const submit = async () => {
     userStore.address = formattedAddress
 
     closeOverlay()
+
+    // Check if we came from a station page and redirect back
+    const previousPath = localStorage.getItem('previousPath')
+    if (previousPath && previousPath.includes('/station/')) {
+      router.push(previousPath)
+    }
   } catch (error) {
     console.error('Error saving address:', error)
     formWarning.value = error.message || 'Failed to save address'
