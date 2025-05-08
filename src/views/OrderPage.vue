@@ -472,7 +472,7 @@ onMounted(async () => {
         station_name: r.station_name, // Use exact station name from database
         quantity: r.quantity,
         total: r.total_price,
-        orderType: r.order_type || 'Refill Only',
+        orderType: r.options || '',
         status: r.status,
         deliveryAddress: r.address || '—',
         deliveryDate: new Date(year, month - 1, day).toLocaleDateString(),
