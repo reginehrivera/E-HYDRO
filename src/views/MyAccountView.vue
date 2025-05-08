@@ -764,10 +764,9 @@ defineExpose({
                   <v-divider class="my-3" />
 
                   <v-card-actions>
-                    <v-btn variant="text" @click="closeOverlay" class="cancel-btn">Cancel</v-btn>
+                    <v-btn @click="closeOverlay" class="exit-btn">Cancel</v-btn>
                     <v-spacer />
                     <v-btn
-                      color="primary"
                       @click="submit"
                       class="submit-btn"
                       :loading="isSubmitting"
@@ -1449,9 +1448,16 @@ defineExpose({
   transform: scale(1.02);
 }
 
-.submit-btn,
-.cancel-btn {
-  transition: all 0.2s ease;
+.submit-btn {
+  background-color: #02adef;
+  color: white;
+  text-transform: none;
+}
+
+.exit-btn {
+  text-transform: none;
+  border: 1px solid #02adef;
+  background-color: none;
 }
 
 .submit-btn:hover {
