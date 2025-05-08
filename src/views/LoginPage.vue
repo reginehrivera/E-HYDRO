@@ -47,7 +47,8 @@
                   variant="outlined"
                   density="compact"
                   required
-                  hide-details
+                  :error-messages="emailError"
+                  :error="!!emailError"
                   single-line
                 ></v-text-field>
               </div>
@@ -60,7 +61,8 @@
                   variant="outlined"
                   density="compact"
                   required
-                  hide-details
+                  :error-messages="passwordError"
+                  :error="!!passwordError"
                   single-line
                   :append-inner-icon="passwordType === 'password' ? 'mdi-eye-off' : 'mdi-eye'"
                   @click:append-inner="togglePasswordVisibility"
@@ -191,22 +193,28 @@ import { supabase } from '@/supabase'
 import { useUserStore } from '@/stores/user'
 import LoadingPage from '@/components/layout/LoadingPage.vue'
 
-const loading = ref(false)
+// Router
 const router = useRouter()
-const currentForm = ref<'login' | 'signup'>('login')
+
+// Form data
+const currentForm = ref('login')
+const name = ref('')
+const contactNumber = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const passwordType = ref<'password' | 'text'>('password')
-const confirmPasswordType = ref<'password' | 'text'>('password')
-const name = ref('')
-const contactNumber = ref('')
+const loading = ref(false)
 const error = ref('')
+const emailError = ref('') // For showing email-specific errors
+const passwordError = ref('') // For showing password-specific errors
 
-// Loading page handling
+// Password visibility toggles
+const passwordType = ref('password')
+const confirmPasswordType = ref('password')
+
+// Loading complete callback
 const onLoadingComplete = () => {
-  // You can add additional logic here if needed
-  // This gets called when the loading animation completes
+  loading.value = false
 }
 
 // Switch forms
@@ -216,14 +224,23 @@ const switchToSignup = () => {
   confirmPassword.value = ''
 }
 
+// Form switch functions
 const switchToLogin = () => {
   currentForm.value = 'login'
-  password.value = ''
+  clearErrors()
+}
+
+// Clear all error messages
+const clearErrors = () => {
+  error.value = ''
+  emailError.value = ''
+  passwordError.value = ''
 }
 
 const handleLogin = async () => {
   loading.value = true
-  error.value = ''
+  emailError.value = '' // Clear previous email error
+  passwordError.value = '' // Clear previous password error
 
   // Show loading for at least 3 seconds
   const loadingPromise = new Promise((resolve) => setTimeout(resolve, 3000))
@@ -237,7 +254,29 @@ const handleLogin = async () => {
       }),
     ])
 
-    if (authError) throw authError
+    if (authError) {
+      // Check if the error is related to invalid credentials
+      if (authError.message.includes('Invalid login credentials')) {
+        // First check if the email exists
+        const { data: emailCheck } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('email', email.value)
+          .single()
+
+        if (!emailCheck) {
+          // Email doesn't exist
+          emailError.value = 'Email does not exist'
+        } else {
+          // Email exists but password is wrong
+          passwordError.value = 'Wrong password'
+        }
+        throw authError
+      } else {
+        throw authError
+      }
+    }
+
     const user = authData.user
     if (!user) throw new Error('Failed to fetch user info.')
 
@@ -262,7 +301,9 @@ const handleLogin = async () => {
     router.push('/home')
   } catch (err) {
     console.error('Authentication error:', err)
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    if (!emailError.value && !passwordError.value) {
+      error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    }
     loading.value = false
   }
 }
@@ -338,7 +379,6 @@ const handleSignup = async () => {
       contact_number: contactNumber.value,
     })
 
-    alert('Signup successful! Redirecting you to your dashboard...')
     router.push('/home')
   } catch (err) {
     console.error('Signup error:', err)
@@ -654,5 +694,14 @@ const toggleConfirmPasswordVisibility = () => {
   .form-options {
     gap: 4px;
   }
+}
+
+:deep(.v-text-field--error) .v-field__input {
+  color: #ff5252;
+}
+
+:deep(.v-messages) {
+  color: #ff5252;
+  font-size: 11px;
 }
 </style>
