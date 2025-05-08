@@ -189,7 +189,7 @@ const handleAvatarError = (e) => {
 }
 
 .profile-card {
-  background-color: #DEE8EF;
+  background-color: #dee8ef;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(32, 32, 32, 0.267);
   width: 100%;

@@ -46,6 +46,7 @@ const profileLinks = [
     icon: 'mdi-account', // Added explicit icon
     children: [
       { route: 'profile', text: 'View Profile' },
+      { route: 'notification', text: 'Notifications' },
       { route: 'addresses', text: 'My Address' },
     ],
   },
@@ -135,7 +136,7 @@ defineExpose({
   >
     <v-btn
       icon
-      color="primary"
+      :color="isMobileMenuOpen ? 'red darken-2' : 'primary'"
       @click="toggleMobileMenu"
       class="hamburger-btn"
       aria-label="Toggle menu"
@@ -191,9 +192,7 @@ defineExpose({
                 alt="Avatar"
                 class="avatar-img"
               />
-              <p v-else class="text-h5 initials-animate">{{
-                initials || '??'
-              }}</p>
+              <p v-else class="text-h5 initials-animate">{{ initials || '??' }}</p>
             </v-avatar>
 
             <div class="d-flex flex-column align-center profile-info text-center">
@@ -268,7 +267,7 @@ defineExpose({
             :style="{ animationDelay: `${0.2 + profileLinks.length * 0.1}s` }"
           >
             <div class="link d-flex align-center" @click="handleLogout" style="cursor: pointer">
-              <v-icon small class="mr-2" >mdi-logout</v-icon>
+              <v-icon small class="mr-2">mdi-logout</v-icon>
               <span>Logout</span>
               <v-spacer />
             </div>
@@ -296,24 +295,25 @@ defineExpose({
 
 .profile-card {
   /*transition: all 0.3s ease-in-out;*/
-  background-color: #DEE8EF !important;
+  background-color: #dee8ef !important;
 }
-.profile-name, .profile-email{
+.profile-name,
+.profile-email {
   font-family: 'Inter', sans-serif;
 }
-.profile-name{
-  padding-bottom: 0% ;
-  font-size: 21px !important;
+.profile-name {
+  padding-bottom: 0%;
+  font-size: 20px !important;
   color: #0a8fe7;
 }
-.profile-email{
-  font-size: 11px !important;
+.profile-email {
+  font-size: 12px !important;
 }
 .link-item {
   opacity: 0;
   animation: fadeInLeft 0.5s forwards;
 }
-.link-item{
+.link-item {
   font-family: 'Inter', Courier, monospace;
   font-size: 15px;
   font-weight: 500;
@@ -330,7 +330,7 @@ defineExpose({
   background-color: rgba(10, 143, 231, 0.1);
   color: #0a8fe7;
 }
-.link .v-icon{
+.link .v-icon {
   color: #04448d;
 }
 .active-link {

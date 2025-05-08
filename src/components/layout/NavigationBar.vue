@@ -141,7 +141,7 @@
             </router-link>
           </li>
           <li>
-            <router-link class="link" :to="{ name: '' }"
+            <router-link class="link" :to="{ name: 'profile' }"
               ><v-icon>mdi-account</v-icon> Profile</router-link
             >
           </li>
@@ -673,8 +673,8 @@ header.scrolled-nav {
 }
 
 header.scrolled-nav nav {
-  padding: 0; 
-  height: 100%; 
+  padding: 0;
+  height: 100%;
   display: flex;
   align-items: center;
 }

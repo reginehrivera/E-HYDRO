@@ -62,9 +62,7 @@
                 <p><strong>Water Refilling Station:</strong> {{ order.station }}</p>
                 <p><strong>Date:</strong> {{ order.date }}</p>
                 <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
-                <p>
-                  <strong>Total: </strong> ₱{{ order.total.toFixed(2) }}
-                </p>
+                <p><strong>Total: </strong> ₱{{ order.total.toFixed(2) }}</p>
               </div>
               <div class="order-actions">
                 <div class="action-buttons" v-if="order.status === 'To Deliver'">
@@ -149,7 +147,9 @@
                 <p>Subtotal: ₱{{ selectedOrder?.total.toFixed(2) }}</p>
                 <!--<p>Delivery Fee: ₱50.00</p>-->
                 <v-divider :thickness="2" class="mt-3 mb-2"></v-divider>
-                <h4><strong>Total: ₱{{ (selectedOrder?.total).toFixed(2) }}</strong> </h4>
+                <h4>
+                  <strong>Total: ₱{{ (selectedOrder?.total).toFixed(2) }}</strong>
+                </h4>
               </div>
               <div class="info-box">
                 <h4><strong>Delivery Info</strong></h4>
@@ -460,25 +460,24 @@ onMounted(async () => {
     }
 
     const mapped = rows.map((r) => {
-  const [year, month, day] = r.calendar.split('-')
-  return {
-    id: r.id,
-    date: new Date(r.created_at).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-    station: r.station || 'Aquabon',
-    quantity: r.quantity,
-    total: r.total_price,
-    orderType: r.order_type || 'Refill Only',
-    status: r.status,
-    deliveryAddress: r.address || '—',
-    deliveryDate: new Date(year, month - 1 , day ).toLocaleDateString(),
-    router: '/aquabon',
-  }
-})
-
+      const [year, month, day] = r.calendar.split('-')
+      return {
+        id: r.id,
+        date: new Date(r.created_at).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        station: r.station || 'Aquabon',
+        quantity: r.quantity,
+        total: r.total_price,
+        orderType: r.order_type || 'Refill Only',
+        status: r.status,
+        deliveryAddress: r.address || '—',
+        deliveryDate: new Date(year, month - 1, day).toLocaleDateString(),
+        router: '/aquabon',
+      }
+    })
 
     orderStore.setOrders(mapped)
   } catch (error) {

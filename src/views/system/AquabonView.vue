@@ -7,7 +7,7 @@
           <v-container class="station-container" elevation="24">
             <v-row class="top-style">
               <v-col cols="6">
-                <h2>{{ station.name }}  <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
+                <h2>{{ station.name }} <v-icon class="cart-run">mdi-store-marker</v-icon></h2>
               </v-col>
               <v-col cols="6" class="text-end">
                 <router-link to="/station" class="no-underline">
@@ -53,21 +53,23 @@
                         <v-row>
                           <v-col cols="12" sm="6" class="d-flex justify-center mb-2 mb-sm-0">
                             <a
-                                href="https://www.facebook.com/aquaxbone"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="no-underline w-100"
+                              href="https://www.facebook.com/aquaxbone"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="no-underline w-100"
+                            >
+                              <v-btn
+                                class="social-contact w-100"
+                                rounded="0"
+                                variant="flat"
+                                prepend-icon="mdi-facebook-messenger"
                               >
-                                <v-btn
-                                  class="social-contact w-100"
-                                  rounded="0"
-                                  variant="flat"
-                                  prepend-icon="mdi-facebook-messenger"
+                                <span class="text-center">Messenger</span>
+                                <v-tooltip activator="parent" location="bottom"
+                                  >Message Aquabon</v-tooltip
                                 >
-                                  <span class="text-center">Messenger</span>
-                                  <v-tooltip activator="parent" location="bottom">Message Aquabon</v-tooltip>
-                                </v-btn>
-                              </a>
+                              </v-btn>
+                            </a>
                           </v-col>
                           <v-col cols="12" sm="6" class="d-flex justify-center">
                             <router-link to="" class="no-underline w-100">
@@ -91,14 +93,14 @@
 
                   <v-divider :thickness="2"></v-divider>
                   <!---RATING AND COMMENTS WILL REFLECT THIS AREA-->
-                      <p class="review-style pl-10 pt-2">
-                        {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
-                        ({{ actualReviews.length }})
-                        <v-tooltip activator="parent" location="right"
-                          >Scroll down to view more reviews!</v-tooltip
-                        >
-                      </p>
-                  <v-container id="review-section" class="review-content" >
+                  <p class="review-style pl-10 pt-2">
+                    {{ averageRating }} <v-icon color="yellow darken-2">mdi-star</v-icon> Ratings
+                    ({{ actualReviews.length }})
+                    <v-tooltip activator="parent" location="right"
+                      >Scroll down to view more reviews!</v-tooltip
+                    >
+                  </p>
+                  <v-container id="review-section" class="review-content">
                     <v-card
                       v-for="(review, index) in actualReviews"
                       :key="index"
@@ -158,10 +160,12 @@
                     </v-card>
                   </v-container>
 
-                 <!-- Review Modal -->
+                  <!-- Review Modal -->
                   <v-dialog v-model="showReviewModal" max-width="900" class="station-review-modal">
                     <v-card class="station-review-card pb-5">
-                      <v-card-title class="text-h6 text-center station-review-title pt-6"><v-icon>mdi-message-draw</v-icon> Customer Reviews</v-card-title>
+                      <v-card-title class="text-h6 text-center station-review-title pt-6"
+                        ><v-icon>mdi-message-draw</v-icon> Customer Reviews</v-card-title
+                      >
                       <v-card-text class="review-modal-body">
                         <v-container id="review-section" class="">
                           <v-card
@@ -211,7 +215,12 @@
 
                       <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn text @click="showReviewModal = false" class="mr-11 mt-4 close-review-btn">Close</v-btn>
+                        <v-btn
+                          text
+                          @click="showReviewModal = false"
+                          class="mr-11 mt-4 close-review-btn"
+                          >Close</v-btn
+                        >
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
@@ -235,12 +244,7 @@
                   >+
                   <template #actions>
                     <v-btn @click="showCalendar = false" color="red" text>Cancel</v-btn>
-                    <v-btn
-                      @click="confirmDateSelection"
-                      color="green"
-                      text
-                      >Confirm</v-btn
-                    >
+                    <v-btn @click="confirmDateSelection" color="green" text>Confirm</v-btn>
                   </template>
                 </v-date-picker>
 
@@ -1156,7 +1160,9 @@ h3 {
   padding: 3px !important;
   width: 11% !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.651);
-  transition: transform 0.3s ease, background-position 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-position 0.3s ease;
 }
 .expand-btn:hover {
   background-color: #0296d1c9 !important;
@@ -1164,10 +1170,10 @@ h3 {
   transform: scale(1.1);
   box-shadow: none;
 }
-.station-review-modal{
+.station-review-modal {
   background-color: #00000096;
 }
-.station-review-card{
+.station-review-card {
   background-color: #dee8ef !important;
   border-radius: 10px !important;
 }
@@ -1183,16 +1189,17 @@ h3 {
   font-family: 'Inter', Courier, monospace;
   color: #04448d;
 }
-.profile-name-style-modal, .profile-email-style-modal{
+.profile-name-style-modal,
+.profile-email-style-modal {
   font-family: 'Familjen Grotesk', Courier, monospace;
   color: #04448d;
 }
-.comment-modal{
+.comment-modal {
   font-size: 15px;
   font-family: 'Inter', Courier, monospace;
   font-weight: 500;
 }
-.close-review-btn{
+.close-review-btn {
   text-transform: none;
   background-color: #0296d1;
   color: #fff;
@@ -1201,8 +1208,7 @@ h3 {
   font-family: 'Inter', Courier, monospace;
   width: 10%;
 }
-.close-review-btn:hover{
+.close-review-btn:hover {
   background-color: #0557b6;
 }
-
 </style>

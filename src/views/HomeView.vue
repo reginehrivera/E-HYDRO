@@ -1,43 +1,42 @@
 <template>
   <NavigationBar>
+    <LoadingPage v-if="isLoading" />
     <template #content>
       <v-app>
-      <v-container fluid class="bg-image pb-0">
-        <v-row>
-          <v-col cols="12" md="5" class="pt-16 pb-0">
-            <h1></h1>
-            <p></p>
-          </v-col>
-          <v-col cols="12" md="7" class="pb-0 hero-h2">
-            <h2>
-              We provide clean, safe, and <br />worry-free water delivered right <br />
-              to your doorstep.
-            </h2>
-            <router-link to="/station" class="home-btn-routerlink"
-              ><v-btn class="home-btn">Order Now!</v-btn>
-            </router-link>
+        <v-container fluid class="bg-image pb-0">
+          <v-row>
+            <v-col cols="12" md="5" class="pt-16 pb-0">
+              <h1></h1>
+              <p></p>
+            </v-col>
+            <v-col cols="12" md="7" class="pb-0 hero-h2">
+              <h2>
+                We provide clean, safe, and <br />worry-free water delivered right <br />
+                to your doorstep.
+              </h2>
+              <router-link to="/station" class="home-btn-routerlink"
+                ><v-btn class="home-btn">Order Now!</v-btn>
+              </router-link>
               <!--footer icons-->
               <div class="footer-style text-end">
-              <ul class="footer-icons">
-                <li><img :src="firstIcon" alt="" />Convenient <br />Ordering</li>
-                <li>
-                  <img :src="secondIcon" alt="" />Affordable and <br />Quality Water
-                </li>
-                <li>
-                  <img :src="thirdIcon" alt="" />Fast Water <br> Delivery
-                </li>
-                <li>
-                  <img :src="fourthIcon" alt="" />Clean &<br />
-                  Safe Water
-                </li>
-              </ul>
-            </div>
-            <!--End footer icons-->
-          </v-col>
-        </v-row>
-
-      </v-container>
-    </v-app>
+                <ul class="footer-icons">
+                  <li><img :src="firstIcon" alt="" />Convenient <br />Ordering</li>
+                  <li><img :src="secondIcon" alt="" />Affordable and <br />Quality Water</li>
+                  <li>
+                    <img :src="thirdIcon" alt="" />Fast Water <br />
+                    Delivery
+                  </li>
+                  <li>
+                    <img :src="fourthIcon" alt="" />Clean &<br />
+                    Safe Water
+                  </li>
+                </ul>
+              </div>
+              <!--End footer icons-->
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-app>
     </template>
   </NavigationBar>
 </template>
@@ -49,14 +48,20 @@ import firstIcon from '@/assets/img/first-icon.png'
 import secondIcon from '@/assets/img/second-icon.png'
 import thirdIcon from '@/assets/img/third-icon.png'
 import fourthIcon from '@/assets/img/fourth-icon.png'
-
+import LoadingPage from '@/components/layout/LoadingPage.vue'
 /*export default {
   name: 'HomeView',
   components: {},
 }*/
+const isLoading = ref(true)
 
+onMounted(() => {
+  // Simulate loading (3 seconds)
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000)
+})
 </script>
-
 
 <style scoped>
 .bg-image {
@@ -68,7 +73,7 @@ import fourthIcon from '@/assets/img/fourth-icon.png'
   margin-bottom: 0%;
   padding-bottom: 0% !important;
 }
-.hero-h2{
+.hero-h2 {
   padding-bottom: 0%;
 }
 h2 {
@@ -100,7 +105,6 @@ h2 {
   border-right: #02dfefa6 1px solid;
 }
 
-
 .home-btn:hover {
   background-position: right center;
 }
@@ -110,7 +114,7 @@ h2 {
   display: flex;
   justify-content: end;
   margin-top: 200px;
-  margin-right: 30px ;
+  margin-right: 30px;
 }
 
 .footer-icons {
@@ -148,8 +152,6 @@ h2 {
   border-radius: 50%;
 }
 
-
-
 /* Animation keyframes */
 @keyframes gradient-run {
   0% {
@@ -162,5 +164,4 @@ h2 {
     background-position: 0% 50%;
   }
 }
-
 </style>

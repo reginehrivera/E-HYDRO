@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { supabase } from '@/supabase'
 import ProfileSidebar from '@/components/layout/ProfileSidebar.vue'
-
+import LoadingPage from '@/components/layout/LoadingPage.vue'
 // User data
 const userStore = useUserStore()
 const route = useRoute()
@@ -67,6 +67,15 @@ const clearErrors = () => {
   barangayErrorMessages.value = []
   cityErrorMessages.value = []
 }
+
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate loading (3 seconds)
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000)
+})
 
 const submit = async () => {
   clearErrors()
@@ -505,6 +514,7 @@ defineExpose({
 
 <template>
   <div class="layout">
+    <LoadingPage v-if="isLoading" />
     <v-container fluid class="bg-image">
       <div class="vrow">
         <ProfileSidebar />
@@ -884,7 +894,7 @@ defineExpose({
       <v-card-title class="headline">Profile Updated</v-card-title>
       <v-card-text>Your profile has been updated successfully!</v-card-text>
       <v-card-actions>
-        <v-btn color="primary" @click="goToProfilePage">OK</v-btn>
+        <v-btn color="primary" variant="flat" @click="goToProfilePage"> OK </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
