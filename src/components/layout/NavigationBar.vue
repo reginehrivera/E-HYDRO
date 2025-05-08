@@ -262,6 +262,9 @@
       <v-icon>mdi-close</v-icon>
     </v-btn>
   </div>
+
+  <!-- Loading Screen Component -->
+  <LoadingPage :show="isLoggingOut" :duration="2000" @loading-complete="completeLogout" />
 </template>
 
 <script setup>
@@ -271,6 +274,7 @@ import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/orders'
 import { supabase } from '@/supabase'
 import { useRouter } from 'vue-router'
+import LoadingPage from '@/components/layout/LoadingPage.vue'
 
 const userStore = useUserStore()
 const orderStore = useOrderStore()
@@ -281,6 +285,7 @@ const mobile = ref(null)
 const windowWidth = ref(window.innerWidth)
 const showNotifications = ref(false)
 const showProfileDropdown = ref(false)
+const isLoggingOut = ref(false)
 
 // New mobile menu refs from sidebar component
 const isMobileMenuOpen = ref(false)
@@ -655,29 +660,52 @@ function addNotification(type, title, message) {
   showStatusToast(`${title}: ${message}`, toastType)
 }
 
-async function handleLogout() {
-  try {
-    console.log('Logout function triggered')
+// Modified logout function with loading screen
+function handleLogout() {
+  console.log('Logout initiated')
 
-    // First clear user data from store
+  // Show loading screen first
+  isLoggingOut.value = true
+
+  // The actual logout process will be triggered by the loading-complete event
+}
+
+// 2. Function that completes the logout after loading animation
+async function completeLogout() {
+  try {
+    console.log('Completing logout process')
+
+    // Clear user data from store
     userStore.clearUserData()
+
+    // Clean up any Supabase subscription
+    if (orderSubscription) {
+      orderSubscription.unsubscribe()
+    }
+
+    // Clear notifications
+    orderNotifications.value = []
+    allNotifications.value = []
 
     // Sign out using Supabase
     const { error } = await supabase.auth.signOut()
 
     if (error) {
       console.error('Error during logout:', error)
+      isLoggingOut.value = false
       return
     }
 
-    console.log('Logged out successfully, redirecting to login page')
+    console.log('Successfully logged out, redirecting to login')
 
-    // Important: Use router.push in a timeout to ensure it executes after all state updates
-    setTimeout(() => {
-      router.push('/login')
-    }, 100)
+    // Explicitly force navigation to login page
+    window.location.href = '/login' // Use direct location redirect instead of router.push
+
+    // If you prefer using router (comment out the line above and uncomment this)
+    // router.push({ name: 'login', replace: true })
   } catch (err) {
-    console.error('Logout failed:', err)
+    console.error('Logout completion failed:', err)
+    isLoggingOut.value = false
   }
 }
 

@@ -1,11 +1,7 @@
-
-
 <template>
   <v-container class="pa-0 fill-height" fluid>
-    <!-- Loading Overlay -->
-    <div v-if="loading" class="loading-overlay">
-      <v-progress-circular indeterminate color="#00c6ff" size="50"></v-progress-circular>
-    </div>
+    <!-- Custom Loading Screen -->
+    <loading-page v-if="loading" :show="loading" @loading-complete="onLoadingComplete" />
 
     <div class="page-container">
       <v-card class="wrapper" elevation="10">
@@ -193,6 +189,7 @@ import { useRouter } from 'vue-router'
 import logonImage from '@/assets/img/logon.png'
 import { supabase } from '@/supabase'
 import { useUserStore } from '@/stores/user'
+import LoadingPage from '@/components/layout/LoadingPage.vue'
 
 const loading = ref(false)
 const router = useRouter()
@@ -205,6 +202,12 @@ const confirmPasswordType = ref<'password' | 'text'>('password')
 const name = ref('')
 const contactNumber = ref('')
 const error = ref('')
+
+// Loading page handling
+const onLoadingComplete = () => {
+  // You can add additional logic here if needed
+  // This gets called when the loading animation completes
+}
 
 // Switch forms
 const switchToSignup = () => {
@@ -222,11 +225,17 @@ const handleLogin = async () => {
   loading.value = true
   error.value = ''
 
+  // Show loading for at least 3 seconds
+  const loadingPromise = new Promise((resolve) => setTimeout(resolve, 3000))
+
   try {
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.value,
-      password: password.value,
-    })
+    const [_, { data: authData, error: authError }] = await Promise.all([
+      loadingPromise,
+      supabase.auth.signInWithPassword({
+        email: email.value,
+        password: password.value,
+      }),
+    ])
 
     if (authError) throw authError
     const user = authData.user
@@ -254,7 +263,6 @@ const handleLogin = async () => {
   } catch (err) {
     console.error('Authentication error:', err)
     error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
-  } finally {
     loading.value = false
   }
 }
@@ -266,6 +274,9 @@ const handleSignup = async () => {
   }
 
   loading.value = true
+
+  // Show loading for at least 3 seconds
+  const loadingPromise = new Promise((resolve) => setTimeout(resolve, 3000))
 
   try {
     // Check if email already exists in 'profiles' table
@@ -332,7 +343,6 @@ const handleSignup = async () => {
   } catch (err) {
     console.error('Signup error:', err)
     alert(err instanceof Error ? err.message : 'Signup failed')
-  } finally {
     loading.value = false
   }
 }
