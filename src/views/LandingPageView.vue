@@ -1,13 +1,34 @@
-<script setup></script>
+<script setup>
+import { ref, onMounted } from 'vue'
+import LoadingPage from '@/components/layout/LoadingPage.vue'
+// State to control loading screen visibility
+const showLoading = ref(true)
+
+// Handle loading completion
+const handleLoadingComplete = () => {
+  showLoading.value = false
+}
+
+// Optional: If you want to show loading screen on every visit
+onMounted(() => {
+  showLoading.value = true
+})
+</script>
 
 <template>
-  <v-container fluid class="fill-height bg-image d-flex align-center justify-center">
-    <div class="button-wrapper">
-      <RouterLink to="/login">
-        <v-btn class="custom-btn">Get Started</v-btn>
-      </RouterLink>
-    </div>
-  </v-container>
+  <!-- Loading page component -->
+  <LoadingPage :show="showLoading" :duration="3000" @loading-complete="handleLoadingComplete" />
+
+  <!-- Main landing page content - only visible when loading is complete -->
+  <div v-show="!showLoading">
+    <v-container fluid class="fill-height bg-image d-flex align-center justify-center">
+      <div class="button-wrapper">
+        <RouterLink to="/login">
+          <v-btn class="custom-btn">Get Started</v-btn>
+        </RouterLink>
+      </div>
+    </v-container>
+  </div>
 </template>
 
 <style scoped>

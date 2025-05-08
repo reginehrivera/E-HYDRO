@@ -132,7 +132,7 @@
           height: '100vh',
           margin: 0,
           zIndex: 100,
-          width: '250px',
+          width: '270px',
           transform: mobile && !isMobileMenuOpen ? 'translateX(-100%)' : 'translateX(0)',
           transition: 'transform 0.3s ease-in-out',
         }"
@@ -330,12 +330,12 @@ const profileLinks = [
   { route: 'home', text: 'Home' },
   { route: 'station', text: 'Station' },
   { route: 'order', text: 'My Orders' },
+  { route: 'notification', text: 'Notifications' },
   {
     text: 'My Account',
     icon: 'mdi-account',
     children: [
       { route: 'profile', text: 'View Profile' },
-      { route: 'notification', text: 'Notifications' },
       { route: 'addresses', text: 'My Address' },
     ],
   },
@@ -453,6 +453,7 @@ const getLinkIcon = (route) => {
     order: 'mdi-package-variant',
     profile: 'mdi-account',
     addresses: 'mdi-map-marker',
+    notification: 'mdi-bell',
   }
   return icons[route] || 'mdi-link'
 }
@@ -1410,7 +1411,7 @@ li {
 }
 
 .profile-card-wrapper {
-  max-width: 250px;
+  max-width: 270px;
 }
 
 .profile-card {

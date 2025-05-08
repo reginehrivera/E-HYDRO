@@ -1,3 +1,5 @@
+// LoadingPage.vue
+
 <template>
   <transition name="fade">
     <div v-if="show" class="loading-screen">
