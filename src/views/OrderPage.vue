@@ -3,34 +3,6 @@
     <template #content>
       <v-container fluid class="order-bg">
         <div class="order-container">
-          <!-- Filter Buttons -->
-          <div class="filter-buttons">
-            <button
-              :class="['btn-border', selectedFilter === 'All' ? 'active-filter' : '']"
-              @click="filterOrders('All')"
-            >
-              ALL
-            </button>
-            <button
-              :class="['btn-border', selectedFilter === 'To Deliver' ? 'active-filter' : '']"
-              @click="filterOrders('To Deliver')"
-            >
-              IN PROGRESS
-            </button>
-            <button
-              :class="['btn-border', selectedFilter === 'Completed' ? 'active-filter' : '']"
-              @click="filterOrders('Completed')"
-            >
-              COMPLETED
-            </button>
-            <button
-              :class="['btn-border', selectedFilter === 'Cancelled' ? 'active-filter' : '']"
-              @click="filterOrders('Cancelled')"
-            >
-              CANCELLED
-            </button>
-          </div>
-
           <!-- Loading Indicator -->
           <div class="loading-state" v-if="isLoading">
             <div class="loading-content">
@@ -39,7 +11,7 @@
             </div>
           </div>
 
-          <!-- Empty State Message - Only show when not loading and no orders -->
+          <!-- Empty State Message -->
           <div class="empty-state" v-else-if="filteredOrdersStore.length === 0">
             <div class="empty-state-content">
               <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
@@ -49,39 +21,98 @@
             </div>
           </div>
 
-          <!-- Order Cards - Show when not loading and has orders -->
-          <transition-group name="fade" tag="div" v-else>
-            <div class="order-card" v-for="(order, index) in filteredOrdersStore" :key="order.id">
-              <div class="order-info">
-                <div class="order-top">
-                  <strong>Order #{{ order.id }}</strong>
-                  <span :class="['status', order.status.toLowerCase().replace(' ', '-')]">
-                    {{ order.status }}
-                  </span>
-                </div>
-                <p><strong>Station:</strong> {{ order.station_name }}</p>
-                <p><strong>Date:</strong> {{ order.date }}</p>
-                <p><strong>Quantity:</strong> {{ order.quantity }} gallons</p>
-                <p><strong>Total: </strong> ₱{{ order.total.toFixed(2) }}</p>
-              </div>
-              <div class="order-actions">
-                <div class="action-buttons" v-if="order.status === 'To Deliver'">
-                  <button class="btn-border" @click="promptCancel(index)">Cancel Order</button>
-                  <button class="btn-primary" @click="viewDetails(order)">View Details</button>
-                </div>
-                <div class="action-buttons" v-if="order.status === 'Completed'">
-                  <router-link :to="order.router" class="btn-border no-underline"
-                    >Re-Order</router-link
+          <!-- Orders Table -->
+          <div class="orders-table-container" v-else>
+            <div class="table-header">
+              <div class="filter-section">
+                <div class="filter-buttons">
+                  <button
+                    :class="['btn-border', selectedFilter === 'All' ? 'active-filter' : '']"
+                    @click="filterOrders('All')"
                   >
-                  <button class="btn-primary" @click="openRateModal(order)">Rate</button>
+                    ALL
+                  </button>
+                  <button
+                    :class="['btn-border', selectedFilter === 'To Deliver' ? 'active-filter' : '']"
+                    @click="filterOrders('To Deliver')"
+                  >
+                    IN PROGRESS
+                  </button>
+                  <button
+                    :class="['btn-border', selectedFilter === 'Completed' ? 'active-filter' : '']"
+                    @click="filterOrders('Completed')"
+                  >
+                    COMPLETED
+                  </button>
+                  <button
+                    :class="['btn-border', selectedFilter === 'Cancelled' ? 'active-filter' : '']"
+                    @click="filterOrders('Cancelled')"
+                  >
+                    CANCELLED
+                  </button>
                 </div>
-                <div class="action-buttons" v-if="order.status === 'Cancelled'">
-                  <button class="btn-primary" @click="viewDetails(order)">View Details</button>
-                </div>
+              </div>
+              <div class="action-section">
+                <router-link to="/aquabon" class="btn-primary add-order-btn">
+                  <v-icon size="14">mdi-plus</v-icon> ADD ORDER
+                </router-link>
               </div>
             </div>
-          </transition-group>
 
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Station</th>
+                  <th>Date</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(order, index) in filteredOrdersStore" :key="order.id">
+                  <td>{{ order.id }}</td>
+                  <td>{{ order.station_name }}</td>
+                  <td>{{ order.date }}</td>
+                  <td>{{ order.quantity }} gallons</td>
+                  <td>₱{{ order.total.toFixed(2) }}</td>
+                  <td>
+                    <div class="status-container">
+                      <span
+                        :class="[
+                          'status',
+                          'status-' + order.status.toLowerCase().replace(' ', '-'),
+                        ]"
+                      >
+                        {{ order.status }}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="table-actions">
+                      <template v-if="order.status === 'To Deliver'">
+                        <button class="btn-border" @click="promptCancel(index)">Cancel</button>
+                        <button class="btn-primary" @click="viewDetails(order)">Details</button>
+                      </template>
+                      <template v-if="order.status === 'Completed'">
+                        <router-link :to="order.router" class="btn-border no-underline"
+                          >Re-Order</router-link
+                        >
+                        <button class="btn-primary" @click="openRateModal(order)">Rate</button>
+                      </template>
+                      <template v-if="order.status === 'Cancelled'">
+                        <button class="btn-primary" @click="viewDetails(order)">Details</button>
+                      </template>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- All Modals (same as before) -->
           <!-- Cancel Modal -->
           <div class="modal" v-if="showCancelModal">
             <div class="modal-content">
@@ -145,7 +176,6 @@
                   </tbody>
                 </table>
                 <p>Subtotal: ₱{{ selectedOrder?.total.toFixed(2) }}</p>
-                <!--<p>Delivery Fee: ₱50.00</p>-->
                 <v-divider :thickness="2" class="mt-3 mb-2"></v-divider>
                 <h4>
                   <strong>Total: ₱{{ (selectedOrder?.total).toFixed(2) }}</strong>
@@ -225,6 +255,436 @@
     </template>
   </NavigationBar>
 </template>
+
+<style scoped>
+/* Updated header styles */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  background: #d3eaff;
+  padding: 10px 0;
+  z-index: 10;
+}
+
+.filter-section {
+  flex: 1;
+}
+
+.action-section {
+  margin-left: auto;
+  padding-left: 20px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-border,
+.btn-primary {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-border {
+  background-color: transparent;
+  border: 1px solid #02adef;
+  color: #02adef;
+}
+
+.btn-border:hover {
+  background-color: #02adef;
+  color: white;
+}
+
+.active-filter {
+  background-color: #02adef;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #02adef;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background-color: #028ac7;
+}
+
+.add-order-btn .v-icon {
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .action-section {
+    margin-left: 0;
+    padding-left: 0;
+    align-self: flex-end;
+  }
+
+  .filter-buttons {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-border,
+  .btn-primary {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+}
+
+/* Loading state styling */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.loading-content h3 {
+  margin-top: 16px;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.order-bg {
+  background-image: url('@/assets/img/bg-home-no-gallon.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding-top: 100px;
+}
+
+.order-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-border {
+  background-color: transparent;
+  border: 1px solid #02adef;
+  color: #02adef;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  align-self: center;
+}
+
+.btn-border:hover {
+  background-color: #02adef;
+  color: white;
+}
+
+.active-filter {
+  background-color: #02adef;
+  color: white;
+}
+
+/* Table Styles */
+.orders-table-container {
+  background: #d3eaff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.orders-table th {
+  background-color: #02adef;
+  color: white;
+  font-weight: 600;
+}
+
+.orders-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.status {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: inline-block;
+  text-align: center;
+}
+/* Add this new style for the status container */
+/* Responsive status container */
+.status-container {
+  display: flex;
+  justify-content: center;
+  min-width: 6rem; /* Minimum width */
+  max-width: 10rem; /* Maximum width */
+  width: auto;
+  padding: 0 0.5rem;
+}
+
+.status {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem; /* 12px equivalent */
+  text-align: center;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* Status-specific styles */
+.status-to-deliver {
+  background-color: #f9c74f;
+  color: #000;
+}
+
+.status.completed {
+  background-color: #90be6d;
+  color: white;
+}
+
+.status.cancelled {
+  background-color: #ef476f;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (min-width: 480px) {
+  .status {
+    font-size: 0.8125rem; /* 13px equivalent */
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .status-container {
+    min-width: 8rem;
+  }
+  .status {
+    font-size: 0.875rem; /* 14px equivalent */
+  }
+}
+
+@media (min-width: 1024px) {
+  .status-container {
+    min-width: 9rem;
+  }
+}
+/* Specifically for To Deliver status */
+.status-to-deliver {
+  background-color: #f9c74f;
+  color: #000;
+  width: 100%;
+  display: block;
+}
+.status.completed {
+  background-color: #90be6d;
+  color: white;
+}
+
+.status.cancelled {
+  background-color: #ef476f;
+  color: white;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: #02adef;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #028ac7;
+}
+
+/* Modal and other styles remain the same as before */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content p {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+  background-color: #d3eaff;
+  border-radius: 10px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.empty-state-content {
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin-top: 20px;
+  font-size: 22px;
+  color: #0557b6;
+}
+
+.empty-state p {
+  margin: 10px 0 20px;
+  color: #666;
+}
+
+.empty-state .btn-primary {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+/* Rate Modal Styles */
+.orderpage-submit-btn {
+  font-family: 'inter', sans-serif;
+  text-transform: none;
+  border-radius: 0 15px;
+  border: 2px solid #0557b6;
+  width: 50%;
+  font-weight: 600;
+}
+.orderpage-submit-btn {
+  background-color: #0557b6;
+  border-radius: 5px;
+}
+.modal-content .v-card-title {
+  font-family: 'familjen grotesk', sans-serif;
+  font-size: 19px;
+  color: #0557b6;
+  font-weight: 600;
+}
+.orderpage-submit-btn:hover {
+  background-color: #02adef;
+  border-color: #02adef;
+  color: #fff !important;
+}
+.orderpage-close-btn:hover {
+  color: #02adef !important;
+}
+
+.submission-back-btn {
+  text-transform: none;
+  color: #fff;
+  background-color: #02adef;
+}
+.submission-view-btn {
+  text-transform: none;
+  color: #0557b6;
+  border: 1px #02adef solid;
+}
+.submission-back-btn:hover {
+  color: #0557b6;
+}
+.submission-view-btn:hover {
+  color: #0557b6;
+  border: #02adef 1px solid;
+  background-color: #02adef;
+}
+</style>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
@@ -492,325 +952,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style scoped>
-/* Loading state styling */
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  width: 100%;
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.loading-content h3 {
-  margin-top: 16px;
-  color: #ffffff;
-  font-weight: 800;
-}
-
-.order-bg {
-  background-image: url('@/assets/img/bg-home-no-gallon.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  min-height: 100vh;
-  padding-top: 100px;
-}
-
-.order-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.filter-buttons {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.btn-border {
-  background-color: transparent;
-  border: 1px solid #02adef;
-  color: #02adef;
-  padding: 4px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  align-self: center;
-}
-
-.btn-border:hover {
-  background-color: #02adef;
-  color: white;
-}
-
-.active-filter {
-  background-color: #02adef;
-  color: white;
-}
-
-.order-card {
-  background: #d3eaff;
-  padding: 12px;
-  border-radius: 5px;
-  margin: 10px auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  font-size: 14px;
-  transition: all 0.4s ease;
-}
-
-.order-top {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.status {
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-
-.status.to-deliver {
-  background-color: #f9c74f;
-  color: #000;
-}
-
-.status.completed {
-  background-color: #90be6d;
-  color: white;
-}
-
-.status.cancelled {
-  background-color: #ef476f;
-  color: white;
-}
-
-.btn-primary {
-  background-color: #02adef;
-  color: white;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #028ac7;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 20px;
-}
-
-.modal-content {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content p {
-  margin: 0;
-  font-size: 16px;
-  font-family: 'Inter', sans-serif;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 20px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.4s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.no-underline {
-  text-decoration: none;
-}
-
-.action-buttons a {
-  min-width: 90px;
-  text-align: center;
-}
-
-.info-box {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 15px;
-  margin-top: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.info-box h4 {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-.info-box h5 {
-  font-size: 14px;
-}
-
-.info-box p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-table th {
-  background-color: #f2f2f2;
-}
-
-.star {
-  font-size: 28px;
-  color: #ccc;
-  cursor: pointer;
-  margin: 0 3px;
-}
-
-.star.filled {
-  color: gold;
-}
-
-.recommend-box {
-  margin: 15px 0;
-}
-
-/**Rate Modal Style */
-.orderpage-submit-btn {
-  font-family: 'inter', sans-serif;
-  text-transform: none;
-  border-radius: 0 15px;
-  border: 2px solid #0557b6;
-  width: 50%;
-  font-weight: 600;
-}
-.orderpage-submit-btn {
-  background-color: #0557b6;
-  border-radius: 5px;
-}
-.modal-content .v-card-title {
-  font-family: 'familjen grotesk', sans-serif;
-  font-size: 19px;
-  color: #0557b6;
-  font-weight: 600;
-}
-.orderpage-submit-btn:hover {
-  background-color: #02adef;
-  border-color: #02adef;
-  color: #fff !important;
-}
-.orderpage-close-btn:hover {
-  color: #02adef !important;
-}
-
-.submission-back-btn {
-  text-transform: none;
-  color: #fff;
-  background-color: #02adef;
-}
-.submission-view-btn {
-  text-transform: none;
-  color: #0557b6;
-  border: 1px #02adef solid;
-}
-.submission-back-btn:hover {
-  color: #0557b6;
-}
-.submission-view-btn:hover {
-  color: #0557b6;
-  border: #02adef 1px solid;
-  background-color: #02adef;
-}
-
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 0;
-  background-color: #d3eaff;
-  border-radius: 10px;
-  margin: 20px auto;
-  max-width: 800px;
-}
-
-.empty-state-content {
-  text-align: center;
-}
-
-.empty-state h3 {
-  margin-top: 20px;
-  font-size: 22px;
-  color: #0557b6;
-}
-
-.empty-state p {
-  margin: 10px 0 20px;
-  color: #666;
-}
-
-.empty-state .btn-primary {
-  display: inline-block;
-  padding: 8px 20px;
-  font-size: 16px;
-  text-decoration: none;
-}
-</style>
