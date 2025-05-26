@@ -140,7 +140,6 @@ import waterIcon from '@/assets/img/icons/water.png'
 import noteIcon from '@/assets/img/icons/note.png'
 import bellIcon from '@/assets/img/icons/bell.png'
 import announceIcon from '@/assets/img/icons/announce.png'
-import warningIcon from '@/assets/img/icons/warning.png'
 
 // Import order store to ensure we have access to the latest notification data
 import { useOrderStore } from '@/stores/orders'
@@ -153,88 +152,7 @@ const orderNotifications = inject('orderNotifications', ref([]))
 const allNotifications = inject('allNotifications', ref([]))
 
 // Static notifications (for demo/fallback)
-const staticNotifications = ref([
-  {
-    title: 'Order Confirmed',
-    message: 'Your order #12345 is confirmed. Expect delivery on March 31, 2025.',
-    icon: confirmIcon,
-    read: false,
-    date: 'March 27, 2025',
-    type: 'completed',
-    isNew: false,
-    id: 'static-1',
-  },
-  {
-    title: 'Your Order is on the Way',
-    message: 'Great news! Your water delivery is out for delivery. Stay hydrated!',
-    icon: galloonIcon,
-    read: false,
-    date: 'March 28, 2025',
-    type: 'progress',
-    isNew: false,
-    id: 'static-2',
-  },
-  {
-    title: 'Claim Your Discount Voucher',
-    message: 'Hi Regine, you have a 10% OFF voucher valid until March 30, 2025.',
-    icon: voucherIcon,
-    read: false,
-    date: 'March 25, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-3',
-  },
-  {
-    title: 'New Water Station Near You',
-    message: "We've partnered with a new clean & safe water refill station in your area!",
-    icon: waterIcon,
-    read: false,
-    date: 'March 22, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-4',
-  },
-  {
-    title: 'Profile Updated',
-    message: 'Your profile information was successfully saved.',
-    icon: noteIcon,
-    read: false,
-    date: 'March 20, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-5',
-  },
-  {
-    title: 'System Update',
-    message: 'A new system update is available.',
-    icon: bellIcon,
-    read: false,
-    date: 'March 19, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-6',
-  },
-  {
-    title: 'Event Reminder',
-    message: 'Reminder: Event at 3 PM today.',
-    icon: announceIcon,
-    read: false,
-    date: 'March 18, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-7',
-  },
-  {
-    title: 'Maintenance Scheduled',
-    message: 'Scheduled maintenance will occur tomorrow at midnight.',
-    icon: announceIcon,
-    read: false,
-    date: 'March 17, 2025',
-    type: 'info',
-    isNew: false,
-    id: 'static-8',
-  },
-])
+const staticNotifications = ref([])
 
 // Combine notifications from all sources with proper priority
 const combinedNotifications = computed(() => {

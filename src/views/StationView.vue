@@ -12,9 +12,9 @@
             </div>
           </v-col>
 
-          <!-- Search Bar Area -->
-          <v-col cols="12" md="6" class="search-bar">
-            <v-form class="search-form" role="search" @submit="handleSearch">
+          <!-- Search Bar Area - Hide when it's shown in navbar -->
+          <v-col cols="12" md="6" class="search-bar" :class="{ 'search-hidden': isSearchInNavbar }">
+            <v-form class="search-form" role="search" @submit.prevent="handleSearch">
               <v-row no-gutters>
                 <v-col cols="9" class="search-input">
                   <v-text-field
@@ -26,6 +26,7 @@
                     class="fst-italic"
                     prepend-inner-icon="mdi-magnify"
                     aria-label="Search"
+                    @input="onSearchInput"
                   ></v-text-field>
 
                   <!-- Suggestions Dropdown -->
@@ -104,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/layout/NavigationBar.vue'
 import WaterDrops from '@/assets/img/waterdrops-shop.png'
@@ -115,40 +116,106 @@ import ColdPoint from '@/assets/img/coldpoint-shop.jpg'
 const model = ref(0)
 const searchInput = ref('')
 const router = useRouter()
+const isSearchInNavbar = ref(false)
+
+// Search suggestions for both local and navbar search
+const searchSuggestions = [
+  'Aquasis Water Station',
+  'Aquabon Water Station',
+  'Cold Point Water Station',
+  'Water Drops Water Station',
+]
 
 const stations = {
   aquasis: '/aquasis',
+  'aquasis water station': '/aquasis',
   aquabon: '/aquabon',
+  'aquabon water station': '/aquabon',
   'cold point': '/coldpoint',
   'water drops': '/waterdrops',
 }
 
 const filteredSuggestions = computed(() => {
+  if (!searchInput.value) return []
   const input = searchInput.value.toLowerCase()
-  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
+  return searchSuggestions.filter((suggestion) => suggestion.toLowerCase().includes(input))
 })
 
+const onSearchInput = () => {
+  // This function can be used for any additional logic when user types
+  console.log('Search input changed:', searchInput.value)
+}
+
 const handleSearch = (e) => {
-  e.preventDefault()
+  if (e) e.preventDefault()
   const input = searchInput.value.trim().toLowerCase()
+
+  // Check direct station matches
   if (stations[input]) {
     router.push(stations[input])
     searchInput.value = ''
-  } else {
-    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+    return
   }
+
+  // Check if input matches any suggestion
+  const matchingSuggestion = searchSuggestions.find(
+    (suggestion) => suggestion.toLowerCase() === input,
+  )
+
+  if (matchingSuggestion) {
+    const stationKey = matchingSuggestion.toLowerCase()
+    if (stations[stationKey]) {
+      router.push(stations[stationKey])
+      searchInput.value = ''
+      return
+    }
+  }
+
+  // If no match found
+  alert('Station not found. Try searching for: Aquasis, Aquabon, Cold Point, or Water Drops.')
 }
 
 const selectSuggestion = (station) => {
   searchInput.value = station
   const lowerStation = station.toLowerCase()
+
   if (stations[lowerStation]) {
     router.push(stations[lowerStation])
     searchInput.value = ''
   } else {
-    alert('Station not found.')
+    // Try to find partial matches
+    const matchingStation = Object.keys(stations).find(
+      (key) => key.includes(lowerStation) || lowerStation.includes(key),
+    )
+
+    if (matchingStation) {
+      router.push(stations[matchingStation])
+      searchInput.value = ''
+    } else {
+      alert('Station not found.')
+    }
   }
 }
+
+// Function to handle scroll and toggle search bar visibility
+const handleScroll = () => {
+  const scrollY = window.scrollY
+  const shouldShowInNavbar = scrollY > 50 // Show in navbar after scrolling 100px
+
+  if (shouldShowInNavbar !== isSearchInNavbar.value) {
+    isSearchInNavbar.value = shouldShowInNavbar
+  }
+}
+
+// Provide search functionality to NavigationBar
+provide('stationSearchData', {
+  searchInput,
+  filteredSuggestions,
+  handleSearch,
+  selectSuggestion,
+  onSearchInput,
+  searchSuggestions,
+})
 
 const images = ref([
   {
@@ -180,6 +247,15 @@ const images = ref([
     route: '/waterdrops',
   },
 ])
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+  handleScroll() // Check initial scroll position
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
@@ -259,7 +335,54 @@ const images = ref([
 .search-bar {
   padding-top: 10%;
   padding-right: 8%;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
+
+.search-input {
+  position: relative;
+}
+
+.search-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px);
+}
+
+.suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-list li {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-list li:hover {
+  background-color: #f5f5f5;
+}
+
+.suggestion-list li:last-child {
+  border-bottom: none;
+}
+
+.search-form {
+  position: relative;
+}
+
 .search-input {
   position: relative;
 }

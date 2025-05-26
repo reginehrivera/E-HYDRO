@@ -1,46 +1,3 @@
-<script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-
-const searchInput = ref('')
-const router = useRouter()
-
-const stations = {
-  aquasis: '/aquasis',
-  aquabon: '/aquabon',
-  'cold point': '/coldpoint',
-  'water drops': '/waterdrops',
-}
-
-// Computed to filter suggestions based on input
-const filteredSuggestions = computed(() => {
-  const input = searchInput.value.toLowerCase()
-  return Object.keys(stations).filter((station) => station.toLowerCase().includes(input))
-})
-
-const handleSearch = (e) => {
-  e.preventDefault()
-  const input = searchInput.value.trim().toLowerCase()
-  if (stations[input]) {
-    router.push(stations[input])
-    searchInput.value = '' // clear after search (optional)
-  } else {
-    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
-  }
-}
-
-const selectSuggestion = (station) => {
-  searchInput.value = station
-  const lowerStation = station.toLowerCase()
-  if (stations[lowerStation]) {
-    router.push(stations[lowerStation])
-    searchInput.value = '' // clear after clicking suggestion (optional)
-  } else {
-    alert('Station not found.')
-  }
-}
-</script>
-
 <template>
   <v-container fluid class="bg-image">
     <!--first row-->
@@ -54,8 +11,8 @@ const selectSuggestion = (station) => {
         </div>
       </v-col>
 
-      <!--Search Bar Area-->
-      <v-col col="12" md="6" class="search-bar">
+      <!--Search Bar Area - Hidden when scrolled-->
+      <v-col col="12" md="6" class="search-bar" :class="{ 'search-hidden': isScrolled }">
         <v-form class="search-form" role="search" @submit="handleSearch">
           <v-row no-gutters>
             <v-col cols="9" class="search-input">
@@ -68,6 +25,7 @@ const selectSuggestion = (station) => {
                 class="fst-italic"
                 prepend-inner-icon="mdi-magnify"
                 aria-label="Search"
+                @input="onSearchInput"
               ></v-text-field>
               <!-- Suggestions Dropdown -->
               <ul v-if="searchInput && filteredSuggestions.length" class="suggestion-list">
@@ -94,6 +52,100 @@ const selectSuggestion = (station) => {
   </v-container>
 </template>
 
+<script setup>
+import { ref, computed, provide, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const searchInput = ref('')
+const router = useRouter()
+const isScrolled = ref(false)
+
+const stations = {
+  aquasis: '/aquasis',
+  'aquasis water station': '/aquasis',
+  aquabon: '/aquabon',
+  'aquabon water station': '/aquabon',
+  'cold point': '/coldpoint',
+  'water drops': '/waterdrops',
+}
+
+// Search suggestions for both local and navbar search
+const searchSuggestions = [
+  'Aquasis Water Station',
+  'Aquabon Water Station',
+  'Cold Point Water Station',
+  'Water Drops Water Station',
+]
+// Computed to filter suggestions based on input
+const filteredSuggestions = computed(() => {
+  const input = searchInput.value.toLowerCase()
+  return searchSuggestions.filter((station) => station.toLowerCase().includes(input))
+})
+
+const handleSearch = (e) => {
+  if (e) e.preventDefault()
+  const input = searchInput.value.trim().toLowerCase()
+  if (stations[input]) {
+    router.push(stations[input])
+    searchInput.value = '' // clear after search
+  } else {
+    alert('Station not found. Try Aquasis, Aquabon, Cold Point, or Water Drops.')
+  }
+}
+
+const selectSuggestion = (station) => {
+  searchInput.value = station
+  const lowerStation = station.toLowerCase()
+
+  if (stations[lowerStation]) {
+    router.push(stations[lowerStation])
+    searchInput.value = ''
+  } else {
+    // Try to find partial matches
+    const matchingStation = Object.keys(stations).find(
+      (key) => key.includes(lowerStation) || lowerStation.includes(key),
+    )
+
+    if (matchingStation) {
+      router.push(stations[matchingStation])
+      searchInput.value = ''
+    } else {
+      alert('Station not found.')
+    }
+  }
+}
+const onSearchInput = () => {
+  // This function can be used for real-time search updates
+  // For now, it's just a placeholder that can be extended
+}
+
+// Handle scroll to show/hide search bar
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 50
+}
+
+// Provide search data to parent components (like navbar)
+const stationSearchData = {
+  searchInput,
+  searchSuggestions,
+  filteredSuggestions,
+  handleSearch,
+  selectSuggestion,
+  onSearchInput,
+}
+
+provide('stationSearchData', stationSearchData)
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+  handleScroll() // Check initial scroll position
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+</script>
+
 <style scoped>
 .bg-image {
   background-image: url('@/assets/img/bg-home-no-gallon.png');
@@ -104,6 +156,7 @@ const selectSuggestion = (station) => {
   min-height: 100vh;
   padding-top: 100px;
 }
+
 .title-phrase {
   font-family: 'familjen-grotesk', sans-serif;
   font-size: 23px !important;
@@ -131,8 +184,6 @@ const selectSuggestion = (station) => {
 .first-phrase {
   font-weight: 700;
   font-family: 'Faustina', serif;
-}
-.first-phrase {
   margin-bottom: -0.6rem;
 }
 
@@ -141,7 +192,16 @@ const selectSuggestion = (station) => {
 .search-bar {
   padding-top: 4%;
   padding-right: 8%;
+  transition: all 0.3s ease;
 }
+
+/* Hide search bar when scrolled */
+.search-hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+}
+
 .search-input {
   position: relative;
 }
@@ -169,7 +229,7 @@ const selectSuggestion = (station) => {
   background: linear-gradient(270deg, #90caf9, #42a5f5, #89c4dd, #408db3, #90caf9);
   background-size: 400% 400%;
   animation: gradient-run 6s ease infinite;
-  opacity: 1; /* Always visible */
+  opacity: 1;
 }
 
 /* Animation keyframes */
@@ -194,15 +254,18 @@ const selectSuggestion = (station) => {
   transition: background-position 0.5s ease;
   margin-top: 0.11rem;
 }
+
 .search-btn:hover {
   background-position: right center;
 }
+
 .search-btn span {
   font-family: 'inter', sans-serif;
   font-weight: 600;
   text-transform: none;
   color: #fff;
 }
+
 /*-------End Search Bar---------*/
 
 /*-------Station Style-------*/
@@ -230,6 +293,7 @@ const selectSuggestion = (station) => {
   padding: 8px 12px;
   cursor: pointer;
 }
+
 .suggestion-list li:hover {
   background-color: #e3f2fd;
 }

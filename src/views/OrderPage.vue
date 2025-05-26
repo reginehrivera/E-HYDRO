@@ -11,8 +11,8 @@
             </div>
           </div>
 
-          <!-- Empty State Message -->
-          <div class="empty-state" v-else-if="filteredOrdersStore.length === 0">
+          <!-- Empty State Message for NO ORDERS AT ALL -->
+          <div class="empty-state" v-else-if="orderStore.orders.length === 0">
             <div class="empty-state-content">
               <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
               <h3>No Orders Found</h3>
@@ -21,7 +21,7 @@
             </div>
           </div>
 
-          <!-- Orders Table -->
+          <!-- Orders Table Container - Always show when there are orders -->
           <div class="orders-table-container" v-else>
             <div class="table-header">
               <div class="filter-section">
@@ -53,7 +53,7 @@
                 </div>
               </div>
               <div class="action-section">
-                <router-link to="/aquabon" class="btn-primary add-order-btn">
+                <router-link to="/station" class="btn-primary add-order-btn">
                   <v-icon size="14">mdi-plus</v-icon> ADD ORDER
                 </router-link>
               </div>
@@ -72,7 +72,24 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(order, index) in filteredOrdersStore" :key="order.id">
+                <!-- Show empty state row when filtered results are empty -->
+                <tr v-if="filteredOrdersStore.length === 0" class="empty-row">
+                  <td colspan="7" class="empty-cell">
+                    <div class="table-empty-state">
+                      <v-icon size="48" color="#02adef">mdi-cart-outline</v-icon>
+                      <h4>No {{ selectedFilter === 'All' ? '' : selectedFilter }} Orders Found</h4>
+                      <p v-if="selectedFilter !== 'All'">
+                        You don't have any {{ selectedFilter.toLowerCase() }} orders yet.
+                      </p>
+                      <router-link to="/aquabon" class="btn-primary no-underline mt-2">
+                        Order Now
+                      </router-link>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Show actual order rows when there are filtered results -->
+                <tr v-else v-for="(order, index) in filteredOrdersStore" :key="order.id">
                   <td>{{ order.id }}</td>
                   <td>{{ order.station_name }}</td>
                   <td>{{ order.date }}</td>
@@ -110,6 +127,56 @@
                 </tr>
               </tbody>
             </table>
+
+            <!-- Pagination - only show when there are filtered results -->
+            <div
+              class="pagination-container"
+              v-if="filteredOrdersStore.length > 0 && totalPages > 1"
+            >
+              <div class="pagination">
+                <button
+                  class="pagination-btn"
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  :class="{ disabled: currentPage === 1 }"
+                >
+                  <v-icon size="16">mdi-chevron-left</v-icon>
+                </button>
+
+                <template v-for="page in totalPages" :key="page">
+                  <button
+                    v-if="page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1"
+                    class="pagination-btn page-number"
+                    @click="goToPage(page)"
+                    :class="{ active: currentPage === page }"
+                  >
+                    {{ page }}
+                  </button>
+                  <span
+                    v-else-if="page === currentPage - 2 || page === currentPage + 2"
+                    class="pagination-dots"
+                  >
+                    ...
+                  </span>
+                </template>
+
+                <button
+                  class="pagination-btn"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  :class="{ disabled: currentPage === totalPages }"
+                >
+                  <v-icon size="16">mdi-chevron-right</v-icon>
+                </button>
+              </div>
+
+              <div class="pagination-info">
+                Showing {{ (currentPage - 1) * itemsPerPage + 1 }}-{{
+                  Math.min(currentPage * itemsPerPage, filteredOrders.length)
+                }}
+                of {{ filteredOrders.length }} orders
+              </div>
+            </div>
           </div>
 
           <!-- All Modals (same as before) -->
@@ -150,12 +217,10 @@
                 <p><strong>Order Date:</strong> {{ selectedOrder?.date }}</p>
                 <p>
                   <strong>Status:</strong>
-                  <span
-                    :class="['status', selectedOrder?.status.toLowerCase().replace(' ', '-')]"
-                    >{{ selectedOrder?.status }}</span
-                  >
+
+                  {{ selectedOrder?.status }}
                 </p>
-                <p><strong>Payment Method:</strong> GCash</p>
+                <p><strong>Payment Method:</strong> {{ selectedOrder?.payment_method }}</p>
               </div>
               <div class="info-box">
                 <h4><strong>Order Details</strong></h4>
@@ -262,7 +327,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   width: 100%;
   position: sticky;
   top: 0;
@@ -359,13 +424,13 @@
   }
 }
 
-/* Loading state styling */
+/* Loading state responsive */
 .loading-state {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 300px;
-  width: 100%;
+  text-align: center;
 }
 
 .loading-content {
@@ -392,10 +457,10 @@
 }
 
 .order-container {
-  max-width: 1000px;
+  width: 90%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  border-radius: 12px;
 }
 
 .filter-buttons {
@@ -435,7 +500,6 @@
   background: #d3eaff;
   border-radius: 8px;
   padding: 15px;
-  margin-top: 20px;
   overflow-x: auto;
 }
 
@@ -447,7 +511,7 @@
 
 .orders-table th,
 .orders-table td {
-  padding: 12px 15px;
+  padding: 12px 10px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
@@ -482,31 +546,18 @@
   padding: 0 0.5rem;
 }
 
-.status {
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem; /* 12px equivalent */
-  text-align: center;
-  white-space: nowrap;
-  width: 100%;
+.status-completed {
+  background-color: #04e639;
 }
 
-/* Status-specific styles */
+/* Cancelled status - Light Red */
+.status-cancelled {
+  background-color: #f83242;
+}
+
+/* To Deliver status - Blue/Default */
 .status-to-deliver {
-  background-color: #f9c74f;
-  color: #000;
-}
-
-.status.completed {
-  background-color: #90be6d;
-  color: white;
-}
-
-.status.cancelled {
-  background-color: #ef476f;
-  color: white;
+  background-color: #ffc549;
 }
 
 /* Responsive adjustments */
@@ -605,37 +656,76 @@
   gap: 20px;
 }
 
-.empty-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 0;
-  background-color: #d3eaff;
-  border-radius: 10px;
-  margin: 20px auto;
-  max-width: 800px;
+.info-box {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.empty-state-content {
+.info-box h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+.info-box h5 {
+  font-size: 14px;
+}
+
+.info-box p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f2f2f2;
+}
+
+.empty-row {
+  background: none !important;
+}
+
+.empty-cell {
+  padding: 40px 20px !important;
   text-align: center;
+  border: none !important;
 }
 
-.empty-state h3 {
-  margin-top: 20px;
-  font-size: 22px;
-  color: #0557b6;
-}
-
-.empty-state p {
-  margin: 10px 0 20px;
+.table-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   color: #666;
 }
 
-.empty-state .btn-primary {
-  display: inline-block;
-  padding: 8px 20px;
-  font-size: 16px;
-  text-decoration: none;
+.table-empty-state h4 {
+  margin: 8px 0 4px 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.table-empty-state p {
+  margin: 0 0 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.table-empty-state .btn-primary {
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 /* Rate Modal Styles */
@@ -684,6 +774,75 @@
   border: #02adef 1px solid;
   background-color: #02adef;
 }
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-btn {
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(.disabled) {
+  background: #f5f5f5;
+  border-color: #02adef;
+}
+
+.pagination-btn.active {
+  background: #02adef;
+  color: #444343;
+  border-color: #02adef;
+}
+
+.pagination-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f9f9f9;
+}
+
+.pagination-dots {
+  padding: 8px 4px;
+  color: #666;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination-info {
+    order: -1;
+  }
+}
 </style>
 
 <script setup>
@@ -707,16 +866,50 @@ const showDetailsModal = ref(false)
 const selectedOrder = ref(null)
 const showRateModal = ref(false)
 const showSuccessModal = ref(false)
-const isLoading = ref(true) // Add loading state flag
+const isLoading = ref(true)
+
+// Pagination state
+const currentPage = ref(1)
+const itemsPerPage = ref(5)
 
 // Compute filtered orders based on selected filter
-const filteredOrdersStore = computed(() => {
-  // Use orderStore.orders if available, otherwise fallback to empty array
+const filteredOrders = computed(() => {
   const list = orderStore.orders.length > 0 ? orderStore.orders : []
 
   if (selectedFilter.value === 'All') return list
   return list.filter((o) => o.status === selectedFilter.value)
 })
+
+// Compute paginated orders
+const filteredOrdersStore = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredOrders.value.slice(start, end)
+})
+
+// Compute total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredOrders.value.length / itemsPerPage.value)
+})
+
+// Pagination methods
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
 
 // Feedback form data
 const feedbacks = reactive({
@@ -726,16 +919,10 @@ const feedbacks = reactive({
 
 const stationId = 'station-123'
 
-// User data
-/*const currentUser = reactive({
-  username: '',
-  email: '',
-  profilePhoto: '',
-})*/
-
 // Filter orders by status
 const filterOrders = (status) => {
   selectedFilter.value = status
+  currentPage.value = 1 // Reset to first page when filtering
 }
 
 // Prompt user to confirm cancellation
@@ -766,7 +953,7 @@ async function cancelOrder() {
     }
 
     // Update order status in Supabase first
-    const { error } = await supabase //data
+    const { error } = await supabase
       .from('orders')
       .update({ status: 'Cancelled' })
       .eq('id', targetOrder.id)
@@ -789,6 +976,7 @@ async function cancelOrder() {
 
     // Force switch to the Cancelled tab to show the user their cancelled order
     selectedFilter.value = 'Cancelled'
+    currentPage.value = 1 // Reset to first page
   } catch (err) {
     console.error('Unexpected error in cancelOrder:', err)
     alert('An unexpected error occurred while cancelling your order')
@@ -896,9 +1084,7 @@ const closeSuccessModal = () => {
 }
 
 // Load orders on component mount
-// Update the mapping function to use station_name consistently
 onMounted(async () => {
-  // Set loading state to true at the beginning
   isLoading.value = true
 
   try {
@@ -929,11 +1115,12 @@ onMounted(async () => {
           day: 'numeric',
           year: 'numeric',
         }),
-        station_name: r.station_name, // Use exact station name from database
+        station_name: r.station_name,
         quantity: r.quantity,
         total: r.total_price,
         orderType: r.options || '',
         status: r.status,
+        payment_method: r.payment_method || 'Not specified',
         deliveryAddress: r.address || '—',
         deliveryDate: new Date(year, month - 1, day).toLocaleDateString(),
         router: '/aquabon',
@@ -944,8 +1131,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading orders:', error)
   } finally {
-    // Turn off loading state when done (whether success or error)
-    // Add a small delay to ensure the loading animation is visible
     setTimeout(() => {
       isLoading.value = false
     }, 500)

@@ -5,10 +5,94 @@
         <span class="first-word">E</span>
         <span class="second-word">-HYDRO</span>
       </div>
+
+      <!-- Dynamic Search Bar in Navbar (shows when scrolled on station page) -->
+      <div
+        v-if="showSearchInNavbar"
+        class="navbar-search-container"
+        :class="{ 'search-visible': showSearchInNavbar }"
+      >
+        <v-form class="navbar-search-form" role="search" @submit.prevent="handleNavbarSearch">
+          <div class="animated-border-wrapper">
+            <v-text-field
+              v-model="navbarSearchInput"
+              variant="outlined"
+              placeholder="Search stations..."
+              density="compact"
+              hide-details
+              class="navbar-search-input"
+              prepend-inner-icon="mdi-magnify"
+              aria-label="Search"
+              @input="onNavbarSearchInput"
+            ></v-text-field>
+          </div>
+
+          <!-- Navbar Suggestions Dropdown -->
+          <ul
+            v-if="navbarSearchInput && navbarFilteredSuggestions.length"
+            class="navbar-suggestion-list"
+          >
+            <li
+              v-for="(suggestion, index) in navbarFilteredSuggestions"
+              :key="index"
+              @click="selectNavbarSuggestion(suggestion)"
+            >
+              {{ suggestion }}
+            </li>
+          </ul>
+        </v-form>
+      </div>
+
       <ul v-show="!mobile" class="navigation">
-        <li><router-link class="nav-link" :to="{ name: 'home' }">Home</router-link></li>
-        <li><router-link class="nav-link" :to="{ name: 'station' }">Station</router-link></li>
-        <li><router-link class="nav-link" :to="{ name: 'order' }">My Order</router-link></li>
+        <li>
+          <router-link
+            class="nav-link"
+            :class="{ 'nav-link-icon-mode': scrollPosition }"
+            :to="{ name: 'home' }"
+          >
+            <!-- Show text when NOT scrolled -->
+            <span v-if="!scrollPosition" class="nav-text">Home</span>
+
+            <!-- Show icon when scrolled -->
+            <div v-if="scrollPosition" class="nav-icon-container" data-tooltip="Home">
+              <v-icon class="nav-icon">mdi-home</v-icon>
+            </div>
+          </router-link>
+        </li>
+
+        <li>
+          <router-link
+            class="nav-link"
+            :class="{ 'nav-link-icon-mode': scrollPosition }"
+            :to="{ name: 'station' }"
+          >
+            <!-- Show text when NOT scrolled -->
+            <span v-if="!scrollPosition" class="nav-text">Station</span>
+
+            <!-- Show icon when scrolled -->
+            <div v-if="scrollPosition" class="nav-icon-container" data-tooltip="Station">
+              <v-icon class="nav-icon">mdi-storefront</v-icon>
+            </div>
+          </router-link>
+        </li>
+
+        <li>
+          <router-link
+            class="nav-link"
+            :class="{ 'nav-link-icon-mode': scrollPosition }"
+            :to="{ name: 'order' }"
+          >
+            <!-- Show text when NOT scrolled -->
+            <span v-if="!scrollPosition" class="nav-text">My Order</span>
+
+            <!-- Show icon when scrolled -->
+            <div v-if="scrollPosition" class="nav-icon-container" data-tooltip="My Order">
+              <v-icon class="nav-icon">mdi-package-variant</v-icon>
+            </div>
+          </router-link>
+        </li>
+
+        <!-- Notification and Profile stay the same - always icons -->
         <li class="notification-wrapper">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
           <!-- Show notification badge if there are notifications -->
@@ -48,6 +132,7 @@
             </div>
           </div>
         </li>
+
         <li class="profile-wrapper">
           <v-avatar
             size="45"
@@ -73,7 +158,6 @@
                 </template>
               </v-avatar>
               <p class="username">{{ fullname }}</p>
-
               <p class="email">{{ userStore.email }}</p>
               <router-link class="edit-btn" to="/profile">View Profile</router-link>
             </div>
@@ -90,7 +174,6 @@
                   <v-icon class="address-icon small-icon">mdi-map-marker</v-icon> Delivery Address
                 </router-link>
               </li>
-
               <li>
                 <a href="#" class="profile-link" @click.prevent="handleLogout">
                   <v-icon class="logout-icon small-icon">mdi-logout</v-icon> Logout
@@ -269,16 +352,17 @@
 
 <script setup>
 // Combined imports from both components
-import { onMounted, onUnmounted, ref, computed, provide } from 'vue'
+import { onMounted, onUnmounted, ref, computed, provide, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/orders'
 import { supabase } from '@/supabase'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import LoadingPage from '@/components/layout/LoadingPage.vue'
 
 const userStore = useUserStore()
 const orderStore = useOrderStore()
 const router = useRouter()
+const route = useRoute()
 
 // --- Refs ---
 const mobile = ref(null)
@@ -290,6 +374,36 @@ const isLoggingOut = ref(false)
 // New mobile menu refs from sidebar component
 const isMobileMenuOpen = ref(false)
 const openDropdown = ref(null)
+
+// Search bar refs
+const showSearchInNavbar = ref(false)
+const navbarSearchInput = ref('')
+const navbarFilteredSuggestions = ref([])
+
+// Search suggestions for both local and navbar search
+const searchSuggestions = [
+  'Aquasis Water Station',
+  'Aquabon Water Station',
+  'Cold Point Water Station',
+  'Water Drops Water Station',
+]
+
+const stations = {
+  // Exact matches
+  aquasis: { name: 'aquasis' },
+  'aquasis water station': { name: 'aquasis' },
+  aquabon: { name: 'aquabon' },
+  'aquabon water station': { name: 'aquabon' },
+  'cold point': { name: 'coldpoint' },
+  'cold point water station': { name: 'coldpoint' },
+  'water drops': { name: 'waterdrops' },
+  'water drops water station': { name: 'waterdrops' },
+
+  // Partial matches
+  aqua: { name: 'station' }, // Go to general station page for ambiguous searches
+  water: { name: 'station' },
+  station: { name: 'station' },
+}
 
 // --- Auth User Data ---
 const authUser = ref(null)
@@ -619,10 +733,22 @@ async function fetchInProgressOrders(userId) {
   }
 }
 
-// Update scroll position based on window scroll
+// Update your updateScroll function in the navbar component
 function updateScroll() {
   // If scrolled more than 50px, set scrollPosition to true
   scrollPosition.value = window.scrollY > 50
+
+  // Pages that have search bars (add your actual route names here)
+  const pagesWithSearchBar = ['station', 'aquabon', 'aquasis', 'coldpoint', 'waterdrops'] // Add all route names that have search bars
+
+  // Show/hide search bar in navbar based on scroll position and current route
+  if (pagesWithSearchBar.includes(route.name)) {
+    showSearchInNavbar.value = window.scrollY > 50
+    console.log('On page with search bar, should show:', showSearchInNavbar.value)
+  } else {
+    showSearchInNavbar.value = false
+    console.log('Not on page with search bar, hiding search')
+  }
 }
 
 // Modified addNotification function
@@ -710,6 +836,20 @@ async function completeLogout() {
   }
 }
 
+// Watch for route changes to hide search bar when not on station page
+watch(
+  () => route.name,
+  (newRouteName) => {
+    const pagesWithSearchBar = ['station', 'aquabon', 'aquasis', 'coldpoint', 'waterdrops'] // Same array
+
+    if (!pagesWithSearchBar.includes(newRouteName)) {
+      showSearchInNavbar.value = false
+      navbarSearchInput.value = ''
+      navbarFilteredSuggestions.value = []
+    }
+  },
+)
+
 // Provide notifications to other components
 provide('allNotifications', allNotifications)
 provide('orderNotifications', orderNotifications)
@@ -755,6 +895,131 @@ onUnmounted(() => {
     clearTimeout(toastTimeout.value)
   }
 })
+
+// Add this to your NavigationBar component's script section
+
+// Import inject to get data from station page
+import { inject } from 'vue'
+
+// In your setup function, add this:
+const stationSearchData = inject('stationSearchData', null)
+
+// Update your navbar search methods to use station page data when available:
+function onNavbarSearchInput() {
+  if (stationSearchData && route.name === 'station') {
+    // Use the station page's search input
+    stationSearchData.searchInput.value = navbarSearchInput.value
+    if (stationSearchData.onSearchInput) {
+      stationSearchData.onSearchInput()
+    }
+
+    // Update suggestions based on station page data
+    if (navbarSearchInput.value) {
+      navbarFilteredSuggestions.value = stationSearchData.searchSuggestions.filter((suggestion) =>
+        suggestion.toLowerCase().includes(navbarSearchInput.value.toLowerCase()),
+      )
+    } else {
+      navbarFilteredSuggestions.value = []
+    }
+  } else {
+    // Use default behavior for other pages
+    if (navbarSearchInput.value) {
+      navbarFilteredSuggestions.value = searchSuggestions.filter((suggestion) =>
+        suggestion.toLowerCase().includes(navbarSearchInput.value.toLowerCase()),
+      )
+    } else {
+      navbarFilteredSuggestions.value = []
+    }
+  }
+}
+
+function handleNavbarSearch() {
+  if (stationSearchData && route.name === 'station') {
+    // Use station page's search handler
+    stationSearchData.searchInput.value = navbarSearchInput.value
+    stationSearchData.handleSearch()
+    navbarSearchInput.value = ''
+    navbarFilteredSuggestions.value = []
+  } else {
+    // Handle search for other pages
+    const searchTerm = navbarSearchInput.value.trim().toLowerCase()
+
+    if (searchTerm) {
+      // Check if search term matches any station
+      if (searchTerm.includes('aquabon')) {
+        router.push({ name: 'aquabon' })
+      } else if (searchTerm.includes('aquasis')) {
+        router.push({ name: 'aquasis' })
+      } else if (searchTerm.includes('cold point')) {
+        router.push({ name: 'coldpoint' })
+      } else if (searchTerm.includes('water drops')) {
+        router.push({ name: 'waterdrops' })
+      } else {
+        // Try stations object
+        const stationRoute = stations[searchTerm]
+        if (stationRoute) {
+          router.push(stationRoute)
+        } else {
+          // Default to station page with search query
+          router.push({
+            name: 'station',
+            query: { search: navbarSearchInput.value },
+          })
+        }
+      }
+
+      navbarSearchInput.value = ''
+      navbarFilteredSuggestions.value = []
+    }
+  }
+}
+
+function selectNavbarSuggestion(suggestion) {
+  navbarSearchInput.value = suggestion
+  navbarFilteredSuggestions.value = []
+
+  if (stationSearchData && route.name === 'station') {
+    // Use station page's suggestion handler
+    stationSearchData.selectSuggestion(suggestion)
+    navbarSearchInput.value = ''
+  } else {
+    // Add navigation logic for other pages
+    const searchKey = suggestion.toLowerCase()
+
+    // Check if it matches any station
+    if (searchKey.includes('aquabon')) {
+      router.push({ name: 'aquabon' })
+    } else if (searchKey.includes('aquasis')) {
+      router.push({ name: 'aquasis' })
+    } else if (searchKey.includes('cold point')) {
+      router.push({ name: 'coldpoint' })
+    } else if (searchKey.includes('water drops')) {
+      router.push({ name: 'waterdrops' })
+    } else {
+      // Fallback - try to find exact match in stations object
+      const stationRoute = stations[searchKey]
+      if (stationRoute) {
+        router.push(stationRoute)
+      } else {
+        // If no specific station found, go to general station page
+        router.push({ name: 'station' })
+      }
+    }
+
+    // Clear search input after navigation
+    navbarSearchInput.value = ''
+  }
+}
+
+// Watch for changes in station page search input to sync with navbar
+watch(
+  () => stationSearchData?.searchInput?.value,
+  (newValue) => {
+    if (route.name === 'station' && newValue !== navbarSearchInput.value) {
+      navbarSearchInput.value = newValue || ''
+    }
+  },
+)
 </script>
 
 <style scoped>
@@ -804,6 +1069,34 @@ nav {
   @media (min-width: 1140px) {
     max-width: 1140px;
   }
+}
+
+.navbar-suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-suggestion-list li {
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-suggestion-list li:hover {
+  background-color: #f5f5f5;
+}
+
+.navbar-suggestion-list li:last-child {
+  border-bottom: none;
 }
 
 /* Bell icon animation */
@@ -861,18 +1154,6 @@ ul {
   font-family: 'Inter', sans-serif;
   color: #04448d;
   list-style: none;
-}
-
-/* Main navigation link style */
-.nav-link {
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #04448d;
-  text-decoration: none;
-  font-size: 18px;
-  transition: 0.5s ease all;
-  border-bottom: 1px solid transparent;
-  margin-right: 20px;
 }
 
 .nav-link:hover {
@@ -950,12 +1231,43 @@ li {
   color: #04448d;
 }
 
-.navigation {
-  display: flex;
-  align-items: center;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.navbar-search-container {
+  position: absolute;
+  left: 47%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+  color: #ffffff;
+}
+
+.navbar-search-container.search-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Navbar Search Form */
+.navbar-search-form {
+  width: 100%;
+}
+
+/* Navbar Search Input */
+.navbar-search-input {
+  position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-search-container {
+    width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-search-container {
+    width: 250px;
+  }
 }
 
 .icon-style {
@@ -1107,10 +1419,6 @@ li {
   text-decoration: underline;
 }
 
-.profile-wrapper {
-  position: relative;
-}
-
 .profile-dropdown ul {
   list-style: none;
   padding: 0;
@@ -1161,6 +1469,7 @@ li {
   justify-content: center;
   width: 30px;
   height: 30px;
+  align-self: center;
 }
 
 /* Notification icon colors */
@@ -1369,7 +1678,11 @@ li {
 }
 
 .scrolled-nav .v-icon {
-  color: #ffffff !important;
+  color: #ffffff;
+}
+
+.scrolled-nav .notif-icon {
+  color: #02b5fc;
 }
 
 /* Change brand colors when scrolled */
@@ -1498,6 +1811,247 @@ li {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* Add these styles to your component */
+
+/* Navigation base styles */
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Nav link base styles */
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  position: relative;
+  min-height: 30px;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+/* Text mode - default state */
+.nav-text {
+  font-size: 18px;
+  font-weight: 400;
+  color: #04448d;
+  font-family: 'Inter', sans-serif;
+  transition: 0.5s ease all;
+}
+
+/* Text mode - default state */
+.nav-text:hover {
+  color: #0a8fe7;
+  font-weight: 600;
+}
+
+.nav-link.router-link-active .nav-text {
+  color: #0a8fe7;
+  font-weight: 600;
+}
+
+/* Icon mode - scrolled state */
+.nav-link-icon-mode {
+  min-width: 35px;
+  min-height: 35px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+}
+.nav-link-icon-mode {
+  margin-right: 1px; /* or 4px for tighter spacing */
+}
+
+.nav-link-icon-mode:last-child {
+  margin-right: -30px;
+  right: 50px;
+}
+
+.nav-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon {
+  font-size: 24px !important;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+/* Tooltip styles */
+.nav-icon-container::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -55px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+/* Tooltip arrow */
+.nav-icon-container::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+/* Show tooltip on hover */
+.nav-icon-container:hover::after,
+.nav-icon-container:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Hover effects for icon mode */
+.nav-link-icon-mode:hover {
+  background: rgba(10, 143, 231, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(10, 143, 231, 0.2);
+}
+
+.nav-link-icon-mode:hover .nav-icon {
+  color: #0a8fe7;
+  transform: scale(1.15);
+}
+
+/* Active link styles */
+.nav-link-icon-mode.router-link-active {
+  background: rgba(10, 143, 231, 0.15);
+  box-shadow: 0 2px 8px rgba(10, 143, 231, 0.2);
+}
+
+.nav-link.router-link-active .nav-icon {
+  color: #0a8fe7;
+  transform: scale(1.1);
+}
+
+/* Scrolled navbar adjustments */
+.scrolled-nav .navigation {
+  gap: 8px;
+}
+
+.scrolled-nav {
+  padding: 8px 0;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Smooth transitions for the entire header */
+header {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Notification and profile icons stay unchanged */
+.notification-wrapper,
+.profile-wrapper {
+  position: relative;
+}
+
+.second-last,
+.profile-initials {
+  transition: all 0.3s ease;
+}
+
+.second-last:hover,
+.profile-initials:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+/* Animation for state changes */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nav-icon-container {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.nav-text {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .navigation {
+    gap: 15px;
+  }
+
+  .nav-link {
+    padding: 10px 16px;
+  }
+
+  .nav-link-icon-mode {
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+.animated-border-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  background: linear-gradient(270deg, #90caf9, #42a5f5, #89c4dd, #408db3, #90caf9);
+  background-size: 400% 400%;
+  animation: gradient-run 6s ease infinite;
+  opacity: 5;
+  border-radius: 6px;
+}
+
+/* Animation Keyframes */
+@keyframes gradient-run {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>
