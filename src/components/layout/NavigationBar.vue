@@ -93,11 +93,12 @@
         </li>
 
         <!-- Notification and Profile stay the same - always icons -->
-        <li class="notification-wrapper">
+        <li class="notification-wrapper" ref="notificationRef">
           <v-icon class="second-last" @click="toggleNotifications">mdi-bell</v-icon>
           <!-- Show notification badge if there are notifications -->
           <div v-if="hasNotifications" class="notification-badge">{{ notificationCount }}</div>
           <div v-if="showNotifications" class="notification-dropdown">
+            <!-- Your existing notification dropdown content -->
             <div class="notification-header">Recently Received Notifications</div>
             <div v-if="orderNotifications.length === 0" class="no-notifications">
               <v-icon>mdi-bell-off-outline</v-icon>
@@ -133,7 +134,7 @@
           </div>
         </li>
 
-        <li class="profile-wrapper">
+        <li class="profile-wrapper" ref="profileRef">
           <v-avatar
             size="45"
             color="#dbdbdb"
@@ -148,6 +149,7 @@
             </template>
           </v-avatar>
           <div v-if="showProfileDropdown" class="profile-dropdown">
+            <!-- Your existing profile dropdown content -->
             <div class="profile-info">
               <v-avatar size="70" color="#dbdbdb" class="profile-initials">
                 <template v-if="avatarUrl">
@@ -370,6 +372,7 @@ const windowWidth = ref(window.innerWidth)
 const showNotifications = ref(false)
 const showProfileDropdown = ref(false)
 const isLoggingOut = ref(false)
+const viewedNotificationIds = ref(new Set())
 
 // New mobile menu refs from sidebar component
 const isMobileMenuOpen = ref(false)
@@ -429,8 +432,13 @@ const avatarUrl = computed(() => {
 
 // --- Notification System ---
 const orderNotifications = ref([])
-const notificationCount = computed(() => orderNotifications.value.filter((n) => n.isNew).length)
 const hasNotifications = computed(() => notificationCount.value > 0)
+
+// Modified computed property for notification count
+const notificationCount = computed(() => {
+  return orderNotifications.value.filter((n) => n.isNew && !viewedNotificationIds.value.has(n.id))
+    .length
+})
 
 // Toast notification system
 const showToast = ref(false)
@@ -496,20 +504,38 @@ function checkScreen() {
 
 function toggleNotifications() {
   showNotifications.value = !showNotifications.value
-  showProfileDropdown.value = false
+  showProfileDropdown.value = false // Close profile dropdown when opening notifications
 
-  // Mark notifications as read when opened
+  // Mark notifications as viewed when opened
   if (showNotifications.value) {
+    // Add all current notification IDs to viewed set
+    orderNotifications.value.forEach((notif) => {
+      if (notif.isNew) {
+        viewedNotificationIds.value.add(notif.id)
+      }
+    })
+
+    // Also mark them as not new in the array (optional, for consistency)
     orderNotifications.value = orderNotifications.value.map((notif) => ({
       ...notif,
       isNew: false,
     }))
+
+    // Store viewed IDs in sessionStorage to persist across page navigation
+    try {
+      sessionStorage.setItem(
+        'viewedNotificationIds',
+        JSON.stringify([...viewedNotificationIds.value]),
+      )
+    } catch (e) {
+      console.log('SessionStorage not available, using memory only')
+    }
   }
 }
 
 function toggleProfileDropdown() {
   showProfileDropdown.value = !showProfileDropdown.value
-  showNotifications.value = false
+  showNotifications.value = false // Close notifications when opening profile dropdown
 }
 
 // Function to show toast notification
@@ -658,7 +684,10 @@ async function fetchInitialNotifications() {
 
     const userId = userData.user.id
 
-    // Fetch recent orders to initialize notifications
+    // Initialize viewed notifications from storage
+    initializeViewedNotifications()
+
+    // Rest of your existing code remains the same...
     const { data, error } = await supabase
       .from('orders')
       .select('*')
@@ -700,7 +729,10 @@ async function fetchInitialNotifications() {
         title,
         message,
         timestamp: new Date(order.created_at).toLocaleString(),
-        isNew: order.status === 'To Deliver' || order.status === 'Processing',
+        // Check if this notification was already viewed
+        isNew:
+          !viewedNotificationIds.value.has(order.id) &&
+          (order.status === 'To Deliver' || order.status === 'Processing'),
         id: order.id,
       }
     })
@@ -709,6 +741,16 @@ async function fetchInitialNotifications() {
     setupOrderStatusListener(userId)
   } catch (err) {
     console.error('Failed to fetch initial notifications:', err)
+  }
+}
+
+// Optional: Add a function to clear viewed notifications on logout
+function clearViewedNotifications() {
+  viewedNotificationIds.value.clear()
+  try {
+    sessionStorage.removeItem('viewedNotificationIds')
+  } catch (e) {
+    console.log('Could not clear viewed notifications from storage')
   }
 }
 
@@ -772,8 +814,6 @@ function addNotification(type, title, message) {
 
   // Add to beginning of array
   orderNotifications.value.unshift(notification)
-
-  // Also update the allNotifications array for sharing with notification page
   allNotifications.value.unshift(notification)
 
   console.log('Current notifications:', orderNotifications.value.length)
@@ -785,6 +825,19 @@ function addNotification(type, title, message) {
   if (type === 'progress') toastType = 'info'
 
   showStatusToast(`${title}: ${message}`, toastType)
+}
+
+function initializeViewedNotifications() {
+  try {
+    const stored = sessionStorage.getItem('viewedNotificationIds')
+    if (stored) {
+      const ids = JSON.parse(stored)
+      viewedNotificationIds.value = new Set(ids)
+    }
+  } catch (e) {
+    console.log('Could not load viewed notifications from storage')
+    viewedNotificationIds.value = new Set()
+  }
 }
 
 // Modified logout function with loading screen
@@ -805,6 +858,9 @@ async function completeLogout() {
     // Clear user data from store
     userStore.clearUserData()
 
+    // Clear viewed notifications
+    clearViewedNotifications()
+
     // Clean up any Supabase subscription
     if (orderSubscription) {
       orderSubscription.unsubscribe()
@@ -824,18 +880,12 @@ async function completeLogout() {
     }
 
     console.log('Successfully logged out, redirecting to login')
-
-    // Explicitly force navigation to login page
-    window.location.href = '/login' // Use direct location redirect instead of router.push
-
-    // If you prefer using router (comment out the line above and uncomment this)
-    // router.push({ name: 'login', replace: true })
+    window.location.href = '/login'
   } catch (err) {
     console.error('Logout completion failed:', err)
     isLoggingOut.value = false
   }
 }
-
 // Watch for route changes to hide search bar when not on station page
 watch(
   () => route.name,
@@ -858,6 +908,10 @@ provide('orderNotifications', orderNotifications)
 onMounted(async () => {
   window.addEventListener('resize', checkScreen)
   window.addEventListener('scroll', updateScroll)
+
+  // Add click outside listener for dropdowns
+  document.addEventListener('click', handleClickOutsideRefs)
+
   checkScreen()
   updateScroll()
 
@@ -885,6 +939,9 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkScreen)
   window.removeEventListener('scroll', updateScroll)
 
+  // Remove click outside listener
+  document.removeEventListener('click', handleClickOutsideRefs)
+
   // Clean up Supabase subscription
   if (orderSubscription) {
     orderSubscription.unsubscribe()
@@ -895,6 +952,27 @@ onUnmounted(() => {
     clearTimeout(toastTimeout.value)
   }
 })
+
+// Alternative method using refs (more reliable)
+const notificationRef = ref(null)
+const profileRef = ref(null)
+
+// Function to handle click outside using refs
+function handleClickOutsideRefs(event) {
+  // Close notifications if clicking outside
+  if (
+    showNotifications.value &&
+    notificationRef.value &&
+    !notificationRef.value.contains(event.target)
+  ) {
+    showNotifications.value = false
+  }
+
+  // Close profile dropdown if clicking outside
+  if (showProfileDropdown.value && profileRef.value && !profileRef.value.contains(event.target)) {
+    showProfileDropdown.value = false
+  }
+}
 
 // Add this to your NavigationBar component's script section
 
@@ -1182,12 +1260,58 @@ ul {
 .profile-link {
   color: #04448d !important;
   font-size: 16px;
-  transition: 0.3s ease all;
-  text-decoration: none;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 6px;
+  gap: 12px;
 }
 
+/* Profile link hover effect */
 .profile-link:hover {
   color: #02adef !important;
+  background-color: rgba(2, 173, 239, 0.1) !important;
+  transform: translateX(2px);
+}
+
+/* Profile link visited state */
+.profile-link:visited {
+  color: #04448d !important;
+}
+
+.profile-link:visited:hover {
+  color: #02adef !important;
+}
+
+/* Icon colors in profile dropdown */
+.profile-dropdown .v-icon {
+  color: #04448d !important;
+  transition: color 0.3s ease !important;
+}
+
+/* Icon hover effect */
+.profile-link:hover .v-icon {
+  color: #02adef !important;
+}
+
+/* Specific icon hover styles */
+.profile-link:hover .edit-icon,
+.profile-link:hover .address-icon,
+.profile-link:hover .logout-icon {
+  color: #02adef !important;
+}
+
+/* Make sure the list items don't interfere */
+.profile-dropdown ul li {
+  padding: 0 !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.profile-dropdown ul li:last-child {
+  border-bottom: none;
 }
 
 li {
@@ -1197,17 +1321,15 @@ li {
 
 .last,
 .second-last {
-  margin-left: -2.7rem !important;
+  margin-left: -2rem !important;
 }
 
 .last {
-  font-size: 36px;
-  border-style: none;
+  font-size: 34px;
 }
 
 .second-last {
   font-size: 32px;
-  border-style: none;
 }
 
 .branding {
@@ -1310,8 +1432,8 @@ li {
 
 .notification-dropdown {
   position: absolute;
-  right: 0;
-  top: 58px;
+  right: -10px;
+  top: 66px;
   width: 350px;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -1435,8 +1557,8 @@ li {
 
 .profile-dropdown {
   position: absolute;
-  right: 0;
-  top: 70px;
+  right: -2px;
+  top: 75px;
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -1579,10 +1701,6 @@ li {
   font-size: 12px;
   margin-left: 5px;
   font-weight: bold;
-}
-
-.notification-wrapper {
-  position: relative;
 }
 
 .status-toast {
@@ -1961,6 +2079,15 @@ li {
   gap: 8px;
 }
 
+.navigation li:nth-last-child(2) {
+  margin-right: 15px; /* Space after notification icon */
+}
+
+.navigation li:last-child {
+  margin-left: 0;
+  margin-top: 8px;
+}
+
 .scrolled-nav {
   padding: 8px 0;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
@@ -1977,6 +2104,14 @@ header {
 .notification-wrapper,
 .profile-wrapper {
   position: relative;
+}
+
+.notification-wrapper {
+  margin-right: 15px; /* Add space between notification and profile */
+}
+
+.profile-wrapper {
+  margin-left: 0; /* Remove extra left margin */
 }
 
 .second-last,
