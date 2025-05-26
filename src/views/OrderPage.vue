@@ -17,7 +17,7 @@
               <v-icon size="64" color="#02adef">mdi-cart-outline</v-icon>
               <h3>No Orders Found</h3>
               <p>You haven't placed any orders</p>
-              <router-link to="/aquabon" class="btn-primary no-underline"> Order Now </router-link>
+              <router-link to="/station" class="btn-primary no-underline"> Order Now </router-link>
             </div>
           </div>
 
@@ -304,9 +304,9 @@
           <div class="modal" v-if="showSuccessModal">
             <div class="modal-content" style="text-align: center">
               <p>🎉 Thank you for your feedback!</p>
-              <p>Your review helps improve the service of Aquabon Water Refilling Station.</p>
+              <p>Your review helps improve the service of {{ selectedOrder?.station_name }}.</p>
               <div>
-                <router-link to="/aquabon#review-section">
+                <router-link :to="getStationReviewLink()">
                   <v-btn class="submission-view-btn mt-3">View review</v-btn>
                 </router-link>
               </div>
@@ -728,6 +728,70 @@ table th {
   font-size: 14px;
 }
 
+/* Empty State Styles for New Users */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+  background: #d3eaff;
+  border-radius: 8px;
+  padding: 40px 20px;
+  margin: 20px 0;
+}
+
+.empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #666;
+  max-width: 400px;
+}
+
+.empty-state-content h3 {
+  margin: 8px 0 4px 0;
+  color: #333;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.empty-state-content p {
+  margin: 0 0 8px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.empty-state-content .btn-primary {
+  padding: 12px 24px;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* Responsive adjustments for empty state */
+@media (max-width: 768px) {
+  .empty-state {
+    padding: 30px 15px;
+    min-height: 300px;
+  }
+
+  .empty-state-content h3 {
+    font-size: 20px;
+  }
+
+  .empty-state-content p {
+    font-size: 14px;
+  }
+
+  .empty-state-content .btn-primary {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
 /* Rate Modal Styles */
 .orderpage-submit-btn {
   font-family: 'inter', sans-serif;
@@ -1136,4 +1200,38 @@ onMounted(async () => {
     }, 500)
   }
 })
+
+// Get the station-specific review link
+const getStationReviewLink = () => {
+  if (!selectedOrder.value) return '/aquabon'
+  
+  const stationName = selectedOrder.value.station_name.toLowerCase().trim()
+  
+  // Debug: Check what the actual station name is
+  console.log('Station name from database:', selectedOrder.value.station_name)
+  console.log('Lowercase station name:', stationName)
+  
+  // Map station names to their respective routes
+  const stationRoutes = {
+    'aquabon': '/aquabon#review-section',
+    'aquabon water refilling station': '/aquabon#review-section',
+    'aquasis': '/aquasis#review-section', 
+    'aquasis water refilling station': '/aquasis#review-section',
+    'coldpoint': '/coldpoint#review-section',
+    'cold point': '/coldpoint#review-section',
+    'coldpoint water refilling station': '/coldpoint#review-section',
+    'cold point water refilling station': '/coldpoint#review-section',
+    'waterdrops': '/waterdrops#review-section',
+    'water drops': '/waterdrops#review-section',
+    'waterdrops water refilling station': '/waterdrops#review-section',
+    'water drops water refilling station': '/waterdrops#review-section'
+  }
+  
+  // Debug: Check if station name exists in routes
+  const foundRoute = stationRoutes[stationName]
+  console.log('Found route:', foundRoute)
+  
+  // Return the matching route or default to aquabon
+  return foundRoute || '/aquabon#review-section'
+}
 </script>

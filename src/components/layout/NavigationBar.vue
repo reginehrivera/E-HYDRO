@@ -1680,7 +1680,7 @@ li {
 .notification-badge {
   position: absolute;
   top: 8px;
-  right: 17px;
+  right: 9px;
   background-color: #ff5252;
   color: white;
   border-radius: 50%;
