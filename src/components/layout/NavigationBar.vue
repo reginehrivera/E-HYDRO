@@ -1355,7 +1355,7 @@ li {
 
 .navbar-search-container {
   position: absolute;
-  left: 47%;
+  left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
@@ -1949,7 +1949,7 @@ li {
   justify-content: center;
   text-decoration: none;
   position: relative;
-  min-height: 30px;
+  min-height: 40px;
   background: transparent;
   border-bottom: 1px solid transparent;
 }
@@ -1976,8 +1976,6 @@ li {
 
 /* Icon mode - scrolled state */
 .nav-link-icon-mode {
-  min-width: 35px;
-  min-height: 35px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 8px;
 }
@@ -1986,7 +1984,7 @@ li {
 }
 
 .nav-link-icon-mode:last-child {
-  margin-right: -30px;
+  margin-right: -60px;
   right: 50px;
 }
 
@@ -1998,7 +1996,7 @@ li {
 }
 
 .nav-icon {
-  font-size: 24px !important;
+  font-size: 28px !important;
   color: #555;
   transition: all 0.3s ease;
 }
@@ -2012,7 +2010,7 @@ li {
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.85);
   color: white;
-  padding: 8px 12px;
+  padding: 6px 8px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -2029,14 +2027,14 @@ li {
 .nav-icon-container::before {
   content: '';
   position: absolute;
-  bottom: -20px;
+  bottom: -25px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 6px solid rgba(0, 0, 0, 0.85);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid rgba(0, 0, 0, 0.85);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2051,13 +2049,6 @@ li {
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* Hover effects for icon mode */
-.nav-link-icon-mode:hover {
-  background: rgba(10, 143, 231, 0.12);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(10, 143, 231, 0.2);
-}
-
 .nav-link-icon-mode:hover .nav-icon {
   color: #0a8fe7;
   transform: scale(1.15);
@@ -2066,7 +2057,7 @@ li {
 /* Active link styles */
 .nav-link-icon-mode.router-link-active {
   background: rgba(10, 143, 231, 0.15);
-  box-shadow: 0 2px 8px rgba(10, 143, 231, 0.2);
+  box-shadow: 0 2px 2px rgba(10, 143, 231, 0.2);
 }
 
 .nav-link.router-link-active .nav-icon {
@@ -2156,37 +2147,9 @@ header {
   }
 
   .nav-link-icon-mode {
-    padding: 10px;
+    padding: 5px;
     min-width: 44px;
     min-height: 44px;
-  }
-}
-
-.animated-border-wrapper::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  z-index: -1;
-  background: linear-gradient(270deg, #90caf9, #42a5f5, #89c4dd, #408db3, #90caf9);
-  background-size: 400% 400%;
-  animation: gradient-run 6s ease infinite;
-  opacity: 5;
-  border-radius: 6px;
-}
-
-/* Animation Keyframes */
-@keyframes gradient-run {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
   }
 }
 </style>
