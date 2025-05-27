@@ -114,7 +114,9 @@
                         <button class="btn-primary" @click="viewDetails(order)">Details</button>
                       </template>
                       <template v-if="order.status === 'Completed'">
-                        <router-link :to="order.router" class="btn-border no-underline"
+                        <router-link
+                          :to="getStationRoute(order.station_name)"
+                          class="btn-border no-underline"
                           >Re-Order</router-link
                         >
                         <button class="btn-primary" @click="openRateModal(order)">Rate</button>
@@ -196,20 +198,7 @@
           <!-- View Details Modal -->
           <div class="modal" v-if="showDetailsModal">
             <div class="modal-content" style="position: relative">
-              <button
-                style="
-                  position: absolute;
-                  top: 23px;
-                  right: 30px;
-                  background: none;
-                  border: none;
-                  font-size: 18px;
-                  cursor: pointer;
-                "
-                @click="showDetailsModal = false"
-              >
-                ✖
-              </button>
+              <button class="close-button" @click="showDetailsModal = false">✖</button>
               <h3>Order #{{ selectedOrder?.id }}</h3>
               <div class="info-box">
                 <h4><strong>Order Summary</strong></h4>
@@ -631,6 +620,30 @@
   align-items: center;
   z-index: 999;
   padding: 20px;
+}
+
+.close-button {
+  position: absolute;
+  top: 23px;
+  right: 30px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    background 0.3s,
+    color 0.3s;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background-color: red;
+  color: white;
 }
 
 .modal-content {
@@ -1187,7 +1200,7 @@ onMounted(async () => {
         payment_method: r.payment_method || 'Not specified',
         deliveryAddress: r.address || '—',
         deliveryDate: new Date(year, month - 1, day).toLocaleDateString(),
-        router: '/aquabon',
+        router: '/station',
       }
     })
 
@@ -1204,34 +1217,62 @@ onMounted(async () => {
 // Get the station-specific review link
 const getStationReviewLink = () => {
   if (!selectedOrder.value) return '/aquabon'
-  
+
   const stationName = selectedOrder.value.station_name.toLowerCase().trim()
-  
+
   // Debug: Check what the actual station name is
   console.log('Station name from database:', selectedOrder.value.station_name)
   console.log('Lowercase station name:', stationName)
-  
+
   // Map station names to their respective routes
   const stationRoutes = {
-    'aquabon': '/aquabon#review-section',
+    aquabon: '/aquabon#review-section',
     'aquabon water refilling station': '/aquabon#review-section',
-    'aquasis': '/aquasis#review-section', 
+    aquasis: '/aquasis#review-section',
     'aquasis water refilling station': '/aquasis#review-section',
-    'coldpoint': '/coldpoint#review-section',
+    coldpoint: '/coldpoint#review-section',
     'cold point': '/coldpoint#review-section',
     'coldpoint water refilling station': '/coldpoint#review-section',
     'cold point water refilling station': '/coldpoint#review-section',
-    'waterdrops': '/waterdrops#review-section',
+    waterdrops: '/waterdrops#review-section',
     'water drops': '/waterdrops#review-section',
     'waterdrops water refilling station': '/waterdrops#review-section',
-    'water drops water refilling station': '/waterdrops#review-section'
+    'water drops water refilling station': '/waterdrops#review-section',
   }
-  
+
   // Debug: Check if station name exists in routes
   const foundRoute = stationRoutes[stationName]
   console.log('Found route:', foundRoute)
-  
+
   // Return the matching route or default to aquabon
   return foundRoute || '/aquabon#review-section'
+}
+
+// Add this method to your script setup section:
+
+// Get the station-specific route for re-ordering
+const getStationRoute = (stationName) => {
+  if (!stationName) return '/station'
+
+  const stationNameLower = stationName.toLowerCase().trim()
+
+  // Map station names to their respective routes
+  const stationRoutes = {
+    aquabon: '/aquabon',
+    'aquabon water refilling station': '/aquabon',
+    aquasis: '/aquasis',
+    'aquasis water refilling station': '/aquasis',
+    coldpoint: '/coldpoint',
+    'cold point': '/coldpoint',
+    'coldpoint water refilling station': '/coldpoint',
+    'cold point water refilling station': '/coldpoint',
+    waterdrops: '/waterdrops',
+    'water drops': '/waterdrops',
+    'waterdrops water refilling station': '/waterdrops',
+    'water drops water refilling station': '/waterdrops',
+  }
+
+  // Return the matching route or default to /station
+  return stationRoutes[stationNameLower] || '/station'
 }
 </script>
